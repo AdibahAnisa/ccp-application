@@ -44,7 +44,7 @@
   "confirmDeletion": "Kepastian Pemadaman",
   "confirmDeletionDesc": "Adakah anda pasti mahu memadamkan nombor plat",
   "welcome": "Selamat Datang",
-  "availableBalance": "Baki Tersedia",
+  "tokenBalance": "Baki Token",
   "updatedOn": "Dikemas kini Pada",
   "parkingTimeRemaining": "Baki Masa Letak Kereta",
   "ourService": "Perkhidmatan Kami",

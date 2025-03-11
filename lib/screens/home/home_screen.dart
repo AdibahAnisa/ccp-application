@@ -434,7 +434,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    AppLocalizations.of(context)!.availableBalance,
+                    AppLocalizations.of(context)!.tokenBalance,
                     style: textStyleNormal(
                       color: details['color'] == 4294961979 ? kBlack : kWhite,
                       fontWeight: FontWeight.bold,
