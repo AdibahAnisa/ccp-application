@@ -6,7 +6,9 @@ import 'package:open_file/open_file.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:project/constant.dart';
 import 'package:project/theme.dart';
+import 'package:project/widget/custom_dialog.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class WebViewPage extends StatefulWidget {
   final String title;
@@ -137,24 +139,41 @@ class _WebViewPageState extends State<WebViewPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: kBackgroundColor,
-      appBar: AppBar(
-        toolbarHeight: 100,
-        foregroundColor:
-            widget.details['color'] == 4294961979 ? kBlack : kWhite,
-        backgroundColor: Color(widget.details['color']),
-        centerTitle: true,
-        title: Text(
-          'FPX Payment',
-          style: textStyleNormal(
-            fontSize: 26,
-            color: widget.details['color'] == 4294961979 ? kBlack : kWhite,
-            fontWeight: FontWeight.bold,
+    return WillPopScope(
+      onWillPop: () async {
+        CustomDialog.show(
+          context,
+          title: AppLocalizations.of(context)!.closeReceipt,
+          description: AppLocalizations.of(context)!.closeReceiptDesc,
+          btnOkText: AppLocalizations.of(context)!.exit,
+          btnCancelText: AppLocalizations.of(context)!.cancel,
+          btnOkOnPress: () {
+            Navigator.pop(context);
+            Navigator.pop(context);
+          },
+          btnCancelOnPress: () => Navigator.pop(context),
+        );
+        return Future.value(false);
+      },
+      child: Scaffold(
+        backgroundColor: kBackgroundColor,
+        appBar: AppBar(
+          toolbarHeight: 100,
+          foregroundColor:
+              widget.details['color'] == 4294961979 ? kBlack : kWhite,
+          backgroundColor: Color(widget.details['color']),
+          centerTitle: true,
+          title: Text(
+            'FPX Payment',
+            style: textStyleNormal(
+              fontSize: 26,
+              color: widget.details['color'] == 4294961979 ? kBlack : kWhite,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
+        body: WebViewWidget(controller: _controller),
       ),
-      body: WebViewWidget(controller: _controller),
     );
   }
 }
