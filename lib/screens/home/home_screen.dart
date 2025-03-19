@@ -439,9 +439,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _topWidget(
       BuildContext context, UserModel userModel, DateTime expiredAt) {
     return Container(
-      height: expiredAt.isAfter(currentTime!)
-          ? MediaQuery.of(context).size.height * 0.37
-          : MediaQuery.of(context).size.height * 0.45,
+      height: MediaQuery.of(context).size.height * 0.37,
       decoration: BoxDecoration(
         color: Color(details['color']),
         borderRadius: const BorderRadius.only(

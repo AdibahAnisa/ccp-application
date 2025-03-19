@@ -57,5 +57,9 @@
     "Transactionid",
     "unfocus",
     "vsync"
-  ]
+  ],
+  "flutterTools.displayGetxContextMenu": true,
+  "flutterTools.displayMobxContextMenu": false,
+  "flutterTools.displayRiverpodContextMenu": true,
+  "flutterTools.displayModularContextMenu": false
 }

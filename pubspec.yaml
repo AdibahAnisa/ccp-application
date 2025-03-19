@@ -94,6 +94,7 @@ dependencies:
   dio: ^5.8.0+1
   open_file: ^3.5.10
   file_saver: ^0.2.14
+  webview_windows: ^0.4.0
 
 dependency_overrides:
   uuid: ^4.1.0

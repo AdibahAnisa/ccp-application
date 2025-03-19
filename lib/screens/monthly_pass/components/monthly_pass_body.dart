@@ -977,6 +977,7 @@ class _MonthlyPassBodyState extends State<MonthlyPassBody> {
                             ),
                           ),
                         ),
+                        spaceVertical(height: 20.0),
                       ],
                     ),
                   ),
