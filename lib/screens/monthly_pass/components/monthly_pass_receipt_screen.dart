@@ -80,6 +80,7 @@ class _MonthlyPassReceiptScreenState extends State<MonthlyPassReceiptScreen> {
     return Scaffold(
       backgroundColor: kBackgroundColor,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         toolbarHeight: 100,
         foregroundColor: details['color'] == 4294961979 ? kBlack : kWhite,
         backgroundColor: Color(details['color']),

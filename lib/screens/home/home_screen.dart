@@ -22,6 +22,7 @@ import 'package:project/widget/custom_dialog.dart';
 import 'package:project/widget/loading_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -42,6 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Location locationController = Location();
   late final List<PromotionMonthlyPassModel> promotionMonthlyPassModel;
   List<NotificationModel> notificationList = []; // List to store models
+  late final WebViewController _webViewController;
 
   DateTime? expiredAt;
 
@@ -60,6 +62,25 @@ class _HomeScreenState extends State<HomeScreen> {
     _getPromotionMonthlyPass();
     _getPegeypayToken();
     _getNotification();
+    _webViewController = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onProgress: (int progress) {},
+          onPageStarted: (String url) {},
+          onPageFinished: (String url) {},
+          onHttpError: (HttpResponseError error) {},
+          onWebResourceError: (WebResourceError error) {},
+          onNavigationRequest: (NavigationRequest request) {
+            if (request.url.startsWith('https://mst.sirim.my/widget')) {
+              return NavigationDecision.prevent;
+            }
+            return NavigationDecision.navigate;
+          },
+        ),
+      )
+      ..loadRequest(
+          Uri.parse('https://mst.sirim.my/widget')); // Set your URL here
   }
 
   Future<void> getCurrentTime() async {
@@ -249,37 +270,42 @@ class _HomeScreenState extends State<HomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Wrap Stack inside a Container or SizedBox with specific height
-                      SizedBox(
+                      Container(
+                        decoration: const BoxDecoration(
+                          color: kBackgroundColor,
+                        ),
                         height: MediaQuery.of(context).size.height *
                             0.48, // You can adjust this based on your layout
                         child: LayoutBuilder(
                           builder: (context, constraints) {
-                            double screenHeight = constraints.maxHeight;
-                            double screenWidth = constraints.maxWidth;
 
                             return Stack(
                               children: [
-                                // Position the countdown at the top or any desired position
+                                // WebView is placed at the back
                                 Positioned(
-                                  top: screenHeight *
-                                      0.0, // Adjust the top position based on screen size
-                                  left: screenWidth *
-                                      0.0, // Adjust left position if necessary
-                                  right: screenWidth *
-                                      0.0, // Adjust right position if necessary
-                                  child: CountdownScreen(
-                                    details: details,
-                                    expiredAt: expiredAt!,
-                                    currentTime: currentTime!,
-                                    // expiredAt: DateTime.now().add(Duration(
-                                    //   seconds: 0,
-                                    // )),
+                                  top: 250,
+                                  left: 0,
+                                  right: 0,
+                                  bottom:
+                                      0, // Optional: fill the rest of the screen
+                                  child: Container(
+                                    padding: const EdgeInsets.only(top: 20.0),
+                                    decoration: const BoxDecoration(
+                                      color:kBackgroundColor,
+                                      borderRadius: BorderRadius.only(
+                                        bottomLeft: Radius.circular(40.0),
+                                        bottomRight: Radius.circular(40.0),
+                                      ),
+                                    ),
+                                    child: WebViewWidget(
+                                      controller: _webViewController,
+                                    ),
                                   ),
                                 ),
-                                // Position the top widget
+
+                                // Top Widget (User Info / Balance) ABOVE the WebView
                                 Positioned(
-                                  top:
-                                      0, // You can adjust this value based on screen height
+                                  top: 0,
                                   left: 0,
                                   right: 0,
                                   child: _topWidget(
@@ -290,7 +316,15 @@ class _HomeScreenState extends State<HomeScreen> {
                           },
                         ),
                       ),
-                      const SliderScreen(),
+                      CountdownScreen(
+                                    details: details,
+                                    expiredAt: expiredAt!,
+                                    currentTime: currentTime!,
+                                  ),
+                      const Padding(
+                        padding: EdgeInsets.only(top: 20.0),
+                        child: SliderScreen(),
+                      ),
                       spaceVertical(height: 20.0),
                       ServiceScreen(
                         details: details,

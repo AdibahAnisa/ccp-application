@@ -114,10 +114,10 @@ class _CountdownScreenState extends State<CountdownScreen> {
       visible: remainingTime > Duration.zero ? true : false,
       child: Container(
         width: double.infinity,
-        height: MediaQuery.of(context).size.height * 0.46,
+        height: MediaQuery.of(context).size.height * 0.1,
         padding: const EdgeInsets.only(bottom: 10.0),
         decoration: BoxDecoration(
-          color: Color(widget.details['color']).withOpacity(0.5),
+          color: Color(widget.details['color']),
           borderRadius: const BorderRadius.only(
             bottomLeft: Radius.circular(40.0),
             bottomRight: Radius.circular(40.0),

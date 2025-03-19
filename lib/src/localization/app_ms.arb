@@ -164,5 +164,7 @@
   "delete": "Padam",
   "deleteDesc": "Adakah anda pasti mahu memadam akaun anda? Tindakan ini tidak boleh dibuat semula.",
   "typeDelete": "Taip 'PADAM' untuk mengesahkan",
-  "successDelete": "Akaun berjaya dipadam"
+  "successDelete": "Akaun berjaya dipadam",
+  "confirmPayment": "Sahkan Pembayaran",
+  "confirmPaymentDesc": "Adakah anda pasti mahu mengesahkan pembayaran ini?"
 }

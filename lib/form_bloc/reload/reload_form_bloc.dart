@@ -93,11 +93,23 @@ class ReloadFormBloc extends FormBloc<String, String> {
 
         GlobalState.paymentMethod = 'FPX';
 
+        if (response['error'] == "Failed to refresh token") {
+          await PegeypayResources.refreshToken(
+            prefix: '/paymentfpx/public',
+          );
+
+          await getFPX();
+
+          await onSubmitting();
+        }
+
         if (response['SFM']['Constant'] == "SFM_GENERAL_ERROR") {
           // emitFailure(failureResponse: response['error'].toString());
           await PegeypayResources.refreshToken(
             prefix: '/paymentfpx/public',
           );
+
+          await getFPX();
 
           await onSubmitting();
         } else {

@@ -13,6 +13,7 @@ import 'package:project/models/models.dart';
 import 'package:project/resources/resources.dart';
 import 'package:project/routes/route_manager.dart';
 import 'package:project/theme.dart';
+import 'package:project/widget/custom_dialog.dart';
 import 'package:project/widget/loading_dialog.dart';
 import 'package:project/widget/primary_button.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -402,8 +403,22 @@ class _ReloadPaymentScreenState extends State<SummonsPaymentScreen> {
               borderRadius: 10.0,
               buttonWidth: 0.8,
               onPressed: () {
-                // formBloc!.paymentMethod.updateValue("QR");
-                formBloc!.submit();
+                CustomDialog.show(
+                  context,
+                  dialogType: DialogType.danger,
+                  title: AppLocalizations.of(context)!.confirmPayment,
+                  description: AppLocalizations.of(context)!.confirmPaymentDesc,
+                  btnOkOnPress: () {
+                    // formBloc!.paymentMethod.updateValue("QR");
+                    formBloc!.submit();
+                    Navigator.pop(context);
+                  },
+                  btnOkText: AppLocalizations.of(context)!.yes,
+                  btnCancelOnPress: () {
+                    Navigator.pop(context);
+                  },
+                  btnCancelText: AppLocalizations.of(context)!.no,
+                );
               },
               label: Text(
                 AppLocalizations.of(context)!.pay,

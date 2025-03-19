@@ -8,6 +8,7 @@ import 'package:project/constant.dart';
 import 'package:project/form_bloc/form_bloc.dart';
 import 'package:project/models/models.dart';
 import 'package:project/theme.dart';
+import 'package:project/widget/custom_dialog.dart';
 import 'package:project/widget/primary_button.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -86,72 +87,87 @@ class _MonthlyPassPaymentScreenState extends State<MonthlyPassPaymentScreen> {
         floatingActionButton: PrimaryButton(
           borderRadius: 10.0,
           buttonWidth: 0.8,
-          onPressed: () async {
-            final receiptNo = generateMonthlyPassReceiptNumber();
+          onPressed: () {
+            CustomDialog.show(
+              context,
+              dialogType: DialogType.danger,
+              title: AppLocalizations.of(context)!.confirmPayment,
+              description: AppLocalizations.of(context)!.confirmPaymentDesc,
+              btnOkOnPress: () async {
+                final receiptNo = generateMonthlyPassReceiptNumber();
 
-            // Get the current date and time
-            final DateTime currentDateTime = await NTP.now();
-            final String currentDate =
-                DateFormat('yyyy-MM-dd').format(currentDateTime);
-            final String currentTime =
-                DateFormat('HH:mm:ss').format(currentDateTime);
+                // Get the current date and time
+                final DateTime currentDateTime = await NTP.now();
+                final String currentDate =
+                    DateFormat('yyyy-MM-dd').format(currentDateTime);
+                final String currentTime =
+                    DateFormat('HH:mm:ss').format(currentDateTime);
 
-            // Adjust end time based on the duration
-            DateTime? endDateTime;
+                // Adjust end time based on the duration
+                DateTime? endDateTime;
 
-            switch (duration) {
-              case '1 month':
-              case '1 bulan':
-                endDateTime =
-                    currentDateTime.add(Duration(days: 30)); // Approx 1 month
-                break;
-              case '3 months':
-              case '3 bulan':
-                endDateTime =
-                    currentDateTime.add(Duration(days: 90)); // Approx 6 months
-                break;
-              case '12 months':
-              case '12 bulan':
-                endDateTime = currentDateTime
-                    .add(Duration(days: 365)); // Approx 12 months
-                break;
-              default:
-                // Handle other durations or error cases
-                endDateTime =
-                    currentDateTime; // Default to current date if duration is unknown
-            }
+                switch (duration) {
+                  case '1 month':
+                  case '1 bulan':
+                    endDateTime = currentDateTime
+                        .add(Duration(days: 30)); // Approx 1 month
+                    break;
+                  case '3 months':
+                  case '3 bulan':
+                    endDateTime = currentDateTime
+                        .add(Duration(days: 90)); // Approx 6 months
+                    break;
+                  case '12 months':
+                  case '12 bulan':
+                    endDateTime = currentDateTime
+                        .add(Duration(days: 365)); // Approx 12 months
+                    break;
+                  default:
+                    // Handle other durations or error cases
+                    endDateTime =
+                        currentDateTime; // Default to current date if duration is unknown
+                }
 
-            final String endTime;
-            endTime = DateFormat('yyyy-MM-dd').format(endDateTime);
+                final String endTime;
+                endTime = DateFormat('yyyy-MM-dd').format(endDateTime);
 
-            // Save the receipt in SharedPreferences
-            await SharedPreferencesHelper.setReceipt(
-              noReceipt: receiptNo,
-              startTime: '$currentDate $currentTime',
-              endTime: '$endTime $currentTime',
-              duration: duration,
-              location: details['location'],
-              plateNumber: parkingCar,
-              type: AppLocalizations.of(context)!.monthlyPass,
-            );
+                // Save the receipt in SharedPreferences
+                await SharedPreferencesHelper.setReceipt(
+                  noReceipt: receiptNo,
+                  startTime: '$currentDate $currentTime',
+                  endTime: '$endTime $currentTime',
+                  duration: duration,
+                  location: details['location'],
+                  plateNumber: parkingCar,
+                  type: AppLocalizations.of(context)!.monthlyPass,
+                );
 
-            // formBloc.paymentMethod.updateValue("QR");
+                // formBloc.paymentMethod.updateValue("QR");
 
-            formBloc.amount.updateValue(totalAmount.toStringAsFixed(2));
+                formBloc.amount.updateValue(totalAmount.toStringAsFixed(2));
 
-            formBloc.submit();
+                formBloc.submit();
 
-            model!.duration = duration;
-            model.amount = totalAmount.toString();
-            model.location = formBloc.location.value;
-            model.pbt = formBloc.pbt.value;
-            model.plateNumber = parkingCar;
-            model.promotionId = promotionModel!.id;
+                model!.duration = duration;
+                model.amount = totalAmount.toString();
+                model.location = formBloc.location.value;
+                model.pbt = formBloc.pbt.value;
+                model.plateNumber = parkingCar;
+                model.promotionId = promotionModel!.id;
 
-            await SharedPreferencesHelper.setReloadAmount(
-              amount: totalAmount,
-              carPlate: parkingCar!,
-              monthlyDuration: duration!,
+                await SharedPreferencesHelper.setReloadAmount(
+                  amount: totalAmount,
+                  carPlate: parkingCar!,
+                  monthlyDuration: duration!,
+                );
+
+                Navigator.pop(context);
+              },
+              btnOkText: AppLocalizations.of(context)!.yes,
+              btnCancelOnPress: () {
+                Navigator.pop(context);
+              },
+              btnCancelText: AppLocalizations.of(context)!.no,
             );
           },
           label: Text(

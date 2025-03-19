@@ -88,6 +88,7 @@ class _SummonsReceiptScreenState extends State<SummonsReceiptScreen> {
     return Scaffold(
       backgroundColor: kBackgroundColor,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         toolbarHeight: 100,
         foregroundColor: details['color'] == 4294961979 ? kBlack : kWhite,
         backgroundColor: Color(details['color']),

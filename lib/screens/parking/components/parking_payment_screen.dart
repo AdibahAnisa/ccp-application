@@ -7,6 +7,7 @@ import 'package:project/app/helpers/shared_preferences.dart';
 import 'package:project/constant.dart';
 import 'package:project/form_bloc/form_bloc.dart';
 import 'package:project/theme.dart';
+import 'package:project/widget/custom_dialog.dart';
 import 'package:project/widget/primary_button.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -225,59 +226,73 @@ class _ParkingPaymentScreenState extends State<ParkingPaymentScreen> {
                     DateTime now = await NTP.now();
 
                     setState(() {
-                      formBloc.amount.updateValue(amount.toStringAsFixed(2));
+                      CustomDialog.show(
+                        context,
+                        dialogType: DialogType.danger,
+                        title: AppLocalizations.of(context)!.confirmPayment,
+                        description: AppLocalizations.of(context)!.confirmPaymentDesc,
+                        btnOkOnPress: () async {
+                          formBloc.amount
+                              .updateValue(amount.toStringAsFixed(2));
 
-                      final receiptNo = generateReceiptNumber();
+                          final receiptNo = generateReceiptNumber();
 
-                      if (expiredDuration != '') {
-                        // Add duration to current time
-                        DateTime newTime = now
-                            .add(parseDuration(duration))
-                            .add(parseDuration(currentDuration));
+                          if (expiredDuration != '') {
+                            // Add duration to current time
+                            DateTime newTime = now
+                                .add(parseDuration(duration))
+                                .add(parseDuration(currentDuration));
 
-                        SharedPreferencesHelper.setReceipt(
-                          noReceipt: receiptNo,
-                          startTime: DateFormat('hh:mm:ss a')
-                              .format(now.add(parseDuration(currentDuration))),
-                          endTime: DateFormat('hh:mm:ss a').format(newTime),
-                          duration: duration,
-                          location: formBloc.pbt.value,
-                          plateNumber: parkingCar.split('-')[0],
-                          type: AppLocalizations.of(context)!.parking,
-                        );
+                            SharedPreferencesHelper.setReceipt(
+                              noReceipt: receiptNo,
+                              startTime: DateFormat('hh:mm:ss a').format(
+                                  now.add(parseDuration(currentDuration))),
+                              endTime: DateFormat('hh:mm:ss a').format(newTime),
+                              duration: duration,
+                              location: formBloc.pbt.value,
+                              plateNumber: parkingCar.split('-')[0],
+                              type: AppLocalizations.of(context)!.parking,
+                            );
 
-                        // Format the new time as an ISO 8601 timestamp
-                        String formattedTimestamp =
-                            newTime.toUtc().toIso8601String();
+                            // Format the new time as an ISO 8601 timestamp
+                            String formattedTimestamp =
+                                newTime.toUtc().toIso8601String();
 
-                        formBloc.noReceipt.updateValue(receiptNo);
-                        formBloc.expiredAt.updateValue(formattedTimestamp);
-                      } else {
-                        // Add duration to current time
-                        DateTime newTime = now.add(parseDuration(duration));
+                            formBloc.noReceipt.updateValue(receiptNo);
+                            formBloc.expiredAt.updateValue(formattedTimestamp);
+                          } else {
+                            // Add duration to current time
+                            DateTime newTime = now.add(parseDuration(duration));
 
-                        SharedPreferencesHelper.setReceipt(
-                          noReceipt: receiptNo,
-                          startTime: _currentTime,
-                          endTime: DateFormat('hh:mm:ss a').format(newTime),
-                          duration: duration,
-                          location: formBloc.pbt.value,
-                          plateNumber: parkingCar.split('-')[0],
-                          type: AppLocalizations.of(context)!.parking,
-                        );
+                            SharedPreferencesHelper.setReceipt(
+                              noReceipt: receiptNo,
+                              startTime: _currentTime,
+                              endTime: DateFormat('hh:mm:ss a').format(newTime),
+                              duration: duration,
+                              location: formBloc.pbt.value,
+                              plateNumber: parkingCar.split('-')[0],
+                              type: AppLocalizations.of(context)!.parking,
+                            );
 
-                        // Format the new time as an ISO 8601 timestamp
-                        String formattedTimestamp =
-                            newTime.toUtc().toIso8601String();
+                            // Format the new time as an ISO 8601 timestamp
+                            String formattedTimestamp =
+                                newTime.toUtc().toIso8601String();
 
-                        formBloc.noReceipt.updateValue(receiptNo);
-                        formBloc.expiredAt.updateValue(formattedTimestamp);
+                            formBloc.noReceipt.updateValue(receiptNo);
+                            formBloc.expiredAt.updateValue(formattedTimestamp);
 
-                        SharedPreferencesHelper.setParkingDuration(
-                            duration: duration);
-                      }
+                            SharedPreferencesHelper.setParkingDuration(
+                                duration: duration);
+                          }
 
-                      formBloc.submit();
+                          formBloc.submit();
+                        },
+                        btnOkText: AppLocalizations.of(context)!.yes,
+                        btnCancelOnPress: () {
+                          Navigator.pop(context);
+                        },
+                        btnCancelText: AppLocalizations.of(context)!.no,
+                      );
                     });
                   },
                   label: Text(

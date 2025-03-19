@@ -164,5 +164,7 @@
   "delete": "Delete",
   "deleteDesc": "Are you sure you want to delete your account? This action cannot be undone.",
   "typeDelete": "Type 'DELETE' to confirm",
-  "successDelete": "Account successfully deleted"
+  "successDelete": "Account successfully deleted",
+  "confirmPayment": "Confirm Payment",
+  "confirmPaymentDesc": "Are you sure you want to confirm this payment?"
 }

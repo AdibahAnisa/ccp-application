@@ -8,6 +8,7 @@ import 'package:project/constant.dart';
 import 'package:project/form_bloc/form_bloc.dart';
 import 'package:project/models/models.dart';
 import 'package:project/theme.dart';
+import 'package:project/widget/custom_dialog.dart';
 import 'package:project/widget/primary_button.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -74,20 +75,34 @@ class _ReloadPaymentScreenState extends State<ReloadPaymentScreen> {
       floatingActionButton: PrimaryButton(
         borderRadius: 10.0,
         buttonWidth: 0.8,
-        onPressed: () async {
-          await SharedPreferencesHelper.setTime(
-              startTime: _currentTime, endTime: '');
-          // formBloc.paymentMethod.updateValue("QR");
-          formBloc.submit();
-          // Navigator.pushNamed(
-          //   context,
-          //   AppRoute.reloadReceiptScreen,
-          //   arguments: {
-          //     'locationDetail': details,
-          //     'userModel': userModel,
-          //     'amount': double.parse("40"),
-          //   },
-          // );
+        onPressed: () {
+          CustomDialog.show(
+            context,
+            dialogType: DialogType.danger,
+            title: AppLocalizations.of(context)!.confirmPayment,
+            description: AppLocalizations.of(context)!.confirmPaymentDesc,
+            btnOkOnPress: () async {
+              await SharedPreferencesHelper.setTime(
+                  startTime: _currentTime, endTime: '');
+              // formBloc.paymentMethod.updateValue("QR");
+              formBloc.submit();
+              // Navigator.pushNamed(
+              //   context,
+              //   AppRoute.reloadReceiptScreen,
+              //   arguments: {
+              //     'locationDetail': details,
+              //     'userModel': userModel,
+              //     'amount': double.parse("40"),
+              //   },
+              // );
+              Navigator.pop(context);
+            },
+            btnOkText: AppLocalizations.of(context)!.yes,
+            btnCancelOnPress: () {
+              Navigator.pop(context);
+            },
+            btnCancelText: AppLocalizations.of(context)!.no,
+          );
         },
         label: Text(
           AppLocalizations.of(context)!.pay,
