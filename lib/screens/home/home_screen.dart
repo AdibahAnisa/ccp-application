@@ -442,10 +442,10 @@ class _HomeScreenState extends State<HomeScreen> {
       height: MediaQuery.of(context).size.height * 0.37,
       decoration: BoxDecoration(
         color: Color(details['color']),
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(40.0),
-          bottomRight: Radius.circular(40.0),
-        ),
+        // borderRadius: const BorderRadius.only(
+        //   bottomLeft: Radius.circular(40.0),
+        //   bottomRight: Radius.circular(40.0),
+        // ),
       ),
       child: Align(
         alignment: Alignment.bottomCenter,
