@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_scale_tap/flutter_scale_tap.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart'; // For date formatting
@@ -121,10 +122,13 @@ class _HomeScreenState extends State<HomeScreen> {
         btnOkOnPress: () async {
           permissionGranted = await locationController.requestPermission();
           await permission.Permission.notification.request();
+          await permission.Permission.ignoreBatteryOptimizations.request();
           if (permissionGranted != PermissionStatus.granted) {
             return;
           } else {
             Navigator.pop(context);
+
+            // await _checkBatteryOptimization();
           }
         },
         btnCancelText: 'No',
@@ -132,6 +136,38 @@ class _HomeScreenState extends State<HomeScreen> {
           Navigator.pop(context);
         },
       );
+    }
+  }
+
+  Future<void> _checkBatteryOptimization() async {
+    try {
+      const platform = MethodChannel('battery_optimization');
+      // Check battery optimization
+      bool isIgnoring = await platform.invokeMethod('checkBatteryOptimization');
+      if (!isIgnoring) {
+        // Show dialog to guide user to disable optimization
+        await CustomDialog.show(
+          context,
+          icon: Icons.battery_alert,
+          dialogType: 2,
+          description:
+              'For better performance, please allow this app to run unrestricted in the background. Do you want to open the battery settings?',
+          btnOkText: 'Yes',
+          btnOkOnPress: () async {
+            // Optional: Open settings
+            await platform.invokeMethod('openBatteryOptimizationSettings');
+            Navigator.pop(context);
+          },
+          btnCancelText: 'No',
+          btnCancelOnPress: () {
+            Navigator.pop(context);
+          },
+        );
+      } else {
+        print('Battery Optimization already disabled');
+      }
+    } catch (e) {
+      print("Failed to check battery optimization: '$e'.");
     }
   }
 
@@ -278,7 +314,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             0.48, // You can adjust this based on your layout
                         child: LayoutBuilder(
                           builder: (context, constraints) {
-
                             return Stack(
                               children: [
                                 // WebView is placed at the back
@@ -291,7 +326,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   child: Container(
                                     padding: const EdgeInsets.only(top: 20.0),
                                     decoration: const BoxDecoration(
-                                      color:kBackgroundColor,
+                                      color: kBackgroundColor,
                                       borderRadius: BorderRadius.only(
                                         bottomLeft: Radius.circular(40.0),
                                         bottomRight: Radius.circular(40.0),
@@ -317,10 +352,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                       CountdownScreen(
-                                    details: details,
-                                    expiredAt: expiredAt!,
-                                    currentTime: currentTime!,
-                                  ),
+                        details: details,
+                        expiredAt: expiredAt!,
+                        currentTime: currentTime!,
+                      ),
                       const Padding(
                         padding: EdgeInsets.only(top: 20.0),
                         child: SliderScreen(),

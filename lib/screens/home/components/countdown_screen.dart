@@ -110,9 +110,10 @@ class _CountdownScreenState extends State<CountdownScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 50),
       width: double.infinity,
-      height: widget.expiredAt.isAfter(widget.currentTime)
+      height: remainingTime > Duration.zero
           ? MediaQuery.of(context).size.height * 0.1
           :  MediaQuery.of(context).size.height * 0.02,
       padding: const EdgeInsets.only(bottom: 10.0),
