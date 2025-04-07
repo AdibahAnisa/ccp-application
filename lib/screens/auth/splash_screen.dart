@@ -1,6 +1,10 @@
+
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:project/app/helpers/global_method.dart';
 import 'package:project/constant.dart';
-import 'package:project/resources/auth/auth_resources.dart';
+import 'package:project/models/models.dart';
+import 'package:project/resources/resources.dart';
 import 'package:project/routes/route_manager.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -14,6 +18,10 @@ class _SplashScreenState extends State<SplashScreen> {
   int activeStepper = 1;
 
   bool _isInit = false;
+
+  DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+
+  List<OffenceAreasModel> offenceAreasList = []; // List to store models
 
   @override
   void didChangeDependencies() {
@@ -32,6 +40,7 @@ class _SplashScreenState extends State<SplashScreen> {
       }
 
       if (token != null) {
+        await fetchOffenceAreasList();
         Navigator.pushReplacementNamed(context, AppRoute.homeScreen);
       } else {
         Navigator.pushReplacementNamed(context, AppRoute.loginScreen);

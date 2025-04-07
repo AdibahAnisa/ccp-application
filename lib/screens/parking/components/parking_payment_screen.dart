@@ -126,7 +126,7 @@ class _ParkingPaymentScreenState extends State<ParkingPaymentScreen> {
               Row(
                 children: [
                   Text(
-                    AppLocalizations.of(context)!.location,
+                    "PBT",
                     style: GoogleFonts.firaCode(fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(width: 50),
@@ -140,6 +140,47 @@ class _ParkingPaymentScreenState extends State<ParkingPaymentScreen> {
                 ],
               ),
               const SizedBox(height: 10),
+              Row(
+                children: [
+                  Text(
+                    AppLocalizations.of(context)!.areas,
+                    style: GoogleFonts.firaCode(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(width: 50),
+                  Expanded(
+                    child: Text(
+                      formBloc.offenceAreas.value!.description!,
+                      style: GoogleFonts.firaCode(),
+                      textAlign: TextAlign.right, // Align text to the right
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              if (formBloc.offenceLocation.value != null)
+                Column(
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          AppLocalizations.of(context)!.state,
+                          style:
+                              GoogleFonts.firaCode(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(width: 50),
+                        Expanded(
+                          child: Text(
+                            formBloc.offenceLocation.value!.description!,
+                            style: GoogleFonts.firaCode(),
+                            textAlign:
+                                TextAlign.right, // Align text to the right
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                  ],
+                ),
               Row(
                 children: [
                   Text(
@@ -230,7 +271,8 @@ class _ParkingPaymentScreenState extends State<ParkingPaymentScreen> {
                         context,
                         dialogType: DialogType.danger,
                         title: AppLocalizations.of(context)!.confirmPayment,
-                        description: AppLocalizations.of(context)!.confirmPaymentDesc,
+                        description:
+                            AppLocalizations.of(context)!.confirmPaymentDesc,
                         btnOkOnPress: () async {
                           formBloc.amount
                               .updateValue(amount.toStringAsFixed(2));

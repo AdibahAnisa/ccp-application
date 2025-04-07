@@ -166,5 +166,8 @@
   "typeDelete": "Type 'DELETE' to confirm",
   "successDelete": "Account successfully deleted",
   "confirmPayment": "Confirm Payment",
-  "confirmPaymentDesc": "Are you sure you want to confirm this payment?"
+  "confirmPaymentDesc": "Are you sure you want to confirm this payment?",
+  "areas": "Areas",
+  "selectAreaError": "Area Cannot be empty",
+  "selectLocationError": "Location Cannot be empty"
 }

@@ -166,5 +166,8 @@
   "typeDelete": "Taip 'PADAM' untuk mengesahkan",
   "successDelete": "Akaun berjaya dipadam",
   "confirmPayment": "Sahkan Pembayaran",
-  "confirmPaymentDesc": "Adakah anda pasti mahu mengesahkan pembayaran ini?"
+  "confirmPaymentDesc": "Adakah anda pasti mahu mengesahkan pembayaran ini?",
+  "areas": "Kawasan",
+  "selectAreaError": "Kawasan Tidak Boleh Kosong",
+  "selectLocationError": "Lokasi Tidak Boleh Kosong"
 }

@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 import 'package:project/constant.dart';
 
 class LoadingDialog extends StatelessWidget {
@@ -26,9 +27,13 @@ class LoadingDialog extends StatelessWidget {
             width: 80,
             height: 80,
             padding: const EdgeInsets.all(12.0),
-            child: const CircularProgressIndicator(
-              color: kPrimaryColor,
-            ),
+            child: LoadingIndicator(
+                indicatorType: Indicator.ballRotateChase,
+                // ignore: deprecated_member_use
+                colors: [kPrimaryColor, kPrimaryColor.withOpacity(0.5), kWhite],
+                backgroundColor: kBackgroundColor,
+                pathBackgroundColor: kBackgroundColor,
+              ),
           ),
         ),
       ),

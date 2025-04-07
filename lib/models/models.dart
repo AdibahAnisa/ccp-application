@@ -15,3 +15,5 @@ export 'summon_model.dart';
 export 'promotions/monthly_pass_model.dart';
 export 'promotions/monthly_pass_history_model.dart';
 export 'notification_model.dart';
+export 'offence_areas_model.dart';
+export 'offence_location_model.dart';

@@ -9,11 +9,15 @@ import 'package:project/resources/resources.dart';
 class StoreParkingFormBloc extends FormBloc<String, String> {
   final List<PlateNumberModel>? platModel;
   final List<PBTModel> pbtModel;
+  final List<OffenceAreasModel> offenceAreasModel;
+  final List<OffenceLocationModel> offenceLocationModel;
   final Map<String, dynamic> details;
 
   final SelectFieldBloc<String?, dynamic> carPlateNumber;
   final SelectFieldBloc<String?, dynamic> pbt;
-  final SelectFieldBloc<String?, dynamic> location;
+  final SelectFieldBloc<OffenceAreasModel?, dynamic> offenceAreas;
+  final SelectFieldBloc<OffenceLocationModel?, dynamic> offenceLocation;
+  final SelectFieldBloc<String?, dynamic> stateCountry;
 
   final TextFieldBloc amount;
   final TextFieldBloc expiredAt;
@@ -22,9 +26,20 @@ class StoreParkingFormBloc extends FormBloc<String, String> {
   StoreParkingFormBloc({
     required this.platModel,
     required this.pbtModel,
+    required this.offenceAreasModel,
+    required this.offenceLocationModel,
     required this.details,
   })  : pbt = SelectFieldBloc(
           items: pbtModel.map((pbt) => pbt.name).toList(),
+        ),
+        offenceAreas = SelectFieldBloc(
+          items: offenceAreasModel,
+          validators: [
+            (value) => value == '' ? 'Please select an area.' : null,
+          ],
+        ),
+        offenceLocation = SelectFieldBloc(
+          items: [], // initially empty
         ),
         carPlateNumber = SelectFieldBloc(
           items: (platModel?.isNotEmpty ?? false)
@@ -38,22 +53,39 @@ class StoreParkingFormBloc extends FormBloc<String, String> {
                   .plateNumber ??
               '',
         ),
-        location = SelectFieldBloc(
+        stateCountry = SelectFieldBloc(
           items: ['Kelantan', 'Terengganu', 'Pahang'],
         ),
         amount = TextFieldBloc(),
         expiredAt = TextFieldBloc(),
         noReceipt = TextFieldBloc() {
     pbt.updateInitialValue(details['location'] ?? '');
-    location.updateInitialValue(details['state'] ?? '');
+    stateCountry.updateInitialValue(details['state'] ?? '');
     addFieldBlocs(
       fieldBlocs: [
         carPlateNumber,
         pbt,
-        location,
+        offenceAreas,
+        offenceLocation,
+        stateCountry,
         amount,
         expiredAt,
       ],
+    );
+    offenceAreas.onValueChanges(
+      onData: (previous, current) async* {
+        final selectedArea = current.value;
+
+        if (selectedArea != null) {
+          // Filter locations where AreaID matches selectedArea.ID
+          final filteredLocations = offenceLocationModel
+              .where((loc) => loc.areaID == selectedArea.id)
+              .toList();
+
+          // Update the location dropdown options
+          offenceLocation.updateItems(filteredLocations);
+        }
+      },
     );
   }
 
@@ -81,7 +113,9 @@ class StoreParkingFormBloc extends FormBloc<String, String> {
             'walletTransactionId': response['walletTransactionid'].toString(),
             'plateNumber': carPlateNumber.value,
             'pbt': pbt.value,
-            'location': location.value,
+            'location': stateCountry.value,
+            'area': offenceAreas.value,
+            'state': offenceLocation.value,
             'expiredAt': expiredAt.value,
             'noReceipt': noReceipt.value,
           }),

@@ -41,7 +41,19 @@ class ParkingResources {
     required String prefix,
   }) async {
     var response = await http.get(
-      Uri.parse('$baseUrl$prefix'),
+      Uri.parse('$stagingMyenforcementUrl$prefix'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    );
+    return json.decode(response.body);
+  }
+
+    static Future getRegisterDevices({
+    required String prefix,
+  }) async {
+    var response = await http.get(
+      Uri.parse('$stagingMyenforcementUrl$prefix'),
       headers: {
         'Content-Type': 'application/json',
       },
