@@ -139,38 +139,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<void> _checkBatteryOptimization() async {
-    try {
-      const platform = MethodChannel('battery_optimization');
-      // Check battery optimization
-      bool isIgnoring = await platform.invokeMethod('checkBatteryOptimization');
-      if (!isIgnoring) {
-        // Show dialog to guide user to disable optimization
-        await CustomDialog.show(
-          context,
-          icon: Icons.battery_alert,
-          dialogType: 2,
-          description:
-              'For better performance, please allow this app to run unrestricted in the background. Do you want to open the battery settings?',
-          btnOkText: 'Yes',
-          btnOkOnPress: () async {
-            // Optional: Open settings
-            await platform.invokeMethod('openBatteryOptimizationSettings');
-            Navigator.pop(context);
-          },
-          btnCancelText: 'No',
-          btnCancelOnPress: () {
-            Navigator.pop(context);
-          },
-        );
-      } else {
-        print('Battery Optimization already disabled');
-      }
-    } catch (e) {
-      print("Failed to check battery optimization: '$e'.");
-    }
-  }
-
   Future<void> analyzeLocation() async {
     details = await SharedPreferencesHelper.getLocationDetails();
   }
@@ -311,43 +279,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           color: kBackgroundColor,
                         ),
                         height: MediaQuery.of(context).size.height *
-                            0.48, // You can adjust this based on your layout
+                            0.50, // You can adjust this based on your layout
                         child: LayoutBuilder(
                           builder: (context, constraints) {
-                            return Stack(
-                              children: [
-                                // WebView is placed at the back
-                                Positioned(
-                                  top: 250,
-                                  left: 0,
-                                  right: 0,
-                                  bottom:
-                                      0, // Optional: fill the rest of the screen
-                                  child: Container(
-                                    padding: const EdgeInsets.only(top: 20.0),
-                                    decoration: const BoxDecoration(
-                                      color: kBackgroundColor,
-                                      borderRadius: BorderRadius.only(
-                                        bottomLeft: Radius.circular(40.0),
-                                        bottomRight: Radius.circular(40.0),
-                                      ),
-                                    ),
-                                    child: WebViewWidget(
-                                      controller: _webViewController,
-                                    ),
-                                  ),
-                                ),
-
-                                // Top Widget (User Info / Balance) ABOVE the WebView
-                                Positioned(
-                                  top: 0,
-                                  left: 0,
-                                  right: 0,
-                                  child: _topWidget(
-                                      context, userModel, expiredAt!),
-                                ),
-                              ],
-                            );
+                            return _topWidget(context, userModel, expiredAt!);
                           },
                         ),
                       ),
@@ -473,146 +408,176 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _topWidget(
       BuildContext context, UserModel userModel, DateTime expiredAt) {
-    return Container(
-      height: MediaQuery.of(context).size.height * 0.37,
-      decoration: BoxDecoration(
-        color: Color(details['color']),
-        // borderRadius: const BorderRadius.only(
-        //   bottomLeft: Radius.circular(40.0),
-        //   bottomRight: Radius.circular(40.0),
-        // ),
-      ),
-      child: Align(
-        alignment: Alignment.bottomCenter,
-        child: Padding(
-          padding: const EdgeInsets.only(
-            left: 30.0,
-            right: 30.0,
-            bottom: 20.0,
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                mainAxisSize:
-                    MainAxisSize.min, // Shrink wrap the column vertically
-                mainAxisAlignment:
-                    MainAxisAlignment.center, // Center vertically
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    AppLocalizations.of(context)!.tokenBalance,
-                    style: textStyleNormal(
-                      color: details['color'] == 4294961979 ? kBlack : kWhite,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Row(
-                    children: [
-                      Text(
-                        // ignore: unrelated_type_equality_checks
-                        '${userModel.wallet?.amount == 0 ? 0.00 : double.parse(userModel.wallet!.amount!).toStringAsFixed(2)}',
-                        style: textStyleNormal(
-                          color:
-                              details['color'] == 4294961979 ? kBlack : kWhite,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 34,
-                        ),
-                      ),
-                      spaceHorizontal(width: 10.0),
-                      ScaleTap(
-                        onPressed: () {
-                          Navigator.pushNamed(context, AppRoute.reloadScreen,
-                              arguments: {
-                                'locationDetail': details,
-                                'userModel': userModel,
-                              });
-                          // Navigator.of(context).push(MaterialPageRoute(
-                          //       builder: (context) => ReloadCreditScreen(
-                          //           userProfile: userModel!)));
-                        },
-                        child: CircleAvatar(
-                          radius: 18,
-                          backgroundColor:
-                              details['color'] == 4294961979 ? kBlack : kWhite,
-                          child: Icon(
-                            Icons.add,
-                            color: Color(details['color']),
+    return SingleChildScrollView(
+      physics: const NeverScrollableScrollPhysics(),
+      child: Column(
+        children: [
+          Container(
+            height: MediaQuery.of(context).size.height * 0.37,
+            decoration: BoxDecoration(
+              color: Color(details['color']),
+              // borderRadius: const BorderRadius.only(
+              //   bottomLeft: Radius.circular(40.0),
+              //   bottomRight: Radius.circular(40.0),
+              // ),
+            ),
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                padding: const EdgeInsets.only(
+                  left: 30.0,
+                  right: 30.0,
+                  bottom: 20.0,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      mainAxisSize:
+                          MainAxisSize.min, // Shrink wrap the column vertically
+                      mainAxisAlignment:
+                          MainAxisAlignment.center, // Center vertically
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          AppLocalizations.of(context)!.tokenBalance,
+                          style: textStyleNormal(
+                            color: details['color'] == 4294961979
+                                ? kBlack
+                                : kWhite,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  Text(
-                    Get.locale!.languageCode == 'ms'
-                        ? '${AppLocalizations.of(context)!.updatedOn}\n$lastUpdated'
-                        : '${AppLocalizations.of(context)!.updatedOn} $lastUpdated',
-                    style: textStyleNormal(
-                      color: details['color'] == 4294961979 ? kBlack : kWhite,
-                      fontSize: 11,
-                    ),
-                  ),
-                ],
-              ),
-              Column(
-                mainAxisSize:
-                    MainAxisSize.min, // Shrink wrap the column vertically
-                mainAxisAlignment:
-                    MainAxisAlignment.center, // Center vertically
-                children: [
-                  ScaleTap(
-                    onPressed: () {
-                      Navigator.pushNamed(
-                        context,
-                        AppRoute.stateScreen,
-                        arguments: {
-                          'locationDetail': details,
-                        },
-                      );
-                    },
-                    child: Stack(
-                      alignment: Alignment.topRight,
-                      children: [
-                        CircleAvatar(
-                          backgroundColor: kWhite,
-                          radius: 50,
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Image(
-                              image: AssetImage(
-                                details['logo'],
+                        Row(
+                          children: [
+                            Text(
+                              // ignore: unrelated_type_equality_checks
+                              '${userModel.wallet?.amount == 0 ? 0.00 : double.parse(userModel.wallet!.amount!).toStringAsFixed(2)}',
+                              style: textStyleNormal(
+                                color: details['color'] == 4294961979
+                                    ? kBlack
+                                    : kWhite,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 34,
                               ),
                             ),
+                            spaceHorizontal(width: 10.0),
+                            ScaleTap(
+                              onPressed: () {
+                                Navigator.pushNamed(
+                                    context, AppRoute.reloadScreen,
+                                    arguments: {
+                                      'locationDetail': details,
+                                      'userModel': userModel,
+                                    });
+                                // Navigator.of(context).push(MaterialPageRoute(
+                                //       builder: (context) => ReloadCreditScreen(
+                                //           userProfile: userModel!)));
+                              },
+                              child: CircleAvatar(
+                                radius: 18,
+                                backgroundColor: details['color'] == 4294961979
+                                    ? kBlack
+                                    : kWhite,
+                                child: Icon(
+                                  Icons.add,
+                                  color: Color(details['color']),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Text(
+                          Get.locale!.languageCode == 'ms'
+                              ? '${AppLocalizations.of(context)!.updatedOn}\n$lastUpdated'
+                              : '${AppLocalizations.of(context)!.updatedOn} $lastUpdated',
+                          style: textStyleNormal(
+                            color: details['color'] == 4294961979
+                                ? kBlack
+                                : kWhite,
+                            fontSize: 11,
                           ),
                         ),
-                        CircleAvatar(
-                          backgroundColor:
-                              const Color.fromARGB(255, 212, 212, 212),
-                          child: Icon(
-                            Icons.change_circle,
-                            color: Color(details['color']),
-                          ),
-                        )
                       ],
                     ),
-                  ),
-                  SizedBox(
-                    width: 100,
-                    child: Text(
-                      details['location'],
-                      style: textStyleNormal(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                        color: details['color'] == 4294961979 ? kBlack : kWhite,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ],
-              )
-            ],
+                    Column(
+                      mainAxisSize:
+                          MainAxisSize.min, // Shrink wrap the column vertically
+                      mainAxisAlignment:
+                          MainAxisAlignment.center, // Center vertically
+                      children: [
+                        ScaleTap(
+                          onPressed: () {
+                            Navigator.pushNamed(
+                              context,
+                              AppRoute.stateScreen,
+                              arguments: {
+                                'locationDetail': details,
+                              },
+                            );
+                          },
+                          child: Stack(
+                            alignment: Alignment.topRight,
+                            children: [
+                              CircleAvatar(
+                                backgroundColor: kWhite,
+                                radius: 50,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Image(
+                                    image: AssetImage(
+                                      details['logo'],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              CircleAvatar(
+                                backgroundColor:
+                                    const Color.fromARGB(255, 212, 212, 212),
+                                child: Icon(
+                                  Icons.change_circle,
+                                  color: Color(details['color']),
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                        SizedBox(
+                          width: 100,
+                          child: Text(
+                            details['location'],
+                            style: textStyleNormal(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                              color: details['color'] == 4294961979
+                                  ? kBlack
+                                  : kWhite,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ],
+                    )
+                  ],
+                ),
+              ),
+            ),
           ),
-        ),
+          Container(
+            decoration: const BoxDecoration(
+              color: kWhite,
+            ),
+            padding: const EdgeInsets.only(
+              left: 25.0,
+              bottom: 20.0,
+            ),
+            alignment: Alignment.center,
+            height: 200,
+            child: WebViewWidget(
+              controller: _webViewController,
+            ),
+          ),
+        ],
       ),
     );
   }

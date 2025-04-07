@@ -17,6 +17,11 @@ const String baseUrl = 'http://220.158.208.216:3000'; /* IP Address Server */
 const String pegeypayQRurl =
     'https://pegepay.com/api/npd-wa/order-create/custom-validity';
 
+const String stagingMyenforcementUrl =
+    'http://myenforcement-mbk-staging.vista-summerose.com';
+
+const String myenforcementUrl = 'http://myenforcement-mbk.vista-summerose.com';
+
 // Countdown
 Duration countDownDuration = const Duration();
 
