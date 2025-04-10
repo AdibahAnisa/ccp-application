@@ -1,10 +1,9 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, deprecated_member_use
 
 import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_scale_tap/flutter_scale_tap.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart'; // For date formatting
@@ -23,7 +22,7 @@ import 'package:project/widget/custom_dialog.dart';
 import 'package:project/widget/loading_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -44,7 +43,6 @@ class _HomeScreenState extends State<HomeScreen> {
   Location locationController = Location();
   late final List<PromotionMonthlyPassModel> promotionMonthlyPassModel;
   List<NotificationModel> notificationList = []; // List to store models
-  late final WebViewController _webViewController;
 
   DateTime? expiredAt;
 
@@ -63,25 +61,6 @@ class _HomeScreenState extends State<HomeScreen> {
     _getPromotionMonthlyPass();
     _getPegeypayToken();
     _getNotification();
-    _webViewController = WebViewController()
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setNavigationDelegate(
-        NavigationDelegate(
-          onProgress: (int progress) {},
-          onPageStarted: (String url) {},
-          onPageFinished: (String url) {},
-          onHttpError: (HttpResponseError error) {},
-          onWebResourceError: (WebResourceError error) {},
-          onNavigationRequest: (NavigationRequest request) {
-            if (request.url.startsWith('https://mst.sirim.my/widget')) {
-              return NavigationDecision.prevent;
-            }
-            return NavigationDecision.navigate;
-          },
-        ),
-      )
-      ..loadRequest(
-          Uri.parse('https://mst.sirim.my/widget')); // Set your URL here
   }
 
   Future<void> getCurrentTime() async {
@@ -232,7 +211,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // ignore: deprecated_member_use
     return WillPopScope(
       onWillPop: () async {
         CustomDialog.show(
@@ -573,8 +551,24 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             alignment: Alignment.center,
             height: 200,
-            child: WebViewWidget(
-              controller: _webViewController,
+            child: InAppWebView(
+              initialUrlRequest:
+                  URLRequest(url: WebUri.uri(Uri.parse('https://mst.sirim.my/widget'))),
+              initialOptions: InAppWebViewGroupOptions(
+                crossPlatform: InAppWebViewOptions(
+                  javaScriptEnabled: true,
+                  useShouldOverrideUrlLoading: true,
+                ),
+              ),
+              onWebViewCreated: (controller) {
+              },
+              shouldOverrideUrlLoading: (controller, navigationAction) async {
+                var uri = navigationAction.request.url;
+                if (uri.toString().startsWith('https://mst.sirim.my/widget')) {
+                  return NavigationActionPolicy.CANCEL;
+                }
+                return NavigationActionPolicy.ALLOW;
+              },
             ),
           ),
         ],

@@ -7,7 +7,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:project/constant.dart';
 import 'package:project/theme.dart';
 import 'package:project/widget/custom_dialog.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class WebViewPage extends StatefulWidget {
@@ -27,63 +27,38 @@ class WebViewPage extends StatefulWidget {
 }
 
 class _WebViewPageState extends State<WebViewPage> {
-  late final WebViewController _controller;
 
   @override
   void initState() {
     super.initState();
-    _controller = WebViewController()
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setBackgroundColor(const Color(0x00000000))
-      ..setNavigationDelegate(
-        NavigationDelegate(
-          onNavigationRequest: (NavigationRequest request) {
-            // **Detect file download links**
-            if (_isFileDownload(request.url)) {
-              _downloadFile(request.url);
-              return NavigationDecision.prevent;
-            }
-
-            return NavigationDecision.navigate;
-          },
-        ),
-      )
-      ..loadRequest(Uri.parse(widget.url));
   }
 
-  /// **Check if the URL is a file download**
   bool _isFileDownload(String url) {
     return url.contains('/api/file/');
   }
 
-  /// **Request permissions for saving the file (Android 13+)**
   Future<bool> _requestPermissions() async {
     if (Platform.isAndroid) {
       PermissionStatus storagePermission = await Permission.storage.status;
       PermissionStatus manageStoragePermission =
           await Permission.manageExternalStorage.status;
 
-      // Check if permission is already granted
       if (storagePermission.isGranted || manageStoragePermission.isGranted) {
         return true;
       }
 
-      // Request permission if not granted
       storagePermission = await Permission.storage.request();
-      manageStoragePermission =
-          await Permission.manageExternalStorage.request();
+      manageStoragePermission = await Permission.manageExternalStorage.request();
 
       if (storagePermission.isGranted || manageStoragePermission.isGranted) {
-        return true; // Permission granted
+        return true;
       }
 
-      // If permanently denied, open settings
       if (storagePermission.isPermanentlyDenied ||
           manageStoragePermission.isPermanentlyDenied) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text(
-                "Permission denied permanently. Please enable it in settings."),
+            content: const Text("Permission denied permanently. Please enable it in settings."),
             action: SnackBarAction(
               label: "Open Settings",
               onPressed: () => openAppSettings(),
@@ -93,28 +68,23 @@ class _WebViewPageState extends State<WebViewPage> {
         return false;
       }
 
-      // If the user denies the permission, ask again
       return _requestPermissions();
     }
-    return true; // iOS does not need extra permissions
+    return true;
   }
 
-  /// **Download and save file manually**
   Future<void> _downloadFile(String url) async {
     if (!await _requestPermissions()) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: const Text("Permission Denied! Cannot save file.")),
+        const SnackBar(content: Text("Permission Denied! Cannot save file.")),
       );
       return;
     }
 
     try {
       Dio dio = Dio();
-      String fileName = url.split('/').last; // Extract filename from URL
-
-      Directory? directory =
-          await getExternalStorageDirectory(); // Android/iOS safe storage
+      String fileName = url.split('/').last;
+      Directory? directory = await getExternalStorageDirectory();
       String filePath = '${directory!.path}/$fileName.pdf';
 
       await dio.download(
@@ -126,8 +96,6 @@ class _WebViewPageState extends State<WebViewPage> {
       );
 
       setState(() {});
-
-      // **Open the file after downloading**
       OpenFile.open(filePath);
     } catch (e) {
       setState(() {});
@@ -159,8 +127,7 @@ class _WebViewPageState extends State<WebViewPage> {
         backgroundColor: kBackgroundColor,
         appBar: AppBar(
           toolbarHeight: 100,
-          foregroundColor:
-              widget.details['color'] == 4294961979 ? kBlack : kWhite,
+          foregroundColor: widget.details['color'] == 4294961979 ? kBlack : kWhite,
           backgroundColor: Color(widget.details['color']),
           centerTitle: true,
           title: Text(
@@ -172,7 +139,27 @@ class _WebViewPageState extends State<WebViewPage> {
             ),
           ),
         ),
-        body: WebViewWidget(controller: _controller),
+        body: InAppWebView(
+          initialUrlRequest: URLRequest(url: WebUri.uri(Uri.parse(widget.url))),
+          initialOptions: InAppWebViewGroupOptions(
+            crossPlatform: InAppWebViewOptions(
+              javaScriptEnabled: true,
+              useShouldOverrideUrlLoading: true,
+              clearCache: false,
+              mediaPlaybackRequiresUserGesture: false,
+            ),
+          ),
+          onWebViewCreated: (controller) {
+          },
+          shouldOverrideUrlLoading: (controller, navigationAction) async {
+            var uri = navigationAction.request.url;
+            if (uri != null && _isFileDownload(uri.toString())) {
+              _downloadFile(uri.toString());
+              return NavigationActionPolicy.CANCEL;
+            }
+            return NavigationActionPolicy.ALLOW;
+          },
+        ),
       ),
     );
   }

@@ -1,0 +1,2 @@
+C:/Users/User/Documents/ccp-app-v2/android/app/.cxx/RelWithDebInfo/716s4f73/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/Users/User/Documents/ccp-app-v2/android/app/.cxx/RelWithDebInfo/716s4f73/armeabi-v7a/CMakeFiles/rebuild_cache.dir
