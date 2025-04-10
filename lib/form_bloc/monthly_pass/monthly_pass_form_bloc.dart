@@ -118,9 +118,18 @@ class MonthlyPassFormBloc extends FormBloc<String, String> {
           prefix: '/paymentfpx/public',
         );
 
-        await getFPX();
+        final response = await getFPX();
 
-        await onSubmitting();
+        await SharedPreferencesHelper.setOrderDetails(
+          orderNo: response['BillId'].toString(),
+          amount: amount.value.toString(),
+          storeId: "MonthlyPass",
+          shiftId: model.email!,
+          terminalId: response['BatchName'].toString(),
+          status: "paid",
+        );
+
+        emitSuccess(successResponse: response['ShortcutLink']);
       }
 
       if (response['SFM']['Constant'] == "SFM_GENERAL_ERROR") {
@@ -129,9 +138,18 @@ class MonthlyPassFormBloc extends FormBloc<String, String> {
           prefix: '/paymentfpx/public',
         );
 
-        await getFPX();
+        final response = await getFPX();
 
-        await onSubmitting();
+        await SharedPreferencesHelper.setOrderDetails(
+          orderNo: response['BillId'].toString(),
+          amount: amount.value.toString(),
+          storeId: "MonthlyPass",
+          shiftId: model.email!,
+          terminalId: response['BatchName'].toString(),
+          status: "paid",
+        );
+
+        emitSuccess(successResponse: response['ShortcutLink']);
       } else {
         await SharedPreferencesHelper.setOrderDetails(
           orderNo: response['BillId'].toString(),
