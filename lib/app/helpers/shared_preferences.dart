@@ -15,6 +15,18 @@ class SharedPreferencesHelper {
     prefs.setString(keyToken, token);
   }
 
+  static Future<void> saveBiometric({required bool biometric}) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool(biometricKey, biometric);
+  }
+
+  static Future<bool> getBiometric() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool biometric = prefs.getBool(biometricKey) ?? true;
+
+    return biometric;
+  }
+
   static Future<void> saveLocationDetail(
       {String location = 'PBT Kuantan',
       String state = 'Pahang',
@@ -139,24 +151,24 @@ class SharedPreferencesHelper {
     await prefs.setStringList('parkingPlaces', updatedList);
   }
 
-static Future<void> deleteParkingPlace({
-  required DateTime expiredAt,
-  required int index,
-}) async {
-  final SharedPreferences prefs = await SharedPreferences.getInstance();
-  List<String> list = prefs.getStringList('parkingPlaces') ?? [];
+  static Future<void> deleteParkingPlace({
+    required DateTime expiredAt,
+    required int index,
+  }) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String> list = prefs.getStringList('parkingPlaces') ?? [];
 
-  if (index >= 0 && index < list.length) {
-    final parsed = ParkingPlaceModel.fromMap(json.decode(list[index]));
+    if (index >= 0 && index < list.length) {
+      final parsed = ParkingPlaceModel.fromMap(json.decode(list[index]));
 
-    // Compare exact expiredAt datetime
-    if (parsed.expiredAt?.toIso8601String() == expiredAt.toIso8601String()) {
-      list.removeAt(index);
+      // Compare exact expiredAt datetime
+      if (parsed.expiredAt?.toIso8601String() == expiredAt.toIso8601String()) {
+        list.removeAt(index);
+      }
     }
-  }
 
-  await prefs.setStringList('parkingPlaces', list);
-}
+    await prefs.setStringList('parkingPlaces', list);
+  }
 
   static Future<bool> getDurationUpdate() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();

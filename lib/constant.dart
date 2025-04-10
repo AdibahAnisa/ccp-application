@@ -137,6 +137,7 @@ const String pbtKey = 'pbtKey';
 const String stateKey = 'stateKey';
 const String areaKey = 'areaKey';
 const String locationKey = 'locationKey';
+const String biometricKey = 'biometricKey';
 
 class GlobalDeclaration {
   static String globalDuration = '';

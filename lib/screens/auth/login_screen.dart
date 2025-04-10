@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_bloc/flutter_form_bloc.dart';
+import 'package:project/app/helpers/biometric_helper.dart';
 import 'package:project/constant.dart';
 import 'package:project/form_bloc/form_bloc.dart';
 import 'package:project/routes/route_manager.dart';
@@ -20,6 +21,7 @@ class LoginScreenState extends State<LoginScreen> {
   late bool showPassword;
   late ValueNotifier<bool> _showPasswordNotifier;
   LoginFormBloc? formBloc;
+  final BiometricHelper biometricHelper = BiometricHelper();
 
   @override
   void initState() {
@@ -33,9 +35,22 @@ class LoginScreenState extends State<LoginScreen> {
     _showPasswordNotifier.dispose();
     super.dispose();
   }
+  void _loginUserByBiometric() async {
+    final isAuth = await biometricHelper.authenticateUser();
+
+    if (isAuth) {
+      Navigator.pushReplacementNamed(
+        context,
+        AppRoute.homeScreen,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final arguments = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    bool biometricStatus = arguments?['isBiometric'] ?? false;
+
     return BackgroundImage(
       body: BlocProvider(
         create: (context) => LoginFormBloc(),
@@ -182,6 +197,28 @@ class LoginScreenState extends State<LoginScreen> {
                             ),
                           ],
                         ),
+                        const SizedBox(height: 25.0),
+                        biometricStatus
+                            ? GestureDetector(
+                                onTap: () => _loginUserByBiometric(),
+                                child: const Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.fingerprint,
+                                      color: kBlack,
+                                    ),
+                                    SizedBox(width: 10),
+                                    Text(
+                                      'Tap to login with biometric',
+                                      style: TextStyle(
+                                        color: kBlack,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            : Container(),
                         const SizedBox(height: 25.0),
                         PrimaryButton(
                           buttonWidth: 0.9,

@@ -165,6 +165,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> logout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove(keyToken);
+    await SharedPreferencesHelper.saveBiometric(biometric: false);
     Navigator.pushNamedAndRemoveUntil(
         context, AppRoute.loginScreen, (context) => false);
   }

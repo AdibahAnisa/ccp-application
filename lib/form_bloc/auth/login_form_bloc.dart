@@ -62,6 +62,7 @@ class LoginFormBloc extends FormBloc<String, String> {
         SharedPreferencesHelper.saveToken(
           response['token'],
         );
+        await SharedPreferencesHelper.saveBiometric(biometric: true);
       }
     } catch (e) {
       e.toString();
