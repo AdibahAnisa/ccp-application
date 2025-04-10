@@ -58,6 +58,7 @@ class _TransportInfoScreenState extends State<TransportInfoScreen> {
         ),
       ),
       body: TransportInfoBody(
+        details: details,
         showMeter: showMeter, // Pass the updated showMeter value here
       ),
     );

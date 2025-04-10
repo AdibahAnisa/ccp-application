@@ -26,12 +26,27 @@ const String myenforcementUrl = 'http://myenforcement-mbk.vista-summerose.com';
 Duration countDownDuration = const Duration();
 
 Duration parseDuration(String durationString) {
-  final parts = durationString.split(':');
-  final hours = int.parse(parts[0]);
-  final minutes = int.parse(parts[1]);
-  final seconds = int.parse(parts[2]);
-  return Duration(hours: hours, minutes: minutes, seconds: seconds);
+  if (durationString.contains(':')) {
+    // Format: HH:mm:ss
+    final parts = durationString.split(':');
+    final hours = int.tryParse(parts[0]) ?? 0;
+    final minutes = int.tryParse(parts[1]) ?? 0;
+    final seconds = int.tryParse(parts[2]) ?? 0;
+    return Duration(hours: hours, minutes: minutes, seconds: seconds);
+  } else {
+    // Format: 1h 30m, or just 15m, or 2h, or 0m
+    final regex = RegExp(r'(?:(\d+)h)?\s*(?:(\d+)m)?');
+    final match = regex.firstMatch(durationString);
+    if (match != null) {
+      final hours = int.tryParse(match.group(1) ?? '0') ?? 0;
+      final minutes = int.tryParse(match.group(2) ?? '0') ?? 0;
+      return Duration(hours: hours, minutes: minutes);
+    } else {
+      throw FormatException("Invalid duration format: $durationString");
+    }
+  }
 }
+
 
 String formatDuration(Duration duration) {
   String twoDigits(int n) => n.toString().padLeft(2, '0');
@@ -115,7 +130,13 @@ const String keyPlateNumber = 'keyPlateNumber';
 const String keyDuration = 'keyDuration';
 const String keyReceiptLocation = 'keyReceiptLocation';
 const String keyType = 'keyType';
+const String keyArea = 'keyArea';
+const String keyStateCountary = 'keyStateCountary';
 const String keyPegeypayToken = 'keyPegeypayToken';
+const String pbtKey = 'pbtKey';
+const String stateKey = 'stateKey';
+const String areaKey = 'areaKey';
+const String locationKey = 'locationKey';
 
 class GlobalDeclaration {
   static String globalDuration = '';

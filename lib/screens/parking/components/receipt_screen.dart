@@ -268,7 +268,7 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
                 Row(
                   children: [
                     Text(
-                      AppLocalizations.of(context)!.location,
+                      'PBT',
                       style: textStyleNormal(fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(width: 50),
@@ -282,6 +282,52 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
                   ],
                 ),
                 const SizedBox(height: 10),
+                if (receipt?['area'] != null) // Check if area is not null
+                  Column(
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            AppLocalizations.of(context)!.areas,
+                            style: textStyleNormal(fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(width: 50),
+                          Expanded(
+                            child: Text(
+                              receipt?['area'] ?? '',
+                              style: textStyleNormal(),
+                              textAlign:
+                                  TextAlign.right, // Align text to the right
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                    ],
+                  ),
+                if (receipt?['state'] != null) // Check if area is not null
+                  Column(
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            AppLocalizations.of(context)!.state,
+                            style: textStyleNormal(fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(width: 50),
+                          Expanded(
+                            child: Text(
+                              receipt?['state'] ?? '',
+                              style: textStyleNormal(),
+                              textAlign:
+                                  TextAlign.right, // Align text to the right
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                    ],
+                  ),
                 Row(
                   children: [
                     Text(

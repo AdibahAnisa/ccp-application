@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_scale_tap/flutter_scale_tap.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart'; // For date formatting
@@ -15,7 +16,7 @@ import 'package:project/constant.dart';
 import 'package:project/models/models.dart';
 import 'package:project/resources/resources.dart';
 import 'package:project/routes/route_manager.dart';
-import 'package:project/screens/home/components/countdown_screen.dart';
+import 'package:project/screens/home/components/countdown_timer/countdown_screen.dart';
 import 'package:project/screens/screens.dart';
 import 'package:project/theme.dart';
 import 'package:project/widget/custom_dialog.dart';
@@ -44,8 +45,6 @@ class _HomeScreenState extends State<HomeScreen> {
   late final List<PromotionMonthlyPassModel> promotionMonthlyPassModel;
   List<NotificationModel> notificationList = []; // List to store models
 
-  DateTime? expiredAt;
-
   DateTime? currentTime;
 
   @override
@@ -54,7 +53,6 @@ class _HomeScreenState extends State<HomeScreen> {
     getCurrentTime();
     analyzeLocation();
     getLocation();
-    analyzeParkingExpired();
     userModel = UserModel();
     _initData = _getUserDetails();
     promotionMonthlyPassModel = [];
@@ -120,16 +118,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> analyzeLocation() async {
     details = await SharedPreferencesHelper.getLocationDetails();
-  }
-
-  Future<void> analyzeParkingExpired() async {
-    durationParking = await SharedPreferencesHelper.getParkingExpired();
-    expiredAt = await NTP.now();
-
-    setState(() {
-      expiredAt = DateTime.parse(durationParking);
-      // expiredAt = DateTime.now().add(Duration(seconds: 0));
-    });
   }
 
   Future<void> _getUserDetails() async {
@@ -260,13 +248,12 @@ class _HomeScreenState extends State<HomeScreen> {
                             0.50, // You can adjust this based on your layout
                         child: LayoutBuilder(
                           builder: (context, constraints) {
-                            return _topWidget(context, userModel, expiredAt!);
+                            return _topWidget(context, userModel);
                           },
                         ),
                       ),
                       CountdownScreen(
                         details: details,
-                        expiredAt: expiredAt!,
                         currentTime: currentTime!,
                       ),
                       const Padding(
@@ -384,8 +371,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _topWidget(
-      BuildContext context, UserModel userModel, DateTime expiredAt) {
+  Widget _topWidget(BuildContext context, UserModel userModel) {
     return SingleChildScrollView(
       physics: const NeverScrollableScrollPhysics(),
       child: Column(

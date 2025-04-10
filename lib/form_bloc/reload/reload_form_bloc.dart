@@ -98,8 +98,6 @@ class ReloadFormBloc extends FormBloc<String, String> {
             prefix: '/paymentfpx/public',
           );
 
-          await getFPX();
-
           await onSubmitting();
         }
 

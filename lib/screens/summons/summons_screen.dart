@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_scale_tap/flutter_scale_tap.dart';
 import 'package:get/get.dart';
@@ -63,12 +62,10 @@ class _SummonsScreenState extends State<SummonsScreen> {
       compoundModel.responseCode = response['responseCode'].toString();
       compoundModel.responseMessage = response['responseMessage'].toString();
 
-      if (compoundModel.responseMessage == 'SUCCESS') {
-        // Map the summonses data to SummonModel objects
-        summonsList = (response['summonses'] as List)
-            .map((json) => SummonModel.fromJson(json))
-            .toList();
-      }
+      // Map the summonses data to SummonModel objects
+      summonsList = (response['summonses'] as List)
+          .map((json) => SummonModel.fromJson(json))
+          .toList();
     } catch (e) {
       print('Error: $e');
     }

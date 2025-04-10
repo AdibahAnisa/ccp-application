@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:project/models/models.dart';
-import 'package:project/models/offence_data_model.dart';
+import 'package:project/models/offences_rule/offence_data_model.dart';
 import 'package:project/resources/resources.dart';
 
 Future<OffenceDataModel> fetchOffenceAreasList() async {

@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:project/constant.dart';
+import 'package:project/models/models.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedPreferencesHelper {
@@ -66,17 +69,94 @@ class SharedPreferencesHelper {
     return paymentStatus;
   }
 
-  static Future<void> setParkingDuration({required String duration}) async {
+  static Future<void> setParkingDuration(ParkingPlaceModel place) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString(durationKey, duration);
+    final List<String> existing = prefs.getStringList('parkingPlaces') ?? [];
+
+    final newPlaceJson = json.encode(place.toMap());
+    existing.add(newPlaceJson);
+
+    await prefs.setStringList('parkingPlaces', existing);
   }
 
-  static Future<String> getParkingDuration() async {
+  static Future<List<ParkingPlaceModel>> getAllParkingPlaces() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? duration = prefs.getString(durationKey);
+    final List<String> placeList = prefs.getStringList('parkingPlaces') ?? [];
 
-    return duration ?? '';
+    return placeList
+        .map((e) => ParkingPlaceModel.fromMap(json.decode(e)))
+        .toList();
   }
+
+  static Future<void> updateParkingPlace(ParkingPlaceModel updatedPlace) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String> list = prefs.getStringList('parkingPlaces') ?? [];
+
+    final updatedList = list.map((item) {
+      final parsed = ParkingPlaceModel.fromMap(json.decode(item));
+      if (parsed.location == updatedPlace.location &&
+          parsed.plateNumber == updatedPlace.plateNumber) {
+        return json.encode(updatedPlace.toMap());
+      }
+      return item;
+    }).toList();
+
+    await prefs.setStringList('parkingPlaces', updatedList);
+  }
+
+  static Future<void> upsertParkingPlace(ParkingPlaceModel newPlace) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String> list = prefs.getStringList('parkingPlaces') ?? [];
+
+    bool found = false;
+    final now = DateTime.now();
+
+    List<String> updatedList = list.map((item) {
+      final parsed = ParkingPlaceModel.fromMap(json.decode(item));
+
+      if (parsed.location == newPlace.location &&
+          parsed.plateNumber == newPlace.plateNumber) {
+        found = true;
+        final currentExpired = parsed.expiredAt ?? now;
+        final baseTime = currentExpired.isAfter(now) ? currentExpired : now;
+        final newExpired = baseTime.add(parseDuration(newPlace.duration));
+
+        final updated = parsed.copyWith(
+          expiredAt: newExpired,
+          duration: newPlace.duration,
+        );
+
+        return json.encode(updated.toMap());
+      }
+
+      return item;
+    }).toList();
+
+    if (!found) {
+      updatedList.add(json.encode(newPlace.toMap()));
+    }
+
+    await prefs.setStringList('parkingPlaces', updatedList);
+  }
+
+static Future<void> deleteParkingPlace({
+  required DateTime expiredAt,
+  required int index,
+}) async {
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+  List<String> list = prefs.getStringList('parkingPlaces') ?? [];
+
+  if (index >= 0 && index < list.length) {
+    final parsed = ParkingPlaceModel.fromMap(json.decode(list[index]));
+
+    // Compare exact expiredAt datetime
+    if (parsed.expiredAt?.toIso8601String() == expiredAt.toIso8601String()) {
+      list.removeAt(index);
+    }
+  }
+
+  await prefs.setStringList('parkingPlaces', list);
+}
 
   static Future<bool> getDurationUpdate() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -173,20 +253,6 @@ class SharedPreferencesHelper {
     return email ?? 'test@example.com';
   }
 
-  static Future<void> setParkingExpired(
-      {String? duration, bool? isStart}) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString(expiredKey, duration!);
-    await prefs.setBool(isStartKey, isStart!);
-  }
-
-  static Future<String> getParkingExpired() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    String duration = prefs.getString(expiredKey) ?? '';
-
-    return duration;
-  }
-
   static Future<bool> getParkingExpiredStatus() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     bool? isStart = prefs.getBool(isStartKey);
@@ -222,6 +288,8 @@ class SharedPreferencesHelper {
     String? duration,
     String? location,
     String? type,
+    String? area,
+    String? state,
   }) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString(keyNoReceipt, noReceipt!);
@@ -231,6 +299,8 @@ class SharedPreferencesHelper {
     await prefs.setString(keyDuration, duration!);
     await prefs.setString(keyReceiptLocation, location!);
     await prefs.setString(keyType, type!);
+    await prefs.setString(keyArea, area ?? '');
+    await prefs.setString(keyStateCountary, state ?? '');
   }
 
   static Future<Map<String, dynamic>?> getReceipt() async {
@@ -244,6 +314,8 @@ class SharedPreferencesHelper {
     String? duration = prefs.getString(keyDuration);
     String? location = prefs.getString(keyReceiptLocation);
     String? type = prefs.getString(keyType);
+    String? area = prefs.getString(keyArea);
+    String? state = prefs.getString(keyStateCountary);
 
     // Return the details as a map
     return {
@@ -254,6 +326,8 @@ class SharedPreferencesHelper {
       'duration': duration,
       'location': location,
       'type': type,
+      'area': area,
+      'state': state,
     };
   }
 

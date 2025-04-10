@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter_form_bloc/flutter_form_bloc.dart';
-import 'package:project/app/helpers/shared_preferences.dart';
 import 'package:project/models/models.dart';
 import 'package:project/resources/resources.dart';
 
@@ -114,8 +113,8 @@ class StoreParkingFormBloc extends FormBloc<String, String> {
             'plateNumber': carPlateNumber.value,
             'pbt': pbt.value,
             'location': stateCountry.value,
-            'area': offenceAreas.value,
-            'state': offenceLocation.value,
+            'area': offenceAreas.value?.description ?? 'No Area',
+            'state': offenceLocation.value?.description ?? 'No Location',
             'expiredAt': expiredAt.value,
             'noReceipt': noReceipt.value,
           }),
@@ -124,10 +123,6 @@ class StoreParkingFormBloc extends FormBloc<String, String> {
         if (responseParking['error'] != null) {
           emitFailure(failureResponse: response['error'].toString());
         } else {
-          SharedPreferencesHelper.setParkingExpired(
-            duration: expiredAt.value,
-            isStart: true,
-          );
 
           emitSuccess(successResponse: 'Payment Parking Successful!');
         }

@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:flutter_form_bloc/flutter_form_bloc.dart';
 import 'package:get/get.dart';
@@ -8,7 +10,7 @@ import 'package:project/app/helpers/global_method.dart';
 import 'package:project/constant.dart';
 import 'package:project/form_bloc/form_bloc.dart';
 import 'package:project/models/models.dart';
-import 'package:project/models/offence_data_model.dart';
+import 'package:project/models/offences_rule/offence_data_model.dart';
 import 'package:project/routes/route_manager.dart';
 import 'package:project/theme.dart';
 import 'package:project/widget/loading_dialog.dart';
@@ -39,21 +41,21 @@ class _ParkingBodyScreenState extends State<ParkingBodyScreen> {
   List<PlateNumberModel> carPlates = [];
   String? selectedCarPlate;
   StoreParkingFormBloc? formBloc;
-  String selectedLocation = 'Kuantan';
+  late String selectedLocation;
   double _selectedHour = 1;
   double totalPrice = 0.0;
   late Future<OffenceDataModel> _offenceAreasFuture;
   bool hasMatchingLocation = true;
 
   Map<String, List<double>> pricesPerHour = {
-    'Kuantan': [1, 2, 3, 4, 5, 6, 24],
-    'Machang': [0.5, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-    'Kuala Terengganu': [0.5, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+    'Pahang': [1, 2, 3, 4, 5, 6, 24],
+    'Kelantan': [0.5, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+    'Terengganu': [0.5, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
   };
 
   Map<String, Map<double, double>> prices = {
-    'Kuantan': {1: 0.65, 2: 1.30, 3: 1.95, 4: 2.60, 5: 3.25, 6: 4.55, 24: 4.80},
-    'Machang': {
+    'Pahang': {1: 0.65, 2: 1.30, 3: 1.95, 4: 2.60, 5: 3.25, 6: 4.55, 24: 4.80},
+    'Kelantan': {
       0.5: 0.30,
       1: 0.60,
       2: 1.20,
@@ -66,7 +68,7 @@ class _ParkingBodyScreenState extends State<ParkingBodyScreen> {
       9: 5.40,
       10: 6.00
     },
-    'Kuala Terengganu': {
+    'Terengganu': {
       0.5: 0.40,
       1: 0.80,
       2: 1.60,
@@ -125,6 +127,7 @@ class _ParkingBodyScreenState extends State<ParkingBodyScreen> {
 
   @override
   void initState() {
+    selectedLocation = widget.details['state'];
     super.initState();
     getTime();
     // Check if carPlates list is not empty
@@ -180,7 +183,6 @@ class _ParkingBodyScreenState extends State<ParkingBodyScreen> {
               height: 300,
               child: LoadingIndicator(
                 indicatorType: Indicator.orbit,
-                // ignore: deprecated_member_use
                 colors: [
                   Color(widget.details['color']),
                   Color(widget.details['color']).withOpacity(0.5),
@@ -299,7 +301,7 @@ class _ParkingBodyScreenState extends State<ParkingBodyScreen> {
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 30.0),
                           child: DropdownFieldBlocBuilder<String?>(
-                            isEnabled: false,
+                            // isEnabled: false,
                             showEmptyItem: false,
                             selectFieldBloc: formBloc!.carPlateNumber,
                             decoration: InputDecoration(
@@ -395,11 +397,11 @@ class _ParkingBodyScreenState extends State<ParkingBodyScreen> {
                                 onTap: () {
                                   setState(() {
                                     if (pbtValue.name == imgName[0]) {
-                                      selectedLocation = 'Kuantan';
+                                      selectedLocation = 'Pahang';
                                     } else if (pbtValue.name == imgName[1]) {
-                                      selectedLocation = 'Kuala Terengganu';
+                                      selectedLocation = 'Terengganu';
                                     } else if (pbtValue.name == imgName[2]) {
-                                      selectedLocation = 'Machang';
+                                      selectedLocation = 'Kelantan';
                                     }
 
                                     // Update slider range and selected month
@@ -451,15 +453,15 @@ class _ParkingBodyScreenState extends State<ParkingBodyScreen> {
                                   if (value == imgState[0]) {
                                     formBloc!.pbt
                                         .updateInitialValue(imgName[0]);
-                                    selectedLocation = 'Kuantan';
+                                    selectedLocation = 'Pahang';
                                   } else if (value == imgState[1]) {
                                     formBloc!.pbt
                                         .updateInitialValue(imgName[1]);
-                                    selectedLocation = 'Kuala Terengganu';
+                                    selectedLocation = 'Terengganu';
                                   } else if (value == imgState[2]) {
                                     formBloc!.pbt
                                         .updateInitialValue(imgName[2]);
-                                    selectedLocation = 'Machang';
+                                    selectedLocation = 'Kelantan';
                                   }
 
                                   // Update slider range and selected month

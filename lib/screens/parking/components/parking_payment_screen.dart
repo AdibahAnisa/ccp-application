@@ -6,6 +6,7 @@ import 'package:ntp/ntp.dart';
 import 'package:project/app/helpers/shared_preferences.dart';
 import 'package:project/constant.dart';
 import 'package:project/form_bloc/form_bloc.dart';
+import 'package:project/models/models.dart';
 import 'package:project/theme.dart';
 import 'package:project/widget/custom_dialog.dart';
 import 'package:project/widget/primary_button.dart';
@@ -25,14 +26,14 @@ class _ParkingPaymentScreenState extends State<ParkingPaymentScreen> {
   String _currentDate = '';
   String _currentTime = '';
   bool isCountdownActive = false;
-  late String currentDuration;
-  late String expiredDuration;
+  String? currentDuration;
+  String? expiredDuration;
+  ParkingPlaceModel? parkingPlaceModel;
 
   @override
   void initState() {
     super.initState();
     Timer.periodic(const Duration(seconds: 1), (Timer t) => updateDateTime());
-    analyzeParkingExpired();
   }
 
   void updateDateTime() async {
@@ -50,9 +51,31 @@ class _ParkingPaymentScreenState extends State<ParkingPaymentScreen> {
     }
   }
 
-  Future<void> analyzeParkingExpired() async {
-    currentDuration = await SharedPreferencesHelper.getParkingDuration();
-    expiredDuration = await SharedPreferencesHelper.getParkingExpired();
+  Future<void> analyzeParkingExpired(StoreParkingFormBloc formBloc) async {
+    final List<ParkingPlaceModel> parkingPlaces =
+        await SharedPreferencesHelper.getAllParkingPlaces();
+
+    // Find the matching parking place based on location (or state/area/pbt)
+    final matchingPlace = parkingPlaces.firstWhere(
+      (place) =>
+          place.pbt == formBloc.pbt.value &&
+          place.state == formBloc.offenceLocation.value?.description &&
+          place.area == formBloc.offenceAreas.value?.description &&
+          place.location == formBloc.stateCountry.value &&
+          place.plateNumber == formBloc.carPlateNumber.value,
+      orElse: () => ParkingPlaceModel(
+          duration: '0m',
+          pbt: '',
+          state: '',
+          area: '',
+          location: '',
+          plateNumber: ''),
+    );
+
+    currentDuration = matchingPlace.duration;
+    expiredDuration = matchingPlace.expiredAt != null
+        ? DateFormat('hh:mm:ss a').format(matchingPlace.expiredAt!)
+        : '';
   }
 
   @override
@@ -66,6 +89,8 @@ class _ParkingPaymentScreenState extends State<ParkingPaymentScreen> {
         arguments['locationDetail'] as Map<String, dynamic>;
     StoreParkingFormBloc? formBloc =
         arguments['formBloc'] as StoreParkingFormBloc;
+
+    analyzeParkingExpired(formBloc);
 
     return Scaffold(
       appBar: AppBar(
@@ -140,23 +165,30 @@ class _ParkingPaymentScreenState extends State<ParkingPaymentScreen> {
                 ],
               ),
               const SizedBox(height: 10),
-              Row(
-                children: [
-                  Text(
-                    AppLocalizations.of(context)!.areas,
-                    style: GoogleFonts.firaCode(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(width: 50),
-                  Expanded(
-                    child: Text(
-                      formBloc.offenceAreas.value!.description!,
-                      style: GoogleFonts.firaCode(),
-                      textAlign: TextAlign.right, // Align text to the right
+              if (formBloc.offenceAreas.value != null)
+                Column(
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          AppLocalizations.of(context)!.areas,
+                          style:
+                              GoogleFonts.firaCode(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(width: 50),
+                        Expanded(
+                          child: Text(
+                            formBloc.offenceAreas.value!.description!,
+                            style: GoogleFonts.firaCode(),
+                            textAlign:
+                                TextAlign.right, // Align text to the right
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
+                    const SizedBox(height: 10),
+                  ],
+                ),
               if (formBloc.offenceLocation.value != null)
                 Column(
                   children: [
@@ -276,56 +308,64 @@ class _ParkingPaymentScreenState extends State<ParkingPaymentScreen> {
                         btnOkOnPress: () async {
                           formBloc.amount
                               .updateValue(amount.toStringAsFixed(2));
-
                           final receiptNo = generateReceiptNumber();
 
+                          final location = formBloc.pbt.value;
+
+                          DateTime newTime;
                           if (expiredDuration != '') {
-                            // Add duration to current time
-                            DateTime newTime = now
+                            newTime = now
                                 .add(parseDuration(duration))
-                                .add(parseDuration(currentDuration));
-
-                            SharedPreferencesHelper.setReceipt(
-                              noReceipt: receiptNo,
-                              startTime: DateFormat('hh:mm:ss a').format(
-                                  now.add(parseDuration(currentDuration))),
-                              endTime: DateFormat('hh:mm:ss a').format(newTime),
-                              duration: duration,
-                              location: formBloc.pbt.value,
-                              plateNumber: parkingCar.split('-')[0],
-                              type: AppLocalizations.of(context)!.parking,
-                            );
-
-                            // Format the new time as an ISO 8601 timestamp
-                            String formattedTimestamp =
-                                newTime.toUtc().toIso8601String();
-
-                            formBloc.noReceipt.updateValue(receiptNo);
-                            formBloc.expiredAt.updateValue(formattedTimestamp);
+                                .add(parseDuration(currentDuration!));
                           } else {
-                            // Add duration to current time
-                            DateTime newTime = now.add(parseDuration(duration));
-
-                            SharedPreferencesHelper.setReceipt(
-                              noReceipt: receiptNo,
-                              startTime: _currentTime,
-                              endTime: DateFormat('hh:mm:ss a').format(newTime),
-                              duration: duration,
-                              location: formBloc.pbt.value,
-                              plateNumber: parkingCar.split('-')[0],
-                              type: AppLocalizations.of(context)!.parking,
-                            );
-
-                            // Format the new time as an ISO 8601 timestamp
-                            String formattedTimestamp =
-                                newTime.toUtc().toIso8601String();
-
-                            formBloc.noReceipt.updateValue(receiptNo);
-                            formBloc.expiredAt.updateValue(formattedTimestamp);
-
-                            SharedPreferencesHelper.setParkingDuration(
-                                duration: duration);
+                            newTime = now.add(parseDuration(duration));
                           }
+
+                          final startTimeFormatted = expiredDuration != ''
+                              ? DateFormat('hh:mm:ss a').format(
+                                  now.add(parseDuration(currentDuration!)))
+                              : _currentTime;
+
+                          final endTimeFormatted =
+                              DateFormat('hh:mm:ss a').format(newTime);
+                          final formattedTimestamp =
+                              newTime.toUtc().toIso8601String();
+
+                          final plate = parkingCar.split('-')[0];
+                          final type = AppLocalizations.of(context)!.parking;
+                          final area = formBloc.offenceAreas.value?.description;
+                          final state =
+                              formBloc.offenceLocation.value?.description;
+
+                          await SharedPreferencesHelper.setReceipt(
+                            noReceipt: receiptNo,
+                            startTime: startTimeFormatted,
+                            endTime: endTimeFormatted,
+                            duration: duration,
+                            location: location,
+                            plateNumber: plate,
+                            type: type,
+                            area: area,
+                            state: state,
+                          );
+
+                          formBloc.noReceipt.updateValue(receiptNo);
+                          formBloc.expiredAt.updateValue(formattedTimestamp);
+
+                          // Create model
+                          parkingPlaceModel = ParkingPlaceModel(
+                            duration: duration,
+                            pbt: location!,
+                            state: state,
+                            area: area,
+                            location: formBloc.stateCountry.value!,
+                            plateNumber: parkingCar,
+                            expiredAt: DateTime.tryParse(formattedTimestamp),
+                          );
+
+                          // ✅ Clean handling using upsert method
+                          await SharedPreferencesHelper.upsertParkingPlace(
+                              parkingPlaceModel!);
 
                           formBloc.submit();
                         },

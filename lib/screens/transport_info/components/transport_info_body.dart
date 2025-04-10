@@ -6,16 +6,19 @@ import 'package:flutter/services.dart';
 import 'package:google_maps_cluster_manager/google_maps_cluster_manager.dart'
     as cluster_manager;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 import 'package:location/location.dart';
 import 'package:project/constant.dart';
 import 'package:project/models/models.dart';
 
 // ignore: must_be_immutable
 class TransportInfoBody extends StatefulWidget {
+  final Map<String, dynamic> details;
   final bool showMeter; // Keep it final
 
   const TransportInfoBody({
     super.key,
+    required this.details,
     required this.showMeter,
   });
 
@@ -151,11 +154,21 @@ class _TransportInfoBodyState extends State<TransportInfoBody> {
   @override
   Widget build(BuildContext context) {
     if (_currentPosition == null) {
-      return const Center(
-        child: CircularProgressIndicator(
-          color: kPrimaryColor,
+      return Center(
+          child: SizedBox(
+        width: 300,
+        height: 300,
+        child: LoadingIndicator(
+          indicatorType: Indicator.ballScaleMultiple,
+          colors: [
+            Color(widget.details['color']),
+            Color(widget.details['color']).withOpacity(0.5),
+            kWhite
+          ],
+          backgroundColor: kBackgroundColor,
+          pathBackgroundColor: kBackgroundColor,
         ),
-      );
+      ));
     }
 
     // Ensure that _manager is initialized before proceeding
@@ -217,5 +230,4 @@ class _TransportInfoBodyState extends State<TransportInfoBody> {
               ),
             );
           };
-
 }

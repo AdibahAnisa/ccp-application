@@ -49,11 +49,17 @@ class _SliderScreenState extends State<SliderScreen> {
           case 0:
             return kPrimaryColor.value;
           case 1:
-            return kOrange.value;
+            // return kOrange.value;
+            return kPrimaryColor.value;
+
           case 2:
-            return kYellow.value;
+            // return kYellow.value;
+            return kPrimaryColor.value;
+
           default:
-            return Colors.transparent.value; // Default color or handle error
+            // return Colors.transparent.value; // Default color or handle error
+            return kPrimaryColor.value;
+
         }
       }
 

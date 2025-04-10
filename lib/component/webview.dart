@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
@@ -27,7 +29,6 @@ class WebViewPage extends StatefulWidget {
 }
 
 class _WebViewPageState extends State<WebViewPage> {
-
   @override
   void initState() {
     super.initState();
@@ -48,7 +49,8 @@ class _WebViewPageState extends State<WebViewPage> {
       }
 
       storagePermission = await Permission.storage.request();
-      manageStoragePermission = await Permission.manageExternalStorage.request();
+      manageStoragePermission =
+          await Permission.manageExternalStorage.request();
 
       if (storagePermission.isGranted || manageStoragePermission.isGranted) {
         return true;
@@ -58,7 +60,8 @@ class _WebViewPageState extends State<WebViewPage> {
           manageStoragePermission.isPermanentlyDenied) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text("Permission denied permanently. Please enable it in settings."),
+            content: const Text(
+                "Permission denied permanently. Please enable it in settings."),
             action: SnackBarAction(
               label: "Open Settings",
               onPressed: () => openAppSettings(),
@@ -127,7 +130,8 @@ class _WebViewPageState extends State<WebViewPage> {
         backgroundColor: kBackgroundColor,
         appBar: AppBar(
           toolbarHeight: 100,
-          foregroundColor: widget.details['color'] == 4294961979 ? kBlack : kWhite,
+          foregroundColor:
+              widget.details['color'] == 4294961979 ? kBlack : kWhite,
           backgroundColor: Color(widget.details['color']),
           centerTitle: true,
           title: Text(
@@ -149,8 +153,7 @@ class _WebViewPageState extends State<WebViewPage> {
               mediaPlaybackRequiresUserGesture: false,
             ),
           ),
-          onWebViewCreated: (controller) {
-          },
+          onWebViewCreated: (controller) {},
           shouldOverrideUrlLoading: (controller, navigationAction) async {
             var uri = navigationAction.request.url;
             if (uri != null && _isFileDownload(uri.toString())) {
