@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:project/app/helpers/shared_preferences.dart';
 import 'package:project/models/models.dart';
 import 'package:project/models/offences_rule/offence_data_model.dart';
 import 'package:project/resources/resources.dart';
@@ -30,6 +31,8 @@ Future<OffenceDataModel> fetchOffenceAreasList() async {
     final lookupResponse = await ParkingResources.getDownloadLookupTable(
       prefix: '/VistaParkingWebService/HandheldService.svc/DownloadLookupTable/$handheldCode',
     );
+
+    await SharedPreferencesHelper.saveHandheldId(handheldCode);
 
     List<OffenceAreasModel> areas = [];
     List<OffenceLocationModel> locations = [];

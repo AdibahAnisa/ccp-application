@@ -273,7 +273,7 @@ class _SummonsReceiptScreenState extends State<SummonsReceiptScreen> {
                                   Expanded(
                                     child: Text(
                                       selectedSummons[index]
-                                          .vehicleRegistrationNo!,
+                                          .vehicleNo!,
                                       style: textStyleNormal(),
                                       textAlign: TextAlign
                                           .right, // Align text to the right
@@ -292,7 +292,7 @@ class _SummonsReceiptScreenState extends State<SummonsReceiptScreen> {
                                   const SizedBox(width: 50),
                                   Expanded(
                                     child: Text(
-                                      'RM ${double.parse(selectedSummons[index].amount!).toStringAsFixed(2)}',
+                                      'RM ${selectedSummons[index].compoundAmount!.toStringAsFixed(2)}',
                                       style: textStyleNormal(),
                                       textAlign: TextAlign
                                           .right, // Align text to the right

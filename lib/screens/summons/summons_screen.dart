@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_scale_tap/flutter_scale_tap.dart';
 import 'package:get/get.dart';
@@ -31,17 +33,39 @@ class _SummonsScreenState extends State<SummonsScreen> {
   final List<SummonModel> _selectedSummons =
       []; // Temporary list to store selected summons
 
+  List<PlateNumberModel>? _plateNumbers = [];
+  UserModel? _userModel = UserModel();
+  Map<String, dynamic> _details = {};
+
   String _selectedInputType = Get.locale!.languageCode == "en"
       ? 'Notice No.'
       : 'No. Notis'; // Default selected dropdown value
+
+  bool _isInitialized = false;
 
   @override
   void initState() {
     super.initState();
     compoundModel = CompoundModel();
     summonModel = SummonModel();
-    _initData = _getSummons();
     _searchController.addListener(_onSearchChanged); // Add search listener
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    if (!_isInitialized) {
+      final arguments =
+          ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
+
+      _details = arguments['locationDetail'] as Map<String, dynamic>;
+      _userModel = arguments['userModel'] as UserModel?;
+      _plateNumbers = arguments['plateNumbers'] as List<PlateNumberModel>?;
+
+      _initData = _getSummons(); // Set future for FutureBuilder
+      _isInitialized = true;
+    }
   }
 
   @override
@@ -52,23 +76,39 @@ class _SummonsScreenState extends State<SummonsScreen> {
   }
 
   Future<void> _getSummons() async {
-    final response = await CompoundResources.displayPrimaryCompound(
-      prefix: '/compound/display',
-    );
+    if (_plateNumbers == null || _plateNumbers!.isEmpty) return;
 
     try {
-      // Parse the response to update the compound model
-      compoundModel.actionCode = response['actionCode'].toString();
-      compoundModel.responseCode = response['responseCode'].toString();
-      compoundModel.responseMessage = response['responseMessage'].toString();
+      // Run multiple async API calls in parallel
+      final responses = await Future.wait(
+        _plateNumbers!.map((plate) async {
+          try {
+            final response = await CompoundResources.displayPrimaryCompound(
+              prefix: '/compound/display',
+              body: jsonEncode({'VehicleNo': plate.plateNumber}),
+            );
 
-      // Map the summonses data to SummonModel objects
-      summonsList = (response['summonses'] as List)
-          .map((json) => SummonModel.fromJson(json))
-          .toList();
+            if (response['Notices'] is List &&
+                (response['Notices'] as List).isNotEmpty) {
+              final List fetched = response['Notices'];
+              return fetched.map((e) => SummonModel.fromJson(e)).toList();
+            } else {
+              return <SummonModel>[]; // Empty list if null or empty
+            }
+          } catch (e) {
+            print('Error on plate ${plate.plateNumber}: $e');
+            return <SummonModel>[]; // Return empty list on error
+          }
+        }),
+      );
+
+      // Flatten the list of lists
+      summonsList = responses.expand((e) => e).toList();
     } catch (e) {
-      print('Error: $e');
+      print('General error in fetching summons: $e');
     }
+
+    setState(() {});
   }
 
   Future<void> _onSearchChanged() async {
@@ -83,43 +123,11 @@ class _SummonsScreenState extends State<SummonsScreen> {
             return summon.noticeNo?.toLowerCase().contains(query) ?? false;
           } else if (_selectedInputType == 'Plate Number' ||
               _selectedInputType == 'Nombor Plat') {
-            return summon.vehicleRegistrationNo
-                    ?.toLowerCase()
-                    .contains(query) ??
-                false;
+            return summon.vehicleNo?.toLowerCase().contains(query) ?? false;
           }
           return false;
         }).toList();
       });
-
-      // final response = await CompoundResources.search(
-      //   prefix: '/compound/search',
-      //   body: jsonEncode(searchParams), // Send search parameters
-      // );
-
-      // try {
-      //   // Parse the response to update the compound model
-      //   compoundModel.actionCode = response['data']['actionCode'].toString();
-      //   compoundModel.responseCode =
-      //       response['data']['responseCode'].toString();
-      //   compoundModel.responseMessage =
-      //       response['data']['responseMessage'].toString();
-
-      //   if (compoundModel.responseMessage == 'SUCCESS') {
-      //     // Map the summonses data to SummonModel objects and display in the ListView
-      //     setState(() {
-      //       summonsList = (response['data']['summonses'] as List)
-      //           .map((json) => SummonModel.fromJson(json))
-      //           .toList();
-      //     });
-      //   } else {
-      //     setState(() {
-      //       summonsList = [];
-      //     });
-      //   }
-      // } catch (e) {
-      //   print('Error: $e');
-      // }
     } else {
       // If the query is empty, reload the original summons list
       await _getSummons();
@@ -133,13 +141,6 @@ class _SummonsScreenState extends State<SummonsScreen> {
       AppLocalizations.of(context)!.noticeNo,
       AppLocalizations.of(context)!.plateNumber,
     ];
-
-    final arguments =
-        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
-
-    Map<String, dynamic> details =
-        arguments['locationDetail'] as Map<String, dynamic>;
-    UserModel? userModel = arguments['userModel'] as UserModel?;
     return FutureBuilder<void>(
       future: _initData,
       builder: (context, snapshot) {
@@ -156,14 +157,14 @@ class _SummonsScreenState extends State<SummonsScreen> {
               appBar: AppBar(
                 toolbarHeight: 100,
                 foregroundColor:
-                    details['color'] == 4294961979 ? kBlack : kWhite,
-                backgroundColor: Color(details['color']!),
+                    _details['color'] == 4294961979 ? kBlack : kWhite,
+                backgroundColor: Color(_details['color']!),
                 centerTitle: true,
                 title: Text(
                   AppLocalizations.of(context)!.summons,
                   style: textStyleNormal(
                     fontSize: 26,
-                    color: details['color'] == 4294961979 ? kBlack : kWhite,
+                    color: _details['color'] == 4294961979 ? kBlack : kWhite,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -281,19 +282,19 @@ class _SummonsScreenState extends State<SummonsScreen> {
                                         children: [
                                           spaceVertical(height: 10.0),
                                           Text(
-                                            '${AppLocalizations.of(context)!.vehicleNo}: ${notice.vehicleRegistrationNo}',
+                                            '${AppLocalizations.of(context)!.vehicleNo}: ${notice.vehicleNo}',
                                             style: textStyleNormal(),
                                           ),
                                           Text(
-                                            '${AppLocalizations.of(context)!.offencesAct}: ${notice.offenceAct}',
+                                            '${AppLocalizations.of(context)!.offencesAct}: ${notice.offence}',
                                             style: textStyleNormal(),
                                           ),
                                           Text(
-                                            '${AppLocalizations.of(context)!.offencesDate}: ${notice.offenceDate}',
+                                            '${AppLocalizations.of(context)!.offencesDate}: ${formatOffenceDate(notice.offenceDateString!)}',
                                             style: textStyleNormal(),
                                           ),
                                           Text(
-                                            '${AppLocalizations.of(context)!.amount}: RM ${double.parse(notice.amount!).toStringAsFixed(2)}',
+                                            '${AppLocalizations.of(context)!.amount}: RM ${notice.compoundAmount!.toStringAsFixed(2)}',
                                             style: textStyleNormal(),
                                           ),
                                         ],
@@ -347,8 +348,8 @@ class _SummonsScreenState extends State<SummonsScreen> {
                         context,
                         AppRoute.summonsPaymentScreen,
                         arguments: {
-                          'locationDetail': details,
-                          'userModel': userModel,
+                          'locationDetail': _details,
+                          'userModel': _userModel,
                           'selectedSummons':
                               _selectedSummons, // Pass the temporary list
                         },

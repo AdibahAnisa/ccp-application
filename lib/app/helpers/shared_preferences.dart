@@ -27,6 +27,18 @@ class SharedPreferencesHelper {
     return biometric;
   }
 
+  static Future<void> saveHandheldId(String handHeldId) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString(handHeldIdKey, handHeldId);
+  }
+
+    static Future<String> getHandheldId() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String handHeldId = prefs.getString(handHeldIdKey) ?? '';
+
+    return handHeldId;
+  }
+
   static Future<void> saveLocationDetail(
       {String location = 'PBT Kuantan',
       String state = 'Pahang',

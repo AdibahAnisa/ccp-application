@@ -160,6 +160,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
                       Navigator.pushNamed(context, AppRoute.summonsScreen,
                           arguments: {
                             'locationDetail': widget.details,
+                            'plateNumbers': widget.plateNumbers ?? [],
                             'userModel': widget.userModel,
                           });
                     },

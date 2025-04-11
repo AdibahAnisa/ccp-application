@@ -282,7 +282,7 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
                   ],
                 ),
                 const SizedBox(height: 10),
-                if (receipt?['area'] != null) // Check if area is not null
+                if (receipt?['area'] != "") // Check if area is not null
                   Column(
                     children: [
                       Row(
@@ -305,7 +305,7 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
                       const SizedBox(height: 10),
                     ],
                   ),
-                if (receipt?['state'] != null) // Check if area is not null
+                if (receipt?['state'] != "") // Check if area is not null
                   Column(
                     children: [
                       Row(

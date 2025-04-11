@@ -99,6 +99,26 @@ class CompoundFormBloc extends FormBloc<String, String> {
         emitSuccess(successResponse: response['ShortcutLink']);
       }
 
+      if (response['error'] == "Internal server error") {
+        await PegeypayResources.refreshToken(
+          prefix: '/paymentfpx/public',
+        );
+
+        final response = await getFPX();
+
+        await SharedPreferencesHelper.setOrderDetails(
+          orderNo: response['BillId'].toString(),
+          amount: amount.value.toString(),
+          storeId: "Compound",
+          shiftId: model.email!,
+          terminalId: response['BatchName'].toString(),
+          status: "paid",
+        );
+
+        emitSuccess(successResponse: response['ShortcutLink']);
+      }
+
+
       if (response['SFM']['Constant'] == "SFM_GENERAL_ERROR") {
         // emitFailure(failureResponse: response['error'].toString());
         await PegeypayResources.refreshToken(

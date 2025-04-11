@@ -47,7 +47,6 @@ Duration parseDuration(String durationString) {
   }
 }
 
-
 String formatDuration(Duration duration) {
   String twoDigits(int n) => n.toString().padLeft(2, '0');
   final hours = twoDigits(duration.inHours);
@@ -138,6 +137,7 @@ const String stateKey = 'stateKey';
 const String areaKey = 'areaKey';
 const String locationKey = 'locationKey';
 const String biometricKey = 'biometricKey';
+const String handHeldIdKey = 'handHeldIdKey';
 
 class GlobalDeclaration {
   static String globalDuration = '';
@@ -194,4 +194,28 @@ String generateSerialNumber({int length = 8}) {
   final Random random = Random();
   return List.generate(length, (index) => chars[random.nextInt(chars.length)])
       .join();
+}
+
+String formatOffenceDate(String rawDate) {
+  if (rawDate.length != 14) return rawDate;
+
+  final year = rawDate.substring(0, 4);
+  final month = rawDate.substring(4, 6);
+  final day = rawDate.substring(6, 8);
+  int hour = int.parse(rawDate.substring(8, 10));
+  final minute = rawDate.substring(10, 12);
+  final second = rawDate.substring(12, 14);
+
+  String period = 'A.M';
+
+  if (hour >= 12) {
+    period = 'P.M';
+    if (hour > 12) hour -= 12;
+  } else if (hour == 0) {
+    hour = 12;
+  }
+
+  final hourStr = hour.toString().padLeft(2, '0');
+
+  return '$year-$month-$day, $hourStr:$minute:$second $period';
 }
