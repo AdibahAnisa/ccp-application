@@ -95,7 +95,7 @@ class _HomeScreenState extends State<HomeScreen> {
         dialogType: 2,
         description:
             'This app needs access to your location to function. Do you want to enable it?',
-        btnOkText: 'Yes',
+        btnOkText: 'Continue',
         btnOkOnPress: () async {
           permissionGranted = await locationController.requestPermission();
           await permission.Permission.notification.request();
@@ -108,7 +108,7 @@ class _HomeScreenState extends State<HomeScreen> {
             // await _checkBatteryOptimization();
           }
         },
-        btnCancelText: 'No',
+        btnCancelText: 'Not Now',
         btnCancelOnPress: () {
           Navigator.pop(context);
         },
