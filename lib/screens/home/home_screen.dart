@@ -108,10 +108,6 @@ class _HomeScreenState extends State<HomeScreen> {
             // await _checkBatteryOptimization();
           }
         },
-        btnCancelText: 'Not Now',
-        btnCancelOnPress: () {
-          Navigator.pop(context);
-        },
       );
     }
   }
