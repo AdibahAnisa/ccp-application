@@ -21,14 +21,16 @@ final Map<String, List<Map<String, dynamic>>> statePbtMap = {
     {
       'name': 'PBT Machang',
       'logo': machangLogo,
-      'color': kYellow.value,
+      // 'color': kYellow.value,
+      'color': kPrimaryColor.value,
     },
   ],
   'Terengganu': [
     {
       'name': 'PBT Kuala Terengganu',
       'logo': terengganuLogo,
-      'color': kOrange.value,
+      // 'color': kOrange.value,
+      'color': kPrimaryColor.value,
     },
   ],
 };

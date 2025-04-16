@@ -162,6 +162,10 @@ class _WebViewPageState extends State<WebViewPage> {
             }
             return NavigationActionPolicy.ALLOW;
           },
+          onDownloadStartRequest: (controller, downloadStartRequest) async {
+            String url = downloadStartRequest.url.toString();
+            _downloadFile(url);
+          },
         ),
       ),
     );

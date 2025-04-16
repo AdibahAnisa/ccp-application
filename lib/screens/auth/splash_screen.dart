@@ -1,5 +1,8 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 import 'package:project/app/helpers/biometric_helper.dart';
 import 'package:project/app/helpers/global_method.dart';
 import 'package:project/app/helpers/shared_preferences.dart';
@@ -18,6 +21,7 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   final BiometricHelper biometricHelper = BiometricHelper();
   int activeStepper = 1;
+  bool _isLoading = true;
 
   bool _isInit = false;
   late bool biometricStatus;
@@ -48,25 +52,31 @@ class _SplashScreenState extends State<SplashScreen> {
     final token = await AuthResources.getToken();
 
     if (token != null) {
-      // If user is logged in, then we can ask for biometric
       final isAvailable = await biometricHelper.isBiometricAvailable();
 
       if (isAvailable) {
+        setState(
+            () => _isLoading = true); // Only load if biometric is available
+
         final isAuthenticated = await biometricHelper.authenticateUser();
+
         if (isAuthenticated) {
           await fetchOffenceAreasList();
           Navigator.pushReplacementNamed(context, AppRoute.homeScreen);
         } else {
-          Navigator.pushReplacementNamed(context, AppRoute.loginScreen, arguments: {
-            'isBiometric': biometricStatus,
-          });
+          Navigator.pushReplacementNamed(context, AppRoute.loginScreen,
+              arguments: {
+                'isBiometric': biometricStatus,
+              });
         }
+
+        setState(
+            () => _isLoading = false); // End loading after biometric handled
       } else {
         await fetchOffenceAreasList();
         Navigator.pushReplacementNamed(context, AppRoute.homeScreen);
       }
     } else {
-      // No user token found, go to login/signup screen
       Navigator.pushReplacementNamed(context, AppRoute.loginScreen);
     }
 
@@ -80,13 +90,38 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          color: kWhite,
-        ),
-        height: double.infinity,
-        width: double.infinity,
-        child: Image.asset(logo),
+      body: Stack(
+        children: [
+          Container(
+            color: kWhite,
+            height: double.infinity,
+            width: double.infinity,
+            child: Image.asset(logo),
+          ),
+          if (_isLoading && biometricStatus)
+            Container(
+              color: Colors.black.withOpacity(0.3),
+              child: Center(
+                child: Card(
+                  child: Container(
+                    width: 80,
+                    height: 80,
+                    padding: const EdgeInsets.all(12.0),
+                    child: LoadingIndicator(
+                      indicatorType: Indicator.ballRotateChase,
+                      colors: [
+                        kPrimaryColor,
+                        kPrimaryColor.withOpacity(0.5),
+                        kWhite
+                      ],
+                      backgroundColor: Colors.transparent, // transparent now
+                      pathBackgroundColor: Colors.transparent,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }

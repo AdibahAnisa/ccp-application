@@ -529,7 +529,7 @@ class _HomeScreenState extends State<HomeScreen> {
               color: kWhite,
             ),
             padding: const EdgeInsets.only(
-              left: 25.0,
+              left: 10.0,
               bottom: 20.0,
             ),
             alignment: Alignment.center,
