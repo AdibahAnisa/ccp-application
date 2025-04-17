@@ -4,7 +4,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_scale_tap/flutter_scale_tap.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart'; // For date formatting
@@ -535,16 +534,15 @@ class _HomeScreenState extends State<HomeScreen> {
             alignment: Alignment.center,
             height: 200,
             child: InAppWebView(
-              initialUrlRequest:
-                  URLRequest(url: WebUri.uri(Uri.parse('https://mst.sirim.my/widget'))),
+              initialUrlRequest: URLRequest(
+                  url: WebUri.uri(Uri.parse('https://mst.sirim.my/widget'))),
               initialOptions: InAppWebViewGroupOptions(
                 crossPlatform: InAppWebViewOptions(
                   javaScriptEnabled: true,
                   useShouldOverrideUrlLoading: true,
                 ),
               ),
-              onWebViewCreated: (controller) {
-              },
+              onWebViewCreated: (controller) {},
               shouldOverrideUrlLoading: (controller, navigationAction) async {
                 var uri = navigationAction.request.url;
                 if (uri.toString().startsWith('https://mst.sirim.my/widget')) {

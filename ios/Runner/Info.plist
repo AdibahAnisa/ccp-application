@@ -1,79 +1,124 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-	<dict>
-		<key>CADisableMinimumFrameDurationOnPhone</key>
-		<true />
-		<key>CFBundleDevelopmentRegion</key>
-		<string>$(DEVELOPMENT_LANGUAGE)</string>
-		<key>CFBundleDisplayName</key>
-		<string>City Car Park</string>
-		<key>CFBundleExecutable</key>
-		<string>$(EXECUTABLE_NAME)</string>
-		<key>CFBundleIdentifier</key>
-		<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
-		<key>CFBundleInfoDictionaryVersion</key>
-		<string>6.0</string>
-		<key>CFBundleName</key>
-		<string>ccp</string>
-		<key>CFBundlePackageType</key>
-		<string>APPL</string>
-		<key>CFBundleShortVersionString</key>
-		<string>$(FLUTTER_BUILD_NAME)</string>
-		<key>CFBundleSignature</key>
-		<string>????</string>
-		<key>CFBundleVersion</key>
-		<string>$(FLUTTER_BUILD_NUMBER)</string>
-		<key>LSRequiresIPhoneOS</key>
-		<true />
-		<key>NSFaceIDUsageDescription</key>
-		<string>We use Face ID to authenticate you</string>
-		<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-		<string>You need to provide location access to detect the meter around you.</string>
-		<key>NSLocationAlwaysUsageDescription</key>
-		<string>You need to provide location access to detect the meter around you.</string>
-		<key>NSLocationWhenInUseUsageDescription</key>
-		<string>You need to provide location access to detect the meter around you.</string>
-		<key>NSPhotoLibraryAddUsageDescription</key>
-		<string>This app requires permission to save images to your photo library.</string>
-		<key>NSPhotoLibraryUsageDescription</key>
-		<string>This app requires access to your photo library to upload images.</string>
-		<key>NSDocumentsDirectoryUsageDescription</key>
-		<string>We need access to save your files.</string>
-		<key>UIApplicationSupportsIndirectInputEvents</key>
-		<true />
-		<key>UILaunchStoryboardName</key>
-		<string>LaunchScreen</string>
-		<key>UIMainStoryboardFile</key>
-		<string>Main</string>
-		<key>UISupportedInterfaceOrientations</key>
-		<array>
-			<string>UIInterfaceOrientationPortrait</string>
-			<string>UIInterfaceOrientationLandscapeLeft</string>
-			<string>UIInterfaceOrientationLandscapeRight</string>
-		</array>
-		<key>UISupportedInterfaceOrientations~ipad</key>
-		<array>
-			<string>UIInterfaceOrientationPortrait</string>
-			<string>UIInterfaceOrientationPortraitUpsideDown</string>
-			<string>UIInterfaceOrientationLandscapeLeft</string>
-			<string>UIInterfaceOrientationLandscapeRight</string>
-		</array>
-		<key>CFBundleIconFiles</key>
-		<array>
-			<string>Icon-40.png</string>
-			<string>Icon-40@2x.png</string>
-			<string>Icon-40@3x.png</string>
-			<string>Icon-60@2x.png</string>
-			<string>Icon-60@3x.png</string>
-			<string>Icon-76.png</string>
-			<string>Icon-76@2x.png</string>
-			<string>Icon-83.5@2x.png</string>
-			<string>Icon-Small-40.png</string>
-			<string>Icon-Small-40@2x.png</string>
-			<string>Icon-Small.png</string>
-			<string>Icon-Small@2x.png</string>
-			<string>Icon-Small@3x.png</string>
-		</array>
-	</dict>
+  <dict>
+    <key>CADisableMinimumFrameDurationOnPhone</key>
+    <true />
+    <key>CFBundleDevelopmentRegion</key>
+    <string>$(DEVELOPMENT_LANGUAGE)</string>
+    <key>CFBundleDisplayName</key>
+    <string>City Car Park</string>
+    <key>CFBundleExecutable</key>
+    <string>$(EXECUTABLE_NAME)</string>
+    <key>CFBundleIdentifier</key>
+    <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>CFBundleName</key>
+    <string>ccp</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleShortVersionString</key>
+    <string>$(FLUTTER_BUILD_NAME)</string>
+    <key>CFBundleSignature</key>
+    <string>????</string>
+    <key>CFBundleVersion</key>
+    <string>$(FLUTTER_BUILD_NUMBER)</string>
+    <key>LSRequiresIPhoneOS</key>
+    <true />
+    <key>UILaunchStoryboardName</key>
+    <string>LaunchScreen</string>
+    <key>UIMainStoryboardFile</key>
+    <string>Main</string>
+
+    <!-- 📍 Location Permissions -->
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>This app requires access to your location while using the app.</string>
+    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>This app requires access to your location even when running in the background.</string>
+    <key>NSLocationAlwaysUsageDescription</key>
+    <string>This app requires access to your location at all times.</string>
+
+    <!-- 🛜 File and Photo Access -->
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>This app needs access to your photo library to upload and download files.</string>
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>This app needs permission to save images to your photo library.</string>
+    <key>NSDocumentsFolderUsageDescription</key>
+    <string>This app needs permission to save and read your documents.</string>
+
+    <!-- 🔋 Battery Optimization (Explanation Only) -->
+    <key>NSBatteryMonitoringUsageDescription</key>
+    <string>This app uses battery information to optimize location tracking.</string>
+
+    <!-- 🔐 Biometric Authentication -->
+    <key>NSFaceIDUsageDescription</key>
+    <string>This app uses Face ID to authenticate you.</string>
+
+    <!-- 🧠 Background Modes -->
+    <key>UIBackgroundModes</key>
+    <array>
+      <string>location</string>
+      <string>fetch</string>
+      <string>processing</string>
+    </array>
+
+    <!-- 🌐 WebView / InAppWebView Network Permissions -->
+    <key>NSAppTransportSecurity</key>
+    <dict>
+      <key>NSAllowsArbitraryLoads</key>
+      <true/>
+      <key>NSAllowsArbitraryLoadsInWebContent</key>
+      <true/>
+      <key>NSExceptionDomains</key>
+      <dict>
+        <key>mst.sirim.my</key>
+        <dict>
+          <key>NSExceptionAllowsInsecureHTTPLoads</key>
+          <false/>
+          <key>NSIncludesSubdomains</key>
+          <true/>
+          <key>NSTemporaryExceptionAllowsInsecureHTTPLoads</key>
+          <true/>
+        </dict>
+      </dict>
+    </dict>
+
+    <!-- ✅ Orientation -->
+    <key>UISupportedInterfaceOrientations</key>
+    <array>
+      <string>UIInterfaceOrientationPortrait</string>
+      <string>UIInterfaceOrientationLandscapeLeft</string>
+      <string>UIInterfaceOrientationLandscapeRight</string>
+    </array>
+    <key>UISupportedInterfaceOrientations~ipad</key>
+    <array>
+      <string>UIInterfaceOrientationPortrait</string>
+      <string>UIInterfaceOrientationPortraitUpsideDown</string>
+      <string>UIInterfaceOrientationLandscapeLeft</string>
+      <string>UIInterfaceOrientationLandscapeRight</string>
+    </array>
+
+    <!-- ✅ App Icons -->
+    <key>CFBundleIconFiles</key>
+    <array>
+      <string>Icon-40.png</string>
+      <string>Icon-40@2x.png</string>
+      <string>Icon-40@3x.png</string>
+      <string>Icon-60@2x.png</string>
+      <string>Icon-60@3x.png</string>
+      <string>Icon-76.png</string>
+      <string>Icon-76@2x.png</string>
+      <string>Icon-83.5@2x.png</string>
+      <string>Icon-Small-40.png</string>
+      <string>Icon-Small-40@2x.png</string>
+      <string>Icon-Small.png</string>
+      <string>Icon-Small@2x.png</string>
+      <string>Icon-Small@3x.png</string>
+    </array>
+
+    <!-- ✅ Input Support -->
+    <key>UIApplicationSupportsIndirectInputEvents</key>
+    <true />
+  </dict>
 </plist>
