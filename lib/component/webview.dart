@@ -40,55 +40,57 @@ class _WebViewPageState extends State<WebViewPage> {
 
   Future<bool> _requestPermissions() async {
     if (Platform.isAndroid) {
-      PermissionStatus storagePermission = await Permission.storage.status;
-      PermissionStatus manageStoragePermission =
-          await Permission.manageExternalStorage.status;
+      var status = await Permission.storage.status;
 
-      if (storagePermission.isGranted || manageStoragePermission.isGranted) {
-        return true;
+      if (status.isGranted) return true;
+
+      // Trigger permission dialog
+      status = await Permission.storage.request();
+
+      if (status.isGranted) return true;
+
+      if (status.isDenied) {
+        // User denied permission but not permanently
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Permission denied. Cannot save file.")),
+        );
       }
 
-      storagePermission = await Permission.storage.request();
-      manageStoragePermission =
-          await Permission.manageExternalStorage.request();
-
-      if (storagePermission.isGranted || manageStoragePermission.isGranted) {
-        return true;
-      }
-
-      if (storagePermission.isPermanentlyDenied ||
-          manageStoragePermission.isPermanentlyDenied) {
+      if (status.isPermanentlyDenied) {
+        // User denied forever, open settings
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text(
-                "Permission denied permanently. Please enable it in settings."),
+                "Storage permission permanently denied. Enable it in settings."),
             action: SnackBarAction(
               label: "Open Settings",
               onPressed: () => openAppSettings(),
             ),
           ),
         );
-        return false;
       }
 
-      return _requestPermissions();
+      return false;
     }
     return true;
   }
 
   Future<void> _downloadFile(String url) async {
-    if (!await _requestPermissions()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Permission Denied! Cannot save file.")),
-      );
-      return;
+    if (Platform.isAndroid && Platform.version.compareTo('10') < 0) {
+      if (!await _requestPermissions()) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Permission Denied! Cannot save file.")),
+        );
+        return;
+      }
     }
 
     try {
       Dio dio = Dio();
       String fileName = url.split('/').last;
-      Directory? directory = await getExternalStorageDirectory();
-      String filePath = '${directory!.path}/$fileName.pdf';
+
+      Directory directory = await getApplicationDocumentsDirectory();
+      String filePath = '${directory.path}/$fileName';
 
       await dio.download(
         url,
