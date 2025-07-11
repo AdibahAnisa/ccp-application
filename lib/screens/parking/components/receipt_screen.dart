@@ -12,12 +12,12 @@ import 'package:project/app/helpers/shared_preferences.dart';
 import 'package:project/constant.dart';
 import 'package:project/models/models.dart';
 import 'package:project/routes/route_manager.dart';
+import 'package:project/src/localization/app_localizations.dart';
 import 'package:project/theme.dart';
 import 'package:project/widget/primary_button.dart';
 import 'package:printing/printing.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ReceiptScreen extends StatefulWidget {

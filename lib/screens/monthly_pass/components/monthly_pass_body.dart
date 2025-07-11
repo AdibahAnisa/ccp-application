@@ -14,11 +14,11 @@ import 'package:project/form_bloc/form_bloc.dart';
 import 'package:project/models/models.dart';
 import 'package:project/resources/resources.dart';
 import 'package:project/routes/route_manager.dart';
+import 'package:project/src/localization/app_localizations.dart';
 import 'package:project/theme.dart';
 import 'package:project/widget/loading_dialog.dart';
 import 'package:project/widget/primary_button.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class MonthlyPassBody extends StatefulWidget {
   final UserModel userModel;

@@ -5,12 +5,13 @@ import 'package:flutter_scale_tap/flutter_scale_tap.dart';
 import 'package:get/get.dart';
 import 'package:project/constant.dart';
 import 'package:project/models/models.dart';
+import 'package:project/models/ticket_model.dart';
 import 'package:project/resources/resources.dart';
 import 'package:project/routes/route_manager.dart';
+import 'package:project/src/localization/app_localizations.dart';
 import 'package:project/theme.dart';
 import 'package:project/widget/loading_dialog.dart';
 import 'package:project/widget/primary_button.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SummonsScreen extends StatefulWidget {
   const SummonsScreen({super.key});
@@ -20,9 +21,9 @@ class SummonsScreen extends StatefulWidget {
 }
 
 class _SummonsScreenState extends State<SummonsScreen> {
-  late final SummonModel summonModel;
+  late final TicketModel summonModel;
   late final CompoundModel compoundModel;
-  List<SummonModel>? summonsList;
+  List<TicketModel>? summonsList;
   late Future<void> _initData;
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
       GlobalKey<RefreshIndicatorState>();
@@ -30,7 +31,7 @@ class _SummonsScreenState extends State<SummonsScreen> {
   // Use a Set to keep track of selected notices
   final Set<String> _selectedIds =
       <String>{}; // Change to String if you want to store other IDs like offenderIDNo or vehicleRegistrationNumber
-  final List<SummonModel> _selectedSummons =
+  final List<TicketModel> _selectedSummons =
       []; // Temporary list to store selected summons
 
   List<PlateNumberModel>? _plateNumbers = [];
@@ -47,7 +48,7 @@ class _SummonsScreenState extends State<SummonsScreen> {
   void initState() {
     super.initState();
     compoundModel = CompoundModel();
-    summonModel = SummonModel();
+    summonModel = TicketModel();
     _searchController.addListener(_onSearchChanged); // Add search listener
   }
 
@@ -84,20 +85,20 @@ class _SummonsScreenState extends State<SummonsScreen> {
         _plateNumbers!.map((plate) async {
           try {
             final response = await CompoundResources.displayPrimaryCompound(
-              prefix: '/compound/display',
+              prefix: '/compound/outstanding',
               body: jsonEncode({'VehicleNo': plate.plateNumber}),
             );
 
-            if (response['Notices'] is List &&
-                (response['Notices'] as List).isNotEmpty) {
-              final List fetched = response['Notices'];
-              return fetched.map((e) => SummonModel.fromJson(e)).toList();
+            if (response['Result'] is List &&
+                (response['Result'] as List).isNotEmpty) {
+              final List fetched = response['Result'];
+              return fetched.map((e) => TicketModel.fromJson(e)).toList();
             } else {
-              return <SummonModel>[]; // Empty list if null or empty
+              return <TicketModel>[]; // Empty list if null or empty
             }
           } catch (e) {
             print('Error on plate ${plate.plateNumber}: $e');
-            return <SummonModel>[]; // Return empty list on error
+            return <TicketModel>[]; // Return empty list on error
           }
         }),
       );
@@ -120,10 +121,10 @@ class _SummonsScreenState extends State<SummonsScreen> {
         summonsList = summonsList?.where((summon) {
           if (_selectedInputType == 'Notice No.' ||
               _selectedInputType == 'No. Notis') {
-            return summon.noticeNo?.toLowerCase().contains(query) ?? false;
+            return summon.ticketNumber?.toLowerCase().contains(query) ?? false;
           } else if (_selectedInputType == 'Plate Number' ||
               _selectedInputType == 'Nombor Plat') {
-            return summon.vehicleNo?.toLowerCase().contains(query) ?? false;
+            return summon.vehicleNumber?.toLowerCase().contains(query) ?? false;
           }
           return false;
         }).toList();
@@ -248,17 +249,18 @@ class _SummonsScreenState extends State<SummonsScreen> {
                               itemBuilder: (context, index) {
                                 final notice = summonsList![index];
                                 final isSelected = _selectedIds.contains(notice
-                                    .noticeNo); // Change to your selected ID
+                                    .ticketNumber); // Change to your selected ID
                                 return ScaleTap(
                                   onPressed: () {
                                     setState(() {
                                       // Toggle the selection state
                                       if (isSelected) {
-                                        _selectedIds.remove(notice.noticeNo);
+                                        _selectedIds
+                                            .remove(notice.ticketNumber);
                                         _selectedSummons.remove(
                                             notice); // Remove from the temporary list
                                       } else {
-                                        _selectedIds.add(notice.noticeNo!);
+                                        _selectedIds.add(notice.ticketNumber!);
                                         _selectedSummons.add(
                                             notice); // Add to the temporary list
                                       }
@@ -270,7 +272,7 @@ class _SummonsScreenState extends State<SummonsScreen> {
                                         : kWhite, // Change background color when selected
                                     child: ListTile(
                                       title: Text(
-                                        '${AppLocalizations.of(context)!.noticeNo}: ${notice.noticeNo}',
+                                        '${AppLocalizations.of(context)!.noticeNo}: ${notice.ticketNumber}',
                                         style: textStyleNormal(
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold,
@@ -282,19 +284,19 @@ class _SummonsScreenState extends State<SummonsScreen> {
                                         children: [
                                           spaceVertical(height: 10.0),
                                           Text(
-                                            '${AppLocalizations.of(context)!.vehicleNo}: ${notice.vehicleNo}',
+                                            '${AppLocalizations.of(context)!.vehicleNo}: ${notice.ticketNumber}',
                                             style: textStyleNormal(),
                                           ),
                                           Text(
-                                            '${AppLocalizations.of(context)!.offencesAct}: ${notice.offence}',
+                                            '${AppLocalizations.of(context)!.offencesAct}: ${notice.offenceSection?.act?.description}',
                                             style: textStyleNormal(),
                                           ),
                                           Text(
-                                            '${AppLocalizations.of(context)!.offencesDate}: ${formatOffenceDate(notice.offenceDateString!)}',
+                                            '${AppLocalizations.of(context)!.offencesDate}: ${formatOffenceDate(notice.offenceDateTime!)}',
                                             style: textStyleNormal(),
                                           ),
                                           Text(
-                                            '${AppLocalizations.of(context)!.amount}: RM ${notice.compoundAmount!.toStringAsFixed(2)}',
+                                            '${AppLocalizations.of(context)!.amount}: RM ${notice.fine!.toStringAsFixed(2)}',
                                             style: textStyleNormal(),
                                           ),
                                         ],

@@ -5,14 +5,13 @@ import 'package:project/constant.dart';
 import 'package:project/resources/resources.dart';
 
 class CompoundResources {
-
   static Future displayPrimaryCompound({
     required String prefix,
     required Object body,
   }) async {
     final token = await AuthResources.getToken();
     var response = await http.post(
-      Uri.parse('$baseUrl$prefix'),
+      Uri.parse('$stagingMyenforcementUrl$prefix'),
       body: body,
       headers: {
         'Content-Type': 'application/json',
@@ -44,7 +43,7 @@ class CompoundResources {
   }) async {
     final token = await AuthResources.getToken();
     var response = await http.post(
-      Uri.parse('$baseUrl$prefix'),
+      Uri.parse('$stagingMyenforcementUrl$prefix'),
       body: body,
       headers: {
         'Content-Type': 'application/json',

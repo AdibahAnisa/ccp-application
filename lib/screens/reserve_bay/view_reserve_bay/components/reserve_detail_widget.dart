@@ -3,7 +3,7 @@ import 'package:flutter_form_bloc/flutter_form_bloc.dart';
 import 'package:project/constant.dart';
 import 'package:project/form_bloc/form_bloc.dart';
 import 'package:project/models/models.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:project/src/localization/app_localizations.dart';
 
 // ignore: must_be_immutable
 class ReserveDetailWidget extends StatelessWidget {

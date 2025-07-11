@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_bloc/flutter_form_bloc.dart';
 import 'package:project/form_bloc/form_bloc.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:project/src/localization/app_localizations.dart';
 
 // ignore: must_be_immutable
 class ReserveDetailWidget extends StatelessWidget {
@@ -202,8 +202,9 @@ class ReserveDetailWidget extends StatelessWidget {
           textFieldBloc: formBloc.city,
           textInputAction: TextInputAction.next,
           decoration: InputDecoration(
-            label:  Text(AppLocalizations.of(context)!.city),
-            hintText: '${AppLocalizations.of(context)!.enter} ${AppLocalizations.of(context)!.city}',
+            label: Text(AppLocalizations.of(context)!.city),
+            hintText:
+                '${AppLocalizations.of(context)!.enter} ${AppLocalizations.of(context)!.city}',
             hintStyle: const TextStyle(
               color: Colors.black26,
             ),
@@ -228,7 +229,8 @@ class ReserveDetailWidget extends StatelessWidget {
           textInputAction: TextInputAction.done,
           decoration: InputDecoration(
             label: Text(AppLocalizations.of(context)!.state),
-            hintText: '${AppLocalizations.of(context)!.enter} ${AppLocalizations.of(context)!.state}',
+            hintText:
+                '${AppLocalizations.of(context)!.enter} ${AppLocalizations.of(context)!.state}',
             hintStyle: const TextStyle(
               color: Colors.black26,
             ),

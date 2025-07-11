@@ -18,3 +18,5 @@ export 'notification_model.dart';
 export 'offences_rule/offence_areas_model.dart';
 export 'offences_rule/offence_location_model.dart';
 export 'helpers/parking_places_model.dart';
+export 'offences_rule/offence_act_model.dart';
+export 'ticket_model.dart';

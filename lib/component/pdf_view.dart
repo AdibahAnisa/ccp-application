@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:project/constant.dart';
+import 'package:project/src/localization/app_localizations.dart';
 import 'package:project/theme.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class PdfViewerScreen extends StatelessWidget {
   final Map<String, dynamic> details;

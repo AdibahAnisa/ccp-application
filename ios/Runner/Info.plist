@@ -63,6 +63,12 @@
       <string>processing</string>
     </array>
 
+    <!-- ✅ Required for 'processing' background mode -->
+    <key>BGTaskSchedulerPermittedIdentifiers</key>
+    <array>
+      <string>com.example.ccp.refresh</string>
+    </array>
+
     <!-- 🌐 WebView / InAppWebView Network Permissions -->
     <key>NSAppTransportSecurity</key>
     <dict>

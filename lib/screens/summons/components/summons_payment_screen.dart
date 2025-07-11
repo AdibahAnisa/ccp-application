@@ -12,11 +12,11 @@ import 'package:project/form_bloc/form_bloc.dart';
 import 'package:project/models/models.dart';
 import 'package:project/resources/resources.dart';
 import 'package:project/routes/route_manager.dart';
+import 'package:project/src/localization/app_localizations.dart';
 import 'package:project/theme.dart';
 import 'package:project/widget/custom_dialog.dart';
 import 'package:project/widget/loading_dialog.dart';
 import 'package:project/widget/primary_button.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SummonsPaymentScreen extends StatefulWidget {
   const SummonsPaymentScreen({super.key});
@@ -56,8 +56,8 @@ class _ReloadPaymentScreenState extends State<SummonsPaymentScreen> {
     Map<String, dynamic> details =
         arguments['locationDetail'] as Map<String, dynamic>;
     UserModel? userModel = arguments['userModel'] as UserModel?;
-    List<SummonModel>? selectedSummons =
-        arguments['selectedSummons'] as List<SummonModel>?;
+    List<TicketModel>? selectedSummons =
+        arguments['selectedSummons'] as List<TicketModel>?;
     double totalAmount = 0.0;
     return BlocProvider(
       create: (context) => CompoundFormBloc(
@@ -107,10 +107,11 @@ class _ReloadPaymentScreenState extends State<SummonsPaymentScreen> {
                       'SFM_EXECUTE_PAYMENT_SUCCESS') {
                     for (var i = 0; i < selectedSummons.length; i++) {
                       final responsePay = await CompoundResources.pay(
-                        prefix: '/compound/payCompound',
+                        prefix: '/compound/paid-compound',
                         body: jsonEncode(
                           {
-                            'NoticeNo': selectedSummons[i].noticeNo.toString(),
+                            'NoticeNo':
+                                selectedSummons[i].ticketNumber.toString(),
                             'HandheldCode': handHeldId,
                             'OfficerID':
                                 selectedSummons[i].officerID.toString(),
@@ -130,13 +131,14 @@ class _ReloadPaymentScreenState extends State<SummonsPaymentScreen> {
                             'OwnerIdNo': "111111111111",
                             'OwnerCategoryId': "1",
                             'VehicleRegistrationNumber':
-                                selectedSummons[i].vehicleNo.toString(),
-                            'NoticeNo': selectedSummons[i].noticeNo.toString(),
-                            'ReceiptNo': 'RC-${selectedSummons[i].noticeNo}',
+                                selectedSummons[i].vehicleNumber.toString(),
+                            'NoticeNo':
+                                selectedSummons[i].ticketNumber.toString(),
+                            'ReceiptNo':
+                                'RC-${selectedSummons[i].ticketNumber}',
                             'PaymentTransactionType': null,
                             'PaymentDate': isoTimestamp.toString(),
-                            'PaidAmount':
-                                selectedSummons[i].compoundAmount.toString(),
+                            'PaidAmount': selectedSummons[i].fine.toString(),
                             'ChannelType': null,
                             'PaymentStatus': null,
                             'PaymentMode': null,
@@ -243,11 +245,11 @@ class _ReloadPaymentScreenState extends State<SummonsPaymentScreen> {
                       if (response['order_status'] == 'paid') {
                         for (var i = 0; i < selectedSummons.length; i++) {
                           final response = await CompoundResources.pay(
-                            prefix: '/compound/payCompound',
+                            prefix: '/compound/paid-compound',
                             body: jsonEncode(
                               {
                                 'NoticeNo':
-                                    selectedSummons[i].noticeNo.toString(),
+                                    selectedSummons[i].ticketNumber.toString(),
                                 'HandheldCode': handHeldId,
                                 'OfficerID':
                                     selectedSummons[i].officerID.toString(),
@@ -267,16 +269,15 @@ class _ReloadPaymentScreenState extends State<SummonsPaymentScreen> {
                                 'OwnerIDNo': "111111111111",
                                 'OwnerCategoryID': "1",
                                 'VehicleRegistrationNumber':
-                                    selectedSummons[i].vehicleNo.toString(),
+                                    selectedSummons[i].vehicleNumber.toString(),
                                 'NoticeNo':
-                                    selectedSummons[i].noticeNo.toString(),
+                                    selectedSummons[i].ticketNumber.toString(),
                                 'ReceiptNo':
-                                    'RC-${selectedSummons[i].noticeNo}',
+                                    'RC-${selectedSummons[i].ticketNumber}',
                                 'PaymentTransactionType': null,
                                 'PaymentDate': isoTimestamp.toString(),
-                                'PaidAmount': selectedSummons[i]
-                                    .compoundAmount
-                                    .toString(),
+                                'PaidAmount':
+                                    selectedSummons[i].fine.toString(),
                                 'ChannelType': null,
                                 'PaymentStatus': null,
                                 'PaymentMode': null,
@@ -407,7 +408,7 @@ class _ReloadPaymentScreenState extends State<SummonsPaymentScreen> {
                         physics: const NeverScrollableScrollPhysics(),
                         itemBuilder: (context, index) {
                           double amount =
-                              selectedSummons[index].compoundAmount!.toDouble();
+                              selectedSummons[index].fine!.toDouble();
                           totalAmount += amount; // Accumulate the total amount
 
                           // Update the value in the formBloc
@@ -447,7 +448,7 @@ class _ReloadPaymentScreenState extends State<SummonsPaymentScreen> {
                                     Expanded(
                                       child: Text(
                                         formatOffenceDate(selectedSummons[index]
-                                            .offenceDateString!),
+                                            .offenceDateTime!),
                                         style: textStyleNormal(),
                                         textAlign: TextAlign
                                             .right, // Align text to the right
@@ -468,7 +469,7 @@ class _ReloadPaymentScreenState extends State<SummonsPaymentScreen> {
                                     const SizedBox(width: 50),
                                     Expanded(
                                       child: Text(
-                                        selectedSummons[index].noticeNo!,
+                                        selectedSummons[index].ticketNumber!,
                                         style: textStyleNormal(),
                                         textAlign: TextAlign
                                             .right, // Align text to the right
@@ -493,7 +494,14 @@ class _ReloadPaymentScreenState extends State<SummonsPaymentScreen> {
                                     Expanded(
                                       flex: 2,
                                       child: Text(
-                                        selectedSummons[index].offenceSection!,
+                                        selectedSummons[index]
+                                                    .offenceSection!
+                                                    .subSectionNo ==
+                                                null
+                                            ? selectedSummons[index]
+                                                .offenceSection!
+                                                .sectionNo!
+                                            : '${selectedSummons[index].offenceSection!.sectionNo!} ${selectedSummons[index].offenceSection!.subSectionNo!}',
                                         style: textStyleNormal(),
                                         textAlign: TextAlign.right,
                                       ),
@@ -517,7 +525,9 @@ class _ReloadPaymentScreenState extends State<SummonsPaymentScreen> {
                                     Expanded(
                                       flex: 2,
                                       child: Text(
-                                        selectedSummons[index].offence!,
+                                        selectedSummons[index]
+                                            .offenceSection!
+                                            .description!,
                                         style: textStyleNormal(),
                                         textAlign: TextAlign.right,
                                       ),
@@ -581,7 +591,7 @@ class _ReloadPaymentScreenState extends State<SummonsPaymentScreen> {
                                     const SizedBox(width: 50),
                                     Expanded(
                                       child: Text(
-                                        selectedSummons[index].vehicleNo!,
+                                        selectedSummons[index].vehicleNumber!,
                                         style: textStyleNormal(),
                                         textAlign: TextAlign
                                             .right, // Align text to the right
@@ -601,7 +611,7 @@ class _ReloadPaymentScreenState extends State<SummonsPaymentScreen> {
                                     const SizedBox(width: 50),
                                     Expanded(
                                       child: Text(
-                                        'RM ${selectedSummons[index].compoundAmount!.toStringAsFixed(2)}',
+                                        'RM ${selectedSummons[index].fine!.toStringAsFixed(2)}',
                                         style: textStyleNormal(),
                                         textAlign: TextAlign
                                             .right, // Align text to the right

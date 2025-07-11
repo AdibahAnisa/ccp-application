@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:project/constant.dart';
 import 'package:project/models/models.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:project/src/localization/app_localizations.dart';
 import 'package:project/theme.dart';
 import 'package:project/widget/primary_button.dart';
 

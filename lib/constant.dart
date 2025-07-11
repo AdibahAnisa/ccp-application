@@ -17,10 +17,11 @@ const String baseUrl = 'http://220.158.208.216:3000'; /* IP Address Server */
 const String pegeypayQRurl =
     'https://pegepay.com/api/npd-wa/order-create/custom-validity';
 
-const String stagingMyenforcementUrl =
-    'http://myenforcement-mbk-staging.vista-summerose.com';
+// const String stagingMyenforcementUrl =
+//     'http://myenforcement-mbk-staging.vista-summerose.com';
 
 const String myenforcementUrl = 'http://myenforcement-mbk.vista-summerose.com';
+const String stagingMyenforcementUrl = 'http://220.158.208.216:3030';
 
 // Countdown
 Duration countDownDuration = const Duration();
@@ -197,25 +198,27 @@ String generateSerialNumber({int length = 8}) {
 }
 
 String formatOffenceDate(String rawDate) {
-  if (rawDate.length != 14) return rawDate;
+  try {
+    final dateTime =
+        DateTime.parse(rawDate).toLocal(); // convert to local time if needed
+    int hour = dateTime.hour;
+    final minute = dateTime.minute.toString().padLeft(2, '0');
+    final second = dateTime.second.toString().padLeft(2, '0');
+    String period = 'A.M';
 
-  final year = rawDate.substring(0, 4);
-  final month = rawDate.substring(4, 6);
-  final day = rawDate.substring(6, 8);
-  int hour = int.parse(rawDate.substring(8, 10));
-  final minute = rawDate.substring(10, 12);
-  final second = rawDate.substring(12, 14);
+    if (hour >= 12) {
+      period = 'P.M';
+      if (hour > 12) hour -= 12;
+    } else if (hour == 0) {
+      hour = 12;
+    }
 
-  String period = 'A.M';
+    final hourStr = hour.toString().padLeft(2, '0');
+    final dateStr =
+        '${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}';
 
-  if (hour >= 12) {
-    period = 'P.M';
-    if (hour > 12) hour -= 12;
-  } else if (hour == 0) {
-    hour = 12;
+    return '$dateStr, $hourStr:$minute:$second $period';
+  } catch (e) {
+    return rawDate; // fallback if parsing fails
   }
-
-  final hourStr = hour.toString().padLeft(2, '0');
-
-  return '$year-$month-$day, $hourStr:$minute:$second $period';
 }

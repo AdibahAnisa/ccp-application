@@ -7,14 +7,14 @@ class OffenceLocationModel {
 
   OffenceLocationModel.fromJson(Map<String, dynamic> json) {
     areaID = json['AreaID'];
-    description = json['Description'];
+    description = json['Name'];
     id = json['ID'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['AreaID'] = areaID;
-    data['Description'] = description;
+    data['Name'] = description;
     data['ID'] = id;
     return data;
   }

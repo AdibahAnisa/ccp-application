@@ -10,12 +10,12 @@ import 'package:project/routes/route_manager.dart';
 import 'package:project/screens/home/profile/components/email_password_screen.dart';
 import 'package:project/screens/home/profile/components/help_center_screen.dart';
 import 'package:project/screens/home/profile/components/vehicle_list_screen.dart';
+import 'package:project/src/localization/app_localizations.dart';
 import 'package:project/theme.dart';
 import 'package:project/widget/custom_dialog.dart';
 import 'package:project/widget/primary_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:project/screens/home/profile/components/about_me_screen.dart';
 
 //import 'package:line_awesome_flutter/line_awesome_flutter.dart';

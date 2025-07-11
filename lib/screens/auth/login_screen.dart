@@ -4,12 +4,12 @@ import 'package:project/app/helpers/biometric_helper.dart';
 import 'package:project/constant.dart';
 import 'package:project/form_bloc/form_bloc.dart';
 import 'package:project/routes/route_manager.dart';
+import 'package:project/src/localization/app_localizations.dart';
 import 'package:project/theme.dart';
 import 'package:project/widget/loading_dialog.dart';
 import 'package:project/widget/primary_button.dart';
 import 'package:project/widget/widgets.dart';
 import 'package:project/widget/background-image.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -35,6 +35,7 @@ class LoginScreenState extends State<LoginScreen> {
     _showPasswordNotifier.dispose();
     super.dispose();
   }
+
   void _loginUserByBiometric() async {
     final isAuth = await biometricHelper.authenticateUser();
 
@@ -48,7 +49,8 @@ class LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final arguments = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    final arguments =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     bool biometricStatus = arguments?['isBiometric'] ?? false;
 
     return BackgroundImage(

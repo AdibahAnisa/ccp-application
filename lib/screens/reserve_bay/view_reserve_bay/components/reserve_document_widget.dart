@@ -5,7 +5,7 @@ import 'package:project/component/pdf_view.dart';
 import 'package:project/constant.dart';
 import 'package:project/form_bloc/form_bloc.dart';
 import 'package:project/models/models.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:project/src/localization/app_localizations.dart';
 import 'package:project/widget/custom_dialog.dart';
 
 class ReserveDocumentWidget extends StatefulWidget {

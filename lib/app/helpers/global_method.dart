@@ -22,14 +22,19 @@ Future<OffenceDataModel> fetchOffenceAreasList() async {
   }
 
   final response = await ParkingResources.getRegisterDevices(
-    prefix: '/VistaParkingWebService/HandheldService.svc/RegisterDevice/$deviceId',
+    prefix: '/compound/register/$deviceId',
   );
 
-  if (response != null && response['HandheldCode'] != null) {
-    final handheldCode = response['HandheldCode'];
+  if (response != null && response['handheldCode'] != null) {
+    final handheldCode = response['handheldCode'];
 
-    final lookupResponse = await ParkingResources.getDownloadLookupTable(
-      prefix: '/VistaParkingWebService/HandheldService.svc/DownloadLookupTable/$handheldCode',
+    final lookupResponseAreas = await ParkingResources.getDownloadLookupTable(
+      prefix: '/list/area',
+    );
+
+    final lookupResponseLocations =
+        await ParkingResources.getDownloadLookupTable(
+      prefix: '/list/location',
     );
 
     await SharedPreferencesHelper.saveHandheldId(handheldCode);
@@ -37,15 +42,17 @@ Future<OffenceDataModel> fetchOffenceAreasList() async {
     List<OffenceAreasModel> areas = [];
     List<OffenceLocationModel> locations = [];
 
-    if (lookupResponse != null) {
-      if (lookupResponse['OffenceAreas'] is List) {
-        areas = (lookupResponse['OffenceAreas'] as List)
+    {
+      if (lookupResponseAreas['data'] is List) {
+        areas = (lookupResponseAreas['data'] as List)
             .map((e) => OffenceAreasModel.fromJson(e))
             .toList();
       }
+    }
 
-      if (lookupResponse['OffenceLocations'] is List) {
-        locations = (lookupResponse['OffenceLocations'] as List)
+    if (lookupResponseLocations != null) {
+      if (lookupResponseLocations['data'] is List) {
+        locations = (lookupResponseLocations['data'] as List)
             .map((e) => OffenceLocationModel.fromJson(e))
             .toList();
       }

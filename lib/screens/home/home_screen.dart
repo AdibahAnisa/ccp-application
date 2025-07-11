@@ -4,9 +4,9 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_form_bloc/flutter_form_bloc.dart';
 import 'package:flutter_scale_tap/flutter_scale_tap.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart'; // For date formatting
 import 'package:location/location.dart';
 import 'package:ntp/ntp.dart';
 import 'package:permission_handler/permission_handler.dart' as permission;
@@ -17,11 +17,11 @@ import 'package:project/resources/resources.dart';
 import 'package:project/routes/route_manager.dart';
 import 'package:project/screens/home/components/countdown_timer/countdown_screen.dart';
 import 'package:project/screens/screens.dart';
+import 'package:project/src/localization/app_localizations.dart';
 import 'package:project/theme.dart';
 import 'package:project/widget/custom_dialog.dart';
 import 'package:project/widget/loading_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -94,7 +94,20 @@ class _HomeScreenState extends State<HomeScreen> {
         dialogType: 2,
         description:
             'This app needs access to your location to function. Do you want to enable it?',
-        btnOkText: 'Continue',
+        // btnOkText: 'Continue',
+        // btnOkOnPress: () async {
+        //   permissionGranted = await locationController.requestPermission();
+        //   await permission.Permission.notification.request();
+        //   await permission.Permission.ignoreBatteryOptimizations.request();
+        //   if (permissionGranted != PermissionStatus.granted) {
+        //     return;
+        //   } else {
+        //     Navigator.pop(context);
+
+        //     // await _checkBatteryOptimization();
+        //   }
+        // },
+        btnOkText: AppLocalizations.of(context)!.yes,
         btnOkOnPress: () async {
           permissionGranted = await locationController.requestPermission();
           await permission.Permission.notification.request();
@@ -107,6 +120,8 @@ class _HomeScreenState extends State<HomeScreen> {
             // await _checkBatteryOptimization();
           }
         },
+        btnCancelText: AppLocalizations.of(context)!.no,
+        btnCancelOnPress: () => Navigator.pop(context),
       );
     }
   }

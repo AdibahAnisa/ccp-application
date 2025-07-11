@@ -5,13 +5,13 @@ class OffenceAreasModel {
   OffenceAreasModel({this.description, this.id});
 
   OffenceAreasModel.fromJson(Map<String, dynamic> json) {
-    description = json['Description'];
+    description = json['Name'];
     id = json['ID'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    data['Description'] = description;
+    data['Name'] = description;
     data['ID'] = id;
     return data;
   }

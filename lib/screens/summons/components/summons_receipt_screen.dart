@@ -2,20 +2,20 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_form_bloc/flutter_form_bloc.dart';
 import 'package:flutter_scale_tap/flutter_scale_tap.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
 import 'package:ntp/ntp.dart';
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 import 'package:project/constant.dart';
 import 'package:project/models/models.dart';
 import 'package:project/routes/route_manager.dart';
+import 'package:project/src/localization/app_localizations.dart';
 import 'package:project/theme.dart';
 import 'dart:ui' as ui;
 import 'package:pdf/widgets.dart' as pw;
 import 'package:project/widget/primary_button.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SummonsReceiptScreen extends StatefulWidget {
   const SummonsReceiptScreen({
@@ -82,8 +82,8 @@ class _SummonsReceiptScreenState extends State<SummonsReceiptScreen> {
 
     Map<String, dynamic> details =
         arguments['locationDetail'] as Map<String, dynamic>;
-    List<SummonModel>? selectedSummons =
-        arguments['selectedSummons'] as List<SummonModel>?;
+    List<TicketModel>? selectedSummons =
+        arguments['selectedSummons'] as List<TicketModel>?;
     double? totalAmount = arguments['totalAmount'] as double?;
     return Scaffold(
       backgroundColor: kBackgroundColor,
@@ -193,7 +193,7 @@ class _SummonsReceiptScreenState extends State<SummonsReceiptScreen> {
                                   const SizedBox(width: 50),
                                   Expanded(
                                     child: Text(
-                                      'RC-${selectedSummons[index].noticeNo}',
+                                      'RC-${selectedSummons[index].ticketNumber}',
                                       style: textStyleNormal(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 16,
@@ -253,7 +253,7 @@ class _SummonsReceiptScreenState extends State<SummonsReceiptScreen> {
                                   const SizedBox(width: 50),
                                   Expanded(
                                     child: Text(
-                                      selectedSummons[index].noticeNo!,
+                                      selectedSummons[index].ticketNumber!,
                                       style: textStyleNormal(),
                                       textAlign: TextAlign
                                           .right, // Align text to the right
@@ -272,8 +272,7 @@ class _SummonsReceiptScreenState extends State<SummonsReceiptScreen> {
                                   const SizedBox(width: 50),
                                   Expanded(
                                     child: Text(
-                                      selectedSummons[index]
-                                          .vehicleNo!,
+                                      selectedSummons[index].vehicleNumber!,
                                       style: textStyleNormal(),
                                       textAlign: TextAlign
                                           .right, // Align text to the right
@@ -292,7 +291,7 @@ class _SummonsReceiptScreenState extends State<SummonsReceiptScreen> {
                                   const SizedBox(width: 50),
                                   Expanded(
                                     child: Text(
-                                      'RM ${selectedSummons[index].compoundAmount!.toStringAsFixed(2)}',
+                                      'RM ${selectedSummons[index].fine!.toStringAsFixed(2)}',
                                       style: textStyleNormal(),
                                       textAlign: TextAlign
                                           .right, // Align text to the right

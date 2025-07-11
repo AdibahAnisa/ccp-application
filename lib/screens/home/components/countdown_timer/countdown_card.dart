@@ -1,15 +1,15 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_form_bloc/flutter_form_bloc.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:intl/intl.dart';
 import 'package:ntp/ntp.dart';
 import 'package:project/app/helpers/notification_service.dart';
 import 'package:project/app/helpers/shared_preferences.dart';
 import 'package:project/constant.dart';
 import 'package:project/models/models.dart';
+import 'package:project/src/localization/app_localizations.dart';
 import 'package:project/theme.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class CountdownCard extends StatefulWidget {
   final int index;

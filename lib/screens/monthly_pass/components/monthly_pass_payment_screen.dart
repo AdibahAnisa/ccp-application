@@ -7,10 +7,10 @@ import 'package:project/app/helpers/shared_preferences.dart';
 import 'package:project/constant.dart';
 import 'package:project/form_bloc/form_bloc.dart';
 import 'package:project/models/models.dart';
+import 'package:project/src/localization/app_localizations.dart';
 import 'package:project/theme.dart';
 import 'package:project/widget/custom_dialog.dart';
 import 'package:project/widget/primary_button.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class MonthlyPassPaymentScreen extends StatefulWidget {
   const MonthlyPassPaymentScreen({
