@@ -5,7 +5,6 @@ import 'package:flutter_scale_tap/flutter_scale_tap.dart';
 import 'package:get/get.dart';
 import 'package:project/constant.dart';
 import 'package:project/models/models.dart';
-import 'package:project/models/ticket_model.dart';
 import 'package:project/resources/resources.dart';
 import 'package:project/routes/route_manager.dart';
 import 'package:project/src/localization/app_localizations.dart';

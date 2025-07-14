@@ -33,11 +33,15 @@
 
     <!-- 📍 Location Permissions -->
     <key>NSLocationWhenInUseUsageDescription</key>
-    <string>This app requires access to your location while using the app.</string>
+    <string>City Car Park uses your location to show nearby parking zones and services when using
+      the app.</string>
     <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-    <string>This app requires access to your location even when running in the background.</string>
+    <string>City Car Park uses your location to show nearby parking zones and services even when the
+      app is in the background.</string>
     <key>NSLocationAlwaysUsageDescription</key>
-    <string>This app requires access to your location at all times.</string>
+    <string>City Car Park uses your location to show nearby parking zones and services at all times
+      for convenience and accuracy.</string>
+
 
     <!-- 🛜 File and Photo Access -->
     <key>NSPhotoLibraryUsageDescription</key>
@@ -73,19 +77,19 @@
     <key>NSAppTransportSecurity</key>
     <dict>
       <key>NSAllowsArbitraryLoads</key>
-      <true/>
+      <true />
       <key>NSAllowsArbitraryLoadsInWebContent</key>
-      <true/>
+      <true />
       <key>NSExceptionDomains</key>
       <dict>
         <key>mst.sirim.my</key>
         <dict>
           <key>NSExceptionAllowsInsecureHTTPLoads</key>
-          <false/>
+          <false />
           <key>NSIncludesSubdomains</key>
-          <true/>
+          <true />
           <key>NSTemporaryExceptionAllowsInsecureHTTPLoads</key>
-          <true/>
+          <true />
         </dict>
       </dict>
     </dict>
