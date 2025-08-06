@@ -4,11 +4,9 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:project/app/helpers/biometric_helper.dart';
-import 'package:project/app/helpers/global_method.dart';
 import 'package:project/app/helpers/shared_preferences.dart';
 import 'package:project/constant.dart';
 import 'package:project/models/models.dart';
-import 'package:project/resources/resources.dart';
 import 'package:project/routes/route_manager.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -49,36 +47,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
     await Future.delayed(const Duration(milliseconds: 1500));
 
-    final token = await AuthResources.getToken();
-
-    if (token != null) {
-      final isAvailable = await biometricHelper.isBiometricAvailable();
-
-      if (isAvailable) {
-        setState(
-            () => _isLoading = true); // Only load if biometric is available
-
-        final isAuthenticated = await biometricHelper.authenticateUser();
-
-        if (isAuthenticated) {
-          await fetchOffenceAreasList();
-          Navigator.pushReplacementNamed(context, AppRoute.homeScreen);
-        } else {
-          Navigator.pushReplacementNamed(context, AppRoute.loginScreen,
-              arguments: {
-                'isBiometric': biometricStatus,
-              });
-        }
-
-        setState(
-            () => _isLoading = false); // End loading after biometric handled
-      } else {
-        await fetchOffenceAreasList();
-        Navigator.pushReplacementNamed(context, AppRoute.homeScreen);
-      }
-    } else {
-      Navigator.pushReplacementNamed(context, AppRoute.loginScreen);
-    }
+    Navigator.pushReplacementNamed(context, AppRoute.loginScreen);
 
     _isInit = true;
   }

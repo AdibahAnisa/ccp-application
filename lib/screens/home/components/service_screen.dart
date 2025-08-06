@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:project/constant.dart';
 import 'package:project/models/models.dart';
-import 'package:project/resources/resources.dart';
 import 'package:project/routes/route_manager.dart';
 import 'package:project/src/localization/app_localizations.dart';
 import 'package:project/theme.dart';
@@ -31,85 +30,10 @@ class _ServiceScreenState extends State<ServiceScreen> {
 
   @override
   void initState() {
-    _initData = _initDataCombined(); // Initialize both data fetching methods
     pbtModel = [];
     promotionMonthlyPassModel = [];
-    _getPromotionMonthlyPassHistory();
     promotionMonthlyPassHistoryModel = [];
     super.initState();
-  }
-
-  Future<void> _initDataCombined() async {
-    await Future.wait([_getPBT(), _getPromotionMonthlyPass()]);
-  }
-
-  Future<void> _getPBT() async {
-    final data = await PbtResources.getPBT(prefix: '/pbt/');
-
-    if (data != null && mounted) {
-      setState(() {
-        pbtModel.addAll(
-          data
-              .map<PBTModel>((item) => PBTModel(
-                    id: item['id'],
-                    name: item['name'],
-                    description: item['description'],
-                  ))
-              .toList(),
-        ); // Add new data
-      });
-    }
-  }
-
-  Future<void> _getPromotionMonthlyPass() async {
-    final data = await PromotionsResources.getPromotionMonthlyPass(
-        prefix: '/promotion/public');
-
-    if (data != null && mounted) {
-      setState(() {
-        promotionMonthlyPassModel.addAll(
-          data
-              .map<PromotionMonthlyPassModel>(
-                  (item) => PromotionMonthlyPassModel(
-                        id: item['id'],
-                        title: item['title'],
-                        description: item['description'],
-                        type: item['type'],
-                        rate: item['rate'],
-                        date: item['date'],
-                        expiredDate: item['expiredDate'],
-                        image: item['image'],
-                        timeUse: item['timeUse'],
-                        createdAt: item['createdAt'],
-                        updatedAt: item['updatedAt'],
-                      ))
-              .toList(),
-        ); // Add new data
-      });
-    }
-  }
-
-  Future<void> _getPromotionMonthlyPassHistory() async {
-    final data = await PromotionsResources.getPromotionHistory(
-        prefix: '/monthlyPass/all/promotion');
-
-    if (data != null && mounted) {
-      setState(() {
-        promotionMonthlyPassHistoryModel.addAll(
-          data
-              .map<PromotionMonthlyPassHistoryModel>(
-                  (item) => PromotionMonthlyPassHistoryModel(
-                        id: item['id'],
-                        promotionId: item['promotionId'],
-                        userId: item['userId'],
-                        timeUse: item['timeUse'],
-                        createdAt: item['createdAt'],
-                        updatedAt: item['updatedAt'],
-                      ))
-              .toList(),
-        ); // Add new data
-      });
-    }
   }
 
   @override

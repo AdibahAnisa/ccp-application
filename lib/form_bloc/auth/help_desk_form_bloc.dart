@@ -1,10 +1,8 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:flutter_form_bloc/flutter_form_bloc.dart';
 import 'package:project/app/helpers/validators.dart';
 import 'package:project/models/models.dart';
-import 'package:project/resources/resources.dart';
 
 class HelpDeskFormBloc extends FormBloc<String, String> {
   final List<String> item;
@@ -49,19 +47,7 @@ class HelpDeskFormBloc extends FormBloc<String, String> {
     await Future.delayed(const Duration(milliseconds: 1000));
 
     try {
-      final response = await AuthResources.helpDesk(
-        prefix: '/helpdesk/create-helpdesk',
-        body: jsonEncode({
-          "pbtId": pbt.value,
-          "description": "${section.value} - ${description.value}",
-        }),
-      );
-
-      if (response['error'] != null) {
-        emitFailure(failureResponse: response['error'].toString());
-      } else {
-        emitSuccess(successResponse: "Successfully Sent.");
-      }
+      emitSuccess(successResponse: "Successfully Sent.");
     } catch (e) {
       e.toString();
     }

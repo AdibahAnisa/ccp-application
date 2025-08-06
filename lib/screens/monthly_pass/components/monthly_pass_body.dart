@@ -1,7 +1,4 @@
 // ignore_for_file: use_build_context_synchronously
-
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_form_bloc/flutter_form_bloc.dart';
 import 'package:get/get.dart';
@@ -12,7 +9,6 @@ import 'package:project/component/webview.dart';
 import 'package:project/constant.dart';
 import 'package:project/form_bloc/form_bloc.dart';
 import 'package:project/models/models.dart';
-import 'package:project/resources/resources.dart';
 import 'package:project/routes/route_manager.dart';
 import 'package:project/src/localization/app_localizations.dart';
 import 'package:project/theme.dart';
@@ -161,8 +157,6 @@ class _MonthlyPassBodyState extends State<MonthlyPassBody> {
           }
 
           if (snapshot.hasData) {
-            Map receipt = snapshot.data!;
-
             return BlocProvider(
               create: (context) => MonthlyPassFormBloc(
                 platModel: widget.carPlates.isNotEmpty ? widget.carPlates : [],
@@ -195,102 +189,7 @@ class _MonthlyPassBodyState extends State<MonthlyPassBody> {
                               details: widget.details,
                             ),
                           ),
-                        ).then((value) async {
-                          final order =
-                              await SharedPreferencesHelper.getOrderDetails();
-
-                          final response = await ReloadResources.reloadProcess(
-                            prefix: '/paymentfpx/callbackurl-fpx/',
-                            body: jsonEncode({
-                              'ActivityTag': "CheckPaymentStatus",
-                              'LanguageCode': 'en',
-                              'AppReleaseId': 34,
-                              'GMTTimeDifference': 8,
-                              'PaymentTxnRef': null,
-                              'BillId': order['orderNo'],
-                              'BillReference': null,
-                            }),
-                          );
-
-                          if (response['SFM']['Constant'] ==
-                              'SFM_EXECUTE_PAYMENT_SUCCESS') {
-                            final response =
-                                await MonthlyPassResources.createMonthlyPass(
-                              prefix: '/monthlyPass/create',
-                              body: jsonEncode(
-                                {
-                                  'plateNumber':
-                                      monthlyPassModel.plateNumber.toString(),
-                                  'pbt': monthlyPassModel.pbt.toString(),
-                                  'amount':
-                                      double.parse(monthlyPassModel.amount!),
-                                  'duration':
-                                      monthlyPassModel.duration.toString(),
-                                  'location':
-                                      monthlyPassModel.location.toString(),
-                                  'promotionId':
-                                      monthlyPassModel.promotionId != null
-                                          ? monthlyPassModel.promotionId
-                                          : null,
-                                  'noReceipt': receipt['noReceipt'],
-                                },
-                              ),
-                            );
-
-                            if (response['status'] == 'success') {
-                              Navigator.pushNamed(
-                                context,
-                                AppRoute.monthlyPassReceiptScreen,
-                                arguments: {
-                                  'locationDetail': widget.details,
-                                  'amount':
-                                      double.parse(response['data']['amount']),
-                                },
-                              );
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                      'Monthly Pass Unsuccessful Store to Database'),
-                                ),
-                              );
-                            }
-                          } else if (response['SFM']['Constant'] ==
-                              "SFM_EXECUTE_PAYMENT_FAILED") {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Payment FPX Unsuccessful'),
-                              ),
-                            );
-                          } else if (response['SFM']['Constant'] ==
-                                  "SFM_EXECUTE_PAYMENT_CANCELLED" ||
-                              response['SFM']['Constant'] ==
-                                  "SFM_TXN_NOT_FOUND") {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('You have Cancel Payment'),
-                              ),
-                            );
-                          } else if (response['SFM']['Constant'] ==
-                              "SFM_EXECUTE_PAYMENT_UNCONFIRMED") {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                    'Payment execution is unconfirmed. please contact Customer Support.'),
-                              ),
-                            );
-                          } else if (response['SFM']['Constant'] ==
-                                  "SFM_EXECUTE_PAYMENT_IN_PREP" ||
-                              response['SFM']['Constant'] ==
-                                  "SFM_EXECUTE_PAYMENT_PENDING_AUTH") {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                    'Payment execution is pending. Please wait.'),
-                              ),
-                            );
-                          }
-                        });
+                        ).then((value) async {});
                       } else {
                         // Navigator.pushNamed(
                         //   context,
@@ -309,98 +208,7 @@ class _MonthlyPassBodyState extends State<MonthlyPassBody> {
                               details: widget.details,
                             ),
                           ),
-                        ).then((value) async {
-                          final order =
-                              await SharedPreferencesHelper.getOrderDetails();
-
-                          final response = await ReloadResources.reloadProcess(
-                            prefix: '/payment/transaction-details',
-                            body: jsonEncode({
-                              'order_no': order['orderNo'],
-                            }),
-                          );
-
-                          if (response['status'] == 'success') {
-                            if (response['content']['order_status'] ==
-                                'successful') {
-                              final response =
-                                  await ReloadResources.reloadSuccessful(
-                                prefix: '/payment/callbackUrl/pegeypay',
-                                body: jsonEncode({
-                                  'order_no': order['orderNo'],
-                                  'order_amount': double.parse(order['amount']),
-                                  'order_status': order['status'],
-                                  'store_id': order['storeId'],
-                                  'shift_id': order['shiftId'],
-                                  'terminal_id': order['terminalId'],
-                                }),
-                              );
-
-                              if (response['order_status'] == 'paid') {
-                                final response = await MonthlyPassResources
-                                    .createMonthlyPass(
-                                  prefix: '/monthlyPass/create',
-                                  body: jsonEncode(
-                                    {
-                                      'plateNumber': monthlyPassModel
-                                          .plateNumber
-                                          .toString(),
-                                      'pbt': monthlyPassModel.pbt.toString(),
-                                      'amount': double.parse(
-                                          monthlyPassModel.amount!),
-                                      'duration':
-                                          monthlyPassModel.duration.toString(),
-                                      'location':
-                                          monthlyPassModel.location.toString(),
-                                      'promotionId': monthlyPassModel
-                                          .promotionId
-                                          .toString(),
-                                      'noReceipt': receipt['noReceipt'],
-                                    },
-                                  ),
-                                );
-
-                                if (response['status'] == 'success') {
-                                  Navigator.pushNamed(
-                                    context,
-                                    AppRoute.monthlyPassReceiptScreen,
-                                    arguments: {
-                                      'locationDetail': widget.details,
-                                      'amount': double.parse(
-                                          response['data']['amount']),
-                                    },
-                                  );
-                                } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text(
-                                          'Monthly Pass Unsuccessful Store to Database'),
-                                    ),
-                                  );
-                                }
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('UnSuccessful Reload'),
-                                  ),
-                                );
-                              }
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content:
-                                      Text(response['content']['order_status']),
-                                ),
-                              );
-                            }
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(response['status']),
-                              ),
-                            );
-                          }
-                        });
+                        ).then((value) async {});
                       }
                     } catch (e) {
                       e.toString();

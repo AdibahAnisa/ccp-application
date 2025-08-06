@@ -1,12 +1,10 @@
 // ignore_for_file: unnecessary_null_comparison
 
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:flutter_form_bloc/flutter_form_bloc.dart';
 import 'package:project/app/helpers/validators.dart';
 import 'package:project/models/models.dart';
-import 'package:project/resources/resources.dart';
 
 class StoreReserveBayFormBloc extends FormBloc<String, String> {
   final ReserveBayModel model = ReserveBayModel();
@@ -223,78 +221,6 @@ class StoreReserveBayFormBloc extends FormBloc<String, String> {
   @override
   FutureOr<void> onSubmitting() async {
     await Future.delayed(const Duration(milliseconds: 1000));
-    if (state.currentStep == 0) {
-      model.companyName = companyName.value;
-      model.companyRegistration = ssm.value;
-      model.businessType = businessType.value;
-      model.address1 = address1.value;
-      model.address2 = address2.value;
-      model.address3 = address3.value;
-      model.postcode = postcode.value;
-      model.city = city.value;
-      model.state = states.value;
-
-      emitSuccess();
-    } else if (state.currentStep == 1) {
-      model.picFirstName = picFirstName.value;
-      model.picLastName = picLastName.value;
-      model.phoneNumber = phoneNumber.value;
-      model.email = email.value;
-      model.idNumber = idNumber.value;
-
-      if (totalLot.value == "3 Bulan: RM 300") {
-        model.totalLotRequired = 300;
-      } else if (totalLot.value == "6 Bulan: RM 600") {
-        model.totalLotRequired = 600;
-      } else {
-        model.totalLotRequired = 1200;
-      }
-
-      model.lotNumber = lotNumber.value;
-      model.reason = reason.value;
-      model.location = location.value;
-
-      emitSuccess();
-    } else if (state.currentStep == 2) {
-      model.designatedBayPicture = designatedBay.value;
-      model.registerNumberPicture = certificate.value;
-      model.idCardPicture = idCard.value;
-
-      emitSuccess();
-    } else if (state.currentStep == 3) {
-      final response = await ReserveBayResources.createReserveBay(
-        prefix: '/reservebay/create',
-        body: jsonEncode({
-          'companyName': model.companyName.toString(),
-          'companyRegistration': model.companyRegistration.toString(),
-          'businessType': model.businessType.toString(),
-          'address1': model.address1.toString(),
-          'address2': model.address2.toString(),
-          'address3': model.address3.toString(),
-          'postcode': model.postcode.toString(),
-          'city': model.city.toString(),
-          'state': model.state.toString(),
-          'picFirstName': model.picFirstName.toString(),
-          'picLastName': model.picLastName.toString(),
-          'phoneNumber': model.phoneNumber.toString(),
-          'email': model.email.toString(),
-          'idNumber': model.idNumber.toString(),
-          'totalLotRequired': model.totalLotRequired,
-          'reason': model.reason.toString(),
-          'lotNumber': model.lotNumber.toString(),
-          'location': model.location.toString(),
-          'designatedBayPicture': model.designatedBayPicture.toString(),
-          'registerNumberPicture': model.registerNumberPicture.toString(),
-          'idCardPicture': model.idCardPicture.toString(),
-        }),
-      );
-
-      if (response['error'] != null) {
-        emitFailure(failureResponse: response['error'].toString());
-      } else {
-        emitSuccess(
-            successResponse: 'Reserve Bay Request Successfully Submitted');
-      }
-    }
+    emitSuccess(successResponse: 'Reserve Bay Request Successfully Submitted');
   }
 }

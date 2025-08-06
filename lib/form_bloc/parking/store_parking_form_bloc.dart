@@ -1,9 +1,7 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:flutter_form_bloc/flutter_form_bloc.dart';
 import 'package:project/models/models.dart';
-import 'package:project/resources/resources.dart';
 
 class StoreParkingFormBloc extends FormBloc<String, String> {
   final List<PlateNumberModel>? platModel;
@@ -93,40 +91,7 @@ class StoreParkingFormBloc extends FormBloc<String, String> {
     await Future.delayed(const Duration(milliseconds: 1000));
 
     try {
-      // Parse as double since the value can have decimals
-      double amountDouble = double.parse(amount.value);
-
-      final response = await ParkingResources.payment(
-        prefix: '/payment/parking',
-        body: jsonEncode({
-          'amount': amountDouble,
-        }),
-      );
-
-      if (response['error'] != null) {
-        emitFailure(failureResponse: response['error'].toString());
-      } else {
-        final responseParking = await ParkingResources.createParking(
-          prefix: '/parking/create',
-          body: jsonEncode({
-            'walletTransactionId': response['walletTransactionid'].toString(),
-            'plateNumber': carPlateNumber.value,
-            'pbt': pbt.value,
-            'location': stateCountry.value,
-            'area': offenceAreas.value?.description ?? 'No Area',
-            'state': offenceLocation.value?.description ?? 'No Location',
-            'expiredAt': expiredAt.value,
-            'noReceipt': noReceipt.value,
-          }),
-        );
-
-        if (responseParking['error'] != null) {
-          emitFailure(failureResponse: response['error'].toString());
-        } else {
-
-          emitSuccess(successResponse: 'Payment Parking Successful!');
-        }
-      }
+      emitSuccess(successResponse: 'Payment Parking Successful!');
     } catch (e) {
       emitFailure(failureResponse: 'An error occurred: ${e.toString()}');
       // Log for debugging

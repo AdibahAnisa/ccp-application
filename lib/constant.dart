@@ -5,24 +5,6 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-// const String baseUrl =
-//     'http://192.168.0.128:3000'; /* IP Address on Company Laptop */
-// const String baseUrl =
-//     'http://192.168.0.100:3000'; /* IP Address on Won Laptop */
-
-// const String baseUrl =
-//     'http://60.54.235.142:3000'; /* IP Address on Oneplus -> Win Laptop */
-
-const String baseUrl = 'http://220.158.208.216:3000'; /* IP Address Server */
-const String pegeypayQRurl =
-    'https://pegepay.com/api/npd-wa/order-create/custom-validity';
-
-// const String stagingMyenforcementUrl =
-//     'http://myenforcement-mbk-staging.vista-summerose.com';
-
-const String myenforcementUrl = 'http://myenforcement-mbk.vista-summerose.com';
-const String stagingMyenforcementUrl = 'http://220.158.208.216:3030';
-
 // Countdown
 Duration countDownDuration = const Duration();
 

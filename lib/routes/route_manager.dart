@@ -55,14 +55,7 @@ class AppRoute {
     GetPage(name: reloadPaymentScreen, page: () => const ReloadPaymentScreen()),
     GetPage(name: reloadReceiptScreen, page: () => const ReloadReceiptScreen()),
     GetPage(name: reserveBayScreen, page: () => const ReserveBayScreen()),
-    GetPage(name: addReserveBayScreen, page: () => const AddReserveBayScreen()),
-    GetPage(
-        name: viewReserveBayScreen, page: () => const ViewReserveBayScreen()),
     GetPage(name: summonsScreen, page: () => const SummonsScreen()),
-    GetPage(
-        name: summonsPaymentScreen, page: () => const SummonsPaymentScreen()),
-    GetPage(
-        name: summonsReceiptScreen, page: () => const SummonsReceiptScreen()),
     GetPage(name: monthlyPassScreen, page: () => const MonthlyPassScreen()),
     GetPage(
         name: monthlyPassPaymentScreen,

@@ -5,7 +5,6 @@ import 'package:flutter_scale_tap/flutter_scale_tap.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:project/constant.dart';
 import 'package:project/models/models.dart';
-import 'package:project/resources/resources.dart';
 import 'package:project/routes/route_manager.dart';
 import 'package:project/screens/home/profile/components/email_password_screen.dart';
 import 'package:project/screens/home/profile/components/help_center_screen.dart';
@@ -56,31 +55,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     super.initState();
     pbtModel = [];
-    _getPBT();
   }
 
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
-  }
-
-  Future<void> _getPBT() async {
-    final data = await PbtResources.getPBT(prefix: '/pbt/');
-
-    if (data != null && mounted) {
-      setState(() {
-        pbtModel.addAll(
-          data
-              .map<PBTModel>((item) => PBTModel(
-                    id: item['id'],
-                    name: item['name'],
-                    description: item['description'],
-                  ))
-              .toList(),
-        ); // Add new data
-      });
-    }
   }
 
   // final Map<String, String> pbtMap = {
@@ -368,26 +348,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       if (_isConfirmEnabled) {
                         // Perform the delete action here
                         Navigator.pop(context);
-
-                        final response = await AuthResources.deleteAccount(
-                          prefix: '/auth/delete/${userModel.id}',
-                        );
-
-                        if (response['status'] == 'success') {
-                          await logout();
-                          // Optionally show confirmation message
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                  AppLocalizations.of(context)!.successDelete),
-                            ),
-                          );
-                        } else {
-                          // Optionally show confirmation message
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(response['message'])),
-                          );
-                        }
                       } else {
                         return null;
                       }
