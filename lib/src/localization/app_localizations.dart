@@ -656,11 +656,11 @@ abstract class AppLocalizations {
   /// **'First Name'**
   String get firstName;
 
-  /// No description provided for @lastName.
+  /// No description provided for @secondName.
   ///
   /// In en, this message translates to:
   /// **'Last Name'**
-  String get lastName;
+  String get secondName;
 
   /// No description provided for @totalLot.
   ///
@@ -767,7 +767,7 @@ abstract class AppLocalizations {
   /// No description provided for @forgetPassword.
   ///
   /// In en, this message translates to:
-  /// **'Forget Password'**
+  /// **'Forgot Password'**
   String get forgetPassword;
 
   /// No description provided for @login.
@@ -1123,6 +1123,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Location Cannot be empty'**
   String get selectLocationError;
+
+  /// No description provided for @autoDeduct.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-Deduct'**
+  String get autoDeduct;
+
+  /// No description provided for @autoDeductDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatically use your token balance for parking fees at supported locations.'**
+  String get autoDeductDescription;
+
+  /// No description provided for @howItWorks.
+  ///
+  /// In en, this message translates to:
+  /// **'How it works:'**
+  String get howItWorks;
+
+  /// No description provided for @howItWorksPoint1.
+  ///
+  /// In en, this message translates to:
+  /// **'Make sure your token balance is sufficient before parking.'**
+  String get howItWorksPoint1;
+
+  /// No description provided for @howItWorksPoint2.
+  ///
+  /// In en, this message translates to:
+  /// **'If your token balance is sufficient, parking fees will be auto-deducted.'**
+  String get howItWorksPoint2;
+
+  /// No description provided for @howItWorksPoint3.
+  ///
+  /// In en, this message translates to:
+  /// **'If your token balance is insufficient, manual payment will be required.'**
+  String get howItWorksPoint3;
+
+  /// No description provided for @keepBalanceTopped.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep your balance topped up for a seamless parking experience.'**
+  String get keepBalanceTopped;
+
+  /// No description provided for @autoDeductNotification.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-deduct will automatically deduct parking fees. You will receive a confirmation notification before each deduction.'**
+  String get autoDeductNotification;
 }
 
 class _AppLocalizationsDelegate

@@ -1,18 +1,21 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'dart:convert';
+
+import 'package:flutter/material.dart';
 import 'package:flutter_form_bloc/flutter_form_bloc.dart';
 import 'package:flutter_scale_tap/flutter_scale_tap.dart';
-import 'package:flutter/material.dart';
 import 'package:project/app/helpers/shared_preferences.dart';
+import 'package:project/component/webview.dart';
 import 'package:project/constant.dart';
 import 'package:project/form_bloc/form_bloc.dart';
 import 'package:project/models/models.dart';
+import 'package:project/resources/resources.dart';
 import 'package:project/routes/route_manager.dart';
 import 'package:project/src/localization/app_localizations.dart';
 import 'package:project/theme.dart';
 import 'package:project/widget/loading_dialog.dart';
 import 'package:project/widget/primary_button.dart';
-//import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 
 class ReloadScreen extends StatefulWidget {
   const ReloadScreen({super.key});
@@ -21,9 +24,9 @@ class ReloadScreen extends StatefulWidget {
 }
 
 class _ReloadScreenState extends State<ReloadScreen> {
-  String? _selectedLabel; // Variable to store the selected label
-  bool isOtherValue = false; // Flag to determine if "Other" is selected
-  late ReloadFormBloc formBloc; // Make it non-nullable
+  String? _selectedLabel; // Selected amount label
+  bool isOtherValue = false; // Flag if "Other" is selected
+  late ReloadFormBloc formBloc; // FormBloc instance
   late double amountReload;
 
   @override
@@ -40,7 +43,6 @@ class _ReloadScreenState extends State<ReloadScreen> {
   Widget build(BuildContext context) {
     final arguments =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
-
     Map<String, dynamic> details =
         arguments['locationDetail'] as Map<String, dynamic>;
     UserModel? userModel = arguments['userModel'] as UserModel?;
@@ -55,20 +57,70 @@ class _ReloadScreenState extends State<ReloadScreen> {
           formBloc = BlocProvider.of<ReloadFormBloc>(context);
 
           return FormBlocListener<ReloadFormBloc, String, String>(
-            onSubmitting: (context, state) {
-              LoadingDialog.show(context);
-            },
+            onSubmitting: (context, state) => LoadingDialog.show(context),
             onSubmissionFailed: (context, state) => LoadingDialog.hide(context),
-            onSuccess: (context, state) {
+            onSuccess: (context, state) async {
               LoadingDialog.hide(context);
+
+              final payment = GlobalState.paymentMethod;
+              try {
+                if (payment == 'FPX') {
+                  // FPX Payment
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => WebViewPage(
+                        title: "FPX",
+                        url: state.successResponse!,
+                        details: details,
+                      ),
+                    ),
+                  );
+
+                  final order = await SharedPreferencesHelper.getOrderDetails();
+                  final response = await ReloadResources.reloadProcess(
+                    prefix: '/paymentfpx/callbackurl-fpx/',
+                    body: jsonEncode({
+                      'ActivityTag': "CheckPaymentStatus",
+                      'LanguageCode': "en",
+                      'AppReleaseId': "34",
+                      'GMTTimeDifference': 8,
+                      'PaymentTxnRef': null,
+                      'BillId': order['orderNo'],
+                      'BillReference': null,
+                    }),
+                  );
+
+                  await _handleFPXResponse(response, order, details, userModel);
+                } else {
+                  // QR Payment
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => WebViewPage(
+                        title: "QR Code",
+                        url: state.successResponse!,
+                        details: details,
+                      ),
+                    ),
+                  );
+
+                  final order = await SharedPreferencesHelper.getOrderDetails();
+                  final response = await ReloadResources.reloadProcess(
+                    prefix: '/payment/transaction-details',
+                    body: jsonEncode({'order_no': order['orderNo']}),
+                  );
+
+                  await _handleQRResponse(response, order, details, userModel);
+                }
+              } catch (e) {
+                debugPrint('Payment processing error: $e');
+              }
             },
             onFailure: (context, state) {
               LoadingDialog.hide(context);
-
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(state.failureResponse!),
-                ),
+                SnackBar(content: Text(state.failureResponse!)),
               );
             },
             child: Scaffold(
@@ -96,15 +148,7 @@ class _ReloadScreenState extends State<ReloadScreen> {
                 onPressed: () {
                   formBloc.token.validate();
                   if (formBloc.token.value.isNotEmpty) {
-                    Navigator.pushNamed(
-                      context,
-                      AppRoute.reloadPaymentScreen,
-                      arguments: {
-                        'locationDetail': details,
-                        'userModel': userModel,
-                        'formBloc': formBloc,
-                      },
-                    );
+                    formBloc.submit();
                   }
                 },
                 label: Text(
@@ -118,12 +162,11 @@ class _ReloadScreenState extends State<ReloadScreen> {
               body: Column(
                 children: [
                   Padding(
-                    padding:
-                        const EdgeInsets.only(top: 8.0, right: 8.0, left: 8.0),
+                    padding: const EdgeInsets.only(top: 8, right: 8, left: 8),
                     child: SizedBox(
                       height: MediaQuery.of(context).size.height * 0.18,
                       child: GridView.count(
-                        crossAxisCount: 3, // 3 columns
+                        crossAxisCount: 3,
                         crossAxisSpacing: 10,
                         mainAxisSpacing: 10,
                         childAspectRatio: 2,
@@ -160,21 +203,10 @@ class _ReloadScreenState extends State<ReloadScreen> {
                               labelText: AppLocalizations.of(context)!.amount,
                               hintText:
                                   '${AppLocalizations.of(context)!.enter} ${AppLocalizations.of(context)!.amount}',
-                              hintStyle: const TextStyle(
-                                color: Colors.black26,
-                              ),
+                              hintStyle: const TextStyle(color: Colors.black26),
                               prefixText: 'RM ',
                               prefixStyle: textStyleNormal(),
                               border: OutlineInputBorder(
-                                borderSide: const BorderSide(
-                                  color: Colors.black12,
-                                ),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderSide: const BorderSide(
-                                  color: Colors.black12,
-                                ),
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               filled: true,
@@ -198,18 +230,8 @@ class _ReloadScreenState extends State<ReloadScreen> {
                           textInputAction: TextInputAction.done,
                           decoration: InputDecoration(
                             labelText: AppLocalizations.of(context)!.token,
-                            prefixStyle: textStyleNormal(),
                             floatingLabelBehavior: FloatingLabelBehavior.always,
                             border: OutlineInputBorder(
-                              borderSide: const BorderSide(
-                                color: Colors.black12,
-                              ),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: const BorderSide(
-                                color: Colors.black12,
-                              ),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             filled: true,
@@ -235,19 +257,15 @@ class _ReloadScreenState extends State<ReloadScreen> {
       onPressed: () {
         setState(() {
           _selectedLabel = label;
-
           if (label != AppLocalizations.of(context)!.other) {
-            // Update token with value from label
             formBloc.token.updateValue(label.replaceAll('RM ', ''));
             formBloc.other.updateValue(label.replaceAll('RM ', ''));
             formBloc.amount.updateValue(label.replaceAll('RM ', ''));
-            // Hide the 'Other' field if another option is selected
             isOtherValue = false;
           } else {
             formBloc.other.clear();
             formBloc.token.clear();
             formBloc.amount.clear();
-            // Show the 'Other' field
             isOtherValue = true;
           }
         });
@@ -263,10 +281,7 @@ class _ReloadScreenState extends State<ReloadScreen> {
               offset: const Offset(0, 2),
             ),
           ],
-          border: Border.all(
-            color: Colors.grey.withOpacity(0.3),
-            width: 1,
-          ),
+          border: Border.all(color: Colors.grey.withOpacity(0.3), width: 1),
         ),
         alignment: Alignment.center,
         child: Text(
@@ -280,5 +295,102 @@ class _ReloadScreenState extends State<ReloadScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _handleFPXResponse(
+      Map<String, dynamic> response,
+      Map<String, dynamic> order,
+      Map<String, dynamic> details,
+      UserModel? userModel) async {
+    if (response['SFM']['Constant'] == 'SFM_EXECUTE_PAYMENT_SUCCESS') {
+      final successResponse = await ReloadResources.reloadSuccessful(
+        prefix: '/payment/callbackUrl/pegeypay',
+        body: jsonEncode({
+          'order_no': order['orderNo'],
+          'order_amount': double.parse(order['amount']),
+          'order_status': order['status'],
+          'store_id': order['storeId'],
+          'shift_id': order['shiftId'],
+          'terminal_id': order['terminalId'],
+        }),
+      );
+      if (successResponse['order_status'] == 'paid') {
+        Navigator.pushNamed(
+          context,
+          AppRoute.reloadReceiptScreen,
+          arguments: {
+            'locationDetail': details,
+            'userModel': userModel,
+            'amount': double.parse(order['amount']),
+          },
+        );
+      } else {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('UnSuccessful Reload')));
+      }
+    } else {
+      String message = 'Payment failed';
+      switch (response['SFM']['Constant']) {
+        case 'SFM_EXECUTE_PAYMENT_FAILED':
+          message = 'Payment FPX Unsuccessful';
+          break;
+        case 'SFM_EXECUTE_PAYMENT_CANCELLED':
+        case 'SFM_TXN_NOT_FOUND':
+          message = 'You have Cancel Payment';
+          break;
+        case 'SFM_EXECUTE_PAYMENT_UNCONFIRMED':
+          message = 'Payment execution is unconfirmed. Please contact support.';
+          break;
+        case 'SFM_EXECUTE_PAYMENT_IN_PREP':
+        case 'SFM_EXECUTE_PAYMENT_PENDING_AUTH':
+          message = 'Payment execution is pending. Please wait.';
+          break;
+      }
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(message)));
+    }
+  }
+
+  Future<void> _handleQRResponse(
+      Map<String, dynamic> response,
+      Map<String, dynamic> order,
+      Map<String, dynamic> details,
+      UserModel? userModel) async {
+    if (response['status'] == 'success') {
+      if (response['content']['order_status'] == 'successful') {
+        final successResponse = await ReloadResources.reloadSuccessful(
+          prefix: '/payment/callbackUrl/pegeypay',
+          body: jsonEncode({
+            'order_no': order['orderNo'],
+            'order_amount': double.parse(order['amount']),
+            'order_status': order['status'],
+            'store_id': order['storeId'],
+            'shift_id': order['shiftId'],
+            'terminal_id': order['terminalId'],
+          }),
+        );
+        if (successResponse['order_status'] == 'paid') {
+          Navigator.pushNamed(
+            context,
+            AppRoute.reloadReceiptScreen,
+            arguments: {
+              'locationDetail': details,
+              'userModel': userModel,
+              'amount':
+                  double.parse(successResponse['order_amount'].toString()),
+            },
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('UnSuccessful Reload')));
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(response['content']['order_status'])));
+      }
+    } else {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(response['status'])));
+    }
   }
 }

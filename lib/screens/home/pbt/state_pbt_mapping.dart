@@ -12,8 +12,8 @@ final List<String> statesList = ['Pahang', 'Kelantan', 'Terengganu'];
 final Map<String, List<Map<String, dynamic>>> statePbtMap = {
   'Pahang': [
     {
-      'name': 'PBT Kuantan',
-      'logo': kuantanLogo,
+      'name': 'PBT Bentong',
+      'logo': bentongLogo,
       'color': kPrimaryColor.value,
     },
   ],

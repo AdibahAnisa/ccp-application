@@ -32,7 +32,7 @@ class SharedPreferencesHelper {
     prefs.setString(handHeldIdKey, handHeldId);
   }
 
-    static Future<String> getHandheldId() async {
+  static Future<String> getHandheldId() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String handHeldId = prefs.getString(handHeldIdKey) ?? '';
 
@@ -40,9 +40,9 @@ class SharedPreferencesHelper {
   }
 
   static Future<void> saveLocationDetail(
-      {String location = 'PBT Kuantan',
+      {String location = 'PBT Bentong',
       String state = 'Pahang',
-      String logo = kuantanLogo,
+      String logo = bentongLogo,
       int? color}) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString(keyLocation, location);

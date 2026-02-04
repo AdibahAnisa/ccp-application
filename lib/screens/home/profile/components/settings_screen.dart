@@ -1,7 +1,10 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:project/app/helpers/shared_preferences.dart';
 import 'package:project/constant.dart';
+import 'package:project/routes/route_manager.dart';
 import 'package:project/src/localization/app_localizations.dart';
 import 'package:project/theme.dart';
 import 'package:project/widget/loading_dialog.dart';
@@ -26,25 +29,101 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     final arguments =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
-    Map<String, dynamic> details =
+    final Map<String, dynamic> details =
         arguments['locationDetail'] as Map<String, dynamic>;
 
+    List<String> language = [
+      AppLocalizations.of(context)!.malay,
+      AppLocalizations.of(context)!.english,
+    ];
+
     return Scaffold(
-        backgroundColor: kBackgroundColor,
-        appBar: AppBar(
-          toolbarHeight: 100,
-          foregroundColor: details['color'] == 4294961979 ? kBlack : kWhite,
-          backgroundColor: Color(details['color'] ?? 0xFFFFFFFF),
-          centerTitle: true,
-          title: Text(
-            AppLocalizations.of(context)!.settings,
-            style: textStyleNormal(
-              fontSize: 26,
-              color: details['color'] == 4294961979 ? kBlack : kWhite,
-              fontWeight: FontWeight.bold,
-            ),
+      backgroundColor: kBackgroundColor,
+      appBar: AppBar(
+        toolbarHeight: 100,
+        foregroundColor: details['color'] == 4294961979 ? kBlack : kWhite,
+        backgroundColor: Color(details['color'] ?? 0xFFFFFFFF),
+        centerTitle: true,
+        title: Text(
+          AppLocalizations.of(context)!.settings,
+          style: textStyleNormal(
+            fontSize: 26,
+            color: details['color'] == 4294961979 ? kBlack : kWhite,
+            fontWeight: FontWeight.bold,
           ),
         ),
-        body: const LoadingDialog());
+      ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Language selection tile
+          ListTile(
+            onTap: () {
+              setState(() {
+                isDropDownLanguage = !isDropDownLanguage;
+              });
+            },
+            leading: const Icon(
+              Icons.language,
+              color: kPrimaryColor,
+            ),
+            title: Text(
+              AppLocalizations.of(context)!.language,
+              style: textStyleNormal(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            trailing: Icon(
+              isDropDownLanguage
+                  ? Icons.keyboard_arrow_up
+                  : Icons.keyboard_arrow_down,
+            ),
+          ),
+
+          // Language options dropdown
+          if (isDropDownLanguage)
+            ListView.builder(
+              itemCount: language.length,
+              shrinkWrap: true,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  onTap: () async {
+                    // Save the selected language
+                    if (index == 0) {
+                      await SharedPreferencesHelper.saveLanguage('ms');
+                      Get.updateLocale(const Locale('ms'));
+                    } else {
+                      await SharedPreferencesHelper.saveLanguage('en');
+                      Get.updateLocale(const Locale('en'));
+                    }
+
+                    // Show loading dialog
+                    LoadingDialog.show(context);
+                    await Future.delayed(const Duration(milliseconds: 500));
+                    LoadingDialog.hide(context);
+
+                    // Reload screen with new settings
+                    Navigator.popAndPushNamed(
+                      context,
+                      AppRoute.settingsScreen,
+                      arguments: {'locationDetail': details},
+                    );
+                  },
+                  leading: const SizedBox.shrink(),
+                  title: Text(
+                    language[index],
+                    style: textStyleNormal(fontSize: 18),
+                  ),
+                  trailing:
+                      Get.locale?.languageCode == (index == 0 ? 'ms' : 'en')
+                          ? const Icon(Icons.done, weight: 800)
+                          : const SizedBox.shrink(),
+                );
+              },
+            ),
+        ],
+      ),
+    );
   }
 }

@@ -92,7 +92,7 @@
   "city": "Bandar",
   "state": "Negeri",
   "firstName": "Nama Pertama",
-  "lastName": "Nama Akhir",
+  "secondName": "Nama Akhir",
   "totalLot": "Jumlah Lot",
   "lotNumber": "Nombor Lot",
   "intendedDesignatedBay": "Kawasan Tempat Letak Kereta Yang Dimaksudkan",
@@ -110,7 +110,7 @@
   "paymentDesc2": "Anda akan dibawa ke laman web Pihak Ketiga untuk Tambah Nilai Token. Sila pastikan butiran di atas adalah tepat.",
   "search": "Cari",
   "notifications": "Pemberitahuan",
-  "forgetPassword": "Lupa Kata Laluan",
+  "forgtPassword": "Lupa Kata Laluan",
   "login": "Log Masuk",
   "loginDesc": "Masih Tiada Akaun",
   "signUp": "Daftar Masuk",
@@ -169,5 +169,13 @@
   "confirmPaymentDesc": "Adakah anda pasti mahu mengesahkan pembayaran ini?",
   "areas": "Kawasan",
   "selectAreaError": "Kawasan Tidak Boleh Kosong",
-  "selectLocationError": "Lokasi Tidak Boleh Kosong"
+  "selectLocationError": "Lokasi Tidak Boleh Kosong",
+  "autoDeduct": "Auto-Deduct",
+  "autoDeductDescription": "Gunakan baki token anda secara automatik untuk bayaran parkir di lokasi yang disokong.",
+  "howItWorks": "Bagaimana ia berfungsi:",
+  "howItWorksPoint1": "Pastikan baki token anda mencukupi sebelum parkir.",
+  "howItWorksPoint2": "Jika baki token mencukupi, bayaran parkir akan ditolak secara automatik.",
+  "howItWorksPoint3": "Jika baki token tidak mencukupi, bayaran manual diperlukan.",
+  "keepBalanceTopped": "Pastikan baki anda sentiasa mencukupi untuk pengalaman parkir yang lancar.",
+  "autoDeductNotification": "Auto-deduct akan secara automatik menolak bayaran tempat letak kereta. Anda akan menerima notifikasi pengesahan sebelum setiap penolakan."
 }

@@ -1,7 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter_scale_tap/flutter_scale_tap.dart';
 import 'package:project/app/helpers/shared_preferences.dart';
 import 'package:project/constant.dart';
@@ -17,13 +16,13 @@ class SliderScreen extends StatefulWidget {
 
 class _SliderScreenState extends State<SliderScreen> {
   final List<String> imgList = [
-    kuantanLogo,
+    bentongLogo,
     terengganuLogo,
     machangLogo,
   ];
 
   final List<String> imgName = [
-    'PBT Kuantan',
+    'PBT Bentong',
     'PBT Kuala Terengganu',
     'PBT Machang',
   ];
@@ -34,8 +33,20 @@ class _SliderScreenState extends State<SliderScreen> {
     'Kelantan',
   ];
 
+  final List<String> imgTitle = [
+    'Bentong City Council',
+    'Kuala Terengganu City Council',
+    'Machang City Council',
+  ];
+
+  final PageController _pageController = PageController();
   int _current = 0;
-  final CarouselSliderController _controller = CarouselSliderController();
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +70,6 @@ class _SliderScreenState extends State<SliderScreen> {
           default:
             // return Colors.transparent.value; // Default color or handle error
             return kPrimaryColor.value;
-
         }
       }
 
@@ -121,7 +131,7 @@ class _SliderScreenState extends State<SliderScreen> {
     }).toList();
 
     return SizedBox(
-      height: 200, // Set a fixed height or adjust as needed
+      height: 270,
       child: Container(
         padding: const EdgeInsets.all(8.0),
         margin: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -138,30 +148,76 @@ class _SliderScreenState extends State<SliderScreen> {
         ),
         child: Column(
           children: [
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.chevron_left),
+                    onPressed: _current > 0
+                        ? () {
+                            _pageController.previousPage(
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
+                            );
+                          }
+                        : null,
+                  ),
+                  Expanded(
+                    child: Text(
+                      imgTitle[_current],
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.chevron_right),
+                    onPressed: _current < imgTitle.length - 1
+                        ? () {
+                            _pageController.nextPage(
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
+                            );
+                          }
+                        : null,
+                  ),
+                ],
+              ),
+            ),
             Expanded(
-              child: CarouselSlider(
-                items: imageSliders,
-                carouselController: _controller,
-                options: CarouselOptions(
-                  autoPlay: true,
-                  enlargeCenterPage: true,
-                  aspectRatio: 2.0,
-                  onPageChanged: (index, reason) {
-                    setState(() {
-                      _current = index;
-                    });
-                  },
-                ),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  PageView.builder(
+                    controller: _pageController,
+                    itemCount: imageSliders.length,
+                    onPageChanged: (index) {
+                      setState(() {
+                        _current = index;
+                      });
+                    },
+                    itemBuilder: (context, index) {
+                      return imageSliders[index];
+                    },
+                  ),
+                ],
               ),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: imgList.asMap().entries.map((entry) {
                 return GestureDetector(
-                  onTap: () => _controller.animateToPage(entry.key),
+                  onTap: () => _pageController.animateToPage(
+                    entry.key,
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                  ),
                   child: Container(
-                    width: 12.0,
-                    height: 12.0,
+                    width: 8.0,
+                    height: 8.0,
                     margin: const EdgeInsets.symmetric(
                         vertical: 8.0, horizontal: 4.0),
                     decoration: BoxDecoration(

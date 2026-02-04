@@ -381,7 +381,7 @@ class _MonthlyPassBodyState extends State<MonthlyPassBody> {
                                   onTap: () {
                                     setState(() {
                                       if (pbtValue.name == imgName[0]) {
-                                        selectedLocation = 'Kuantan';
+                                        selectedLocation = 'Bentong';
                                       } else if (pbtValue.name == imgName[1]) {
                                         selectedLocation = 'Kuala Terengganu';
                                       } else if (pbtValue.name == imgName[2]) {

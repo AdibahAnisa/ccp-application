@@ -11,7 +11,7 @@ class ReserveBayModel {
   String? city;
   String? state;
   String? picFirstName;
-  String? picLastName;
+  String? picsecondName;
   String? phoneNumber;
   String? email;
   String? idNumber;
@@ -39,7 +39,7 @@ class ReserveBayModel {
       this.city,
       this.state,
       this.picFirstName,
-      this.picLastName,
+      this.picsecondName,
       this.phoneNumber,
       this.email,
       this.idNumber,
@@ -67,7 +67,7 @@ class ReserveBayModel {
     city = json['city'];
     state = json['state'];
     picFirstName = json['picFirstName'];
-    picLastName = json['picLastName'];
+    picsecondName = json['picsecondName'];
     phoneNumber = json['phoneNumber'];
     email = json['email'];
     idNumber = json['idNumber'];
@@ -97,7 +97,7 @@ class ReserveBayModel {
     data['city'] = city;
     data['state'] = state;
     data['picFirstName'] = picFirstName;
-    data['picLastName'] = picLastName;
+    data['picsecondName'] = picsecondName;
     data['phoneNumber'] = phoneNumber;
     data['email'] = email;
     data['idNumber'] = idNumber;

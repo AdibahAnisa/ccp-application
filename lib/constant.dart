@@ -1,23 +1,30 @@
-// Base URL
 // ignore_for_file: constant_identifier_names
 
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 
-// Countdown
+/// =======================
+/// BASE URL / API ENDPOINTS
+/// =======================
+const String baseUrl = 'http://127.0.0.1:3000'; // Server IP
+const String pegeypayQRurl =
+    'https://pegepay.com/api/npd-wa/order-create/custom-validity';
+const String myenforcementUrl = 'http://myenforcement-mbk.vista-summerose.com';
+const String stagingMyenforcementUrl = 'http://220.158.208.216:3030';
+
+/// =======================
+/// COUNTDOWN
+/// =======================
 Duration countDownDuration = const Duration();
 
 Duration parseDuration(String durationString) {
   if (durationString.contains(':')) {
-    // Format: HH:mm:ss
     final parts = durationString.split(':');
     final hours = int.tryParse(parts[0]) ?? 0;
     final minutes = int.tryParse(parts[1]) ?? 0;
     final seconds = int.tryParse(parts[2]) ?? 0;
     return Duration(hours: hours, minutes: minutes, seconds: seconds);
   } else {
-    // Format: 1h 30m, or just 15m, or 2h, or 0m
     final regex = RegExp(r'(?:(\d+)h)?\s*(?:(\d+)m)?');
     final match = regex.firstMatch(durationString);
     if (match != null) {
@@ -38,7 +45,9 @@ String formatDuration(Duration duration) {
   return '$hours:$minutes:$seconds';
 }
 
-// Coordinate
+/// =======================
+/// MAP & ASSETS
+/// =======================
 const String GOOGLE_MAPS_API_KEY = "AIzaSyDqSqaRpMggI2QWsPd-jdp-611FxMrxyMs";
 const String YOU_ARE_HERE_ICON = 'assets/images/you_are_here.png';
 const String METER_ICON = 'assets/images/meter_icon.png';
@@ -49,7 +58,9 @@ const String METER_KUALA_TERENGGANU_CALE =
     'assets/json/kuala_terengganu_cale_meter.json';
 const String METER_MACHANG = 'assets/json/machang_meter.json';
 
-// Colors
+/// =======================
+/// COLORS
+/// =======================
 const Color kBlack = Colors.black;
 const Color kWhite = Colors.white;
 const Color kPrimaryColor = Color.fromRGBO(34, 74, 151, 1);
@@ -60,27 +71,41 @@ const Color kOrange = Colors.orange;
 const Color kYellow = Colors.yellow;
 const Color kRed = Color.fromARGB(255, 240, 108, 99);
 
-// image
+// Success / Danger / Warning / Info
+const kBgSuccess = Colors.green;
+const kTextSuccess = Color.fromRGBO(236, 253, 245, 1.0);
+const kBgDanger = Color.fromRGBO(153, 27, 27, 1.0);
+const kTextDanger = Color.fromRGBO(254, 242, 242, 1.0);
+const kBgWarning = Color.fromRGBO(188, 139, 20, 6);
+const kTextWarning = Color.fromRGBO(255, 251, 235, 1.0);
+const kBgInfo = kPrimaryColor;
+const kTextInfo = Color.fromRGBO(236, 253, 245, 1.0);
+
+/// =======================
+/// IMAGES
+/// =======================
 const String logo = 'assets/images/logo_ccp.png';
 const String backgroundSignIn = 'assets/images/login_screen.png';
 const String backgroundSignUp = 'assets/images/signup_wall.png';
 
-// Service Image
+// Service Images
 const String parkingImage = 'assets/images/ss_1.png';
 const String summonImage = 'assets/images/ss_2.png';
 const String reserveBayImage = 'assets/images/ss_3.png';
 const String monthlyPassImage = 'assets/images/ss_4.png';
 const String transportInfoImage = 'assets/images/ss_5.png';
 
-const String kuantanLogo = 'assets/images/pbtlogo_kuantan-removebg-preview.png';
+// State Logos / Flags
+const String bentongLogo = 'assets/images/logobentong.png';
 const String terengganuLogo = 'assets/images/pbkk_kt-removebg-preview.png';
 const String machangLogo = 'assets/images/PBT_machang-removebg-preview.png';
-
 const String pahangImg = 'assets/images/pahang_flag.png';
 const String terengganuImg = 'assets/images/terengganu_flag.png';
 const String kelantanImg = 'assets/images/kelantan_flag.png';
 
-// Save Local Storage Keys
+/// =======================
+/// LOCAL STORAGE KEYS
+/// =======================
 const String keyToken = 'token';
 const String keyLocation = 'location';
 const String keyState = 'state';
@@ -122,6 +147,9 @@ const String locationKey = 'locationKey';
 const String biometricKey = 'biometricKey';
 const String handHeldIdKey = 'handHeldIdKey';
 
+/// =======================
+/// GLOBAL STATE
+/// =======================
 class GlobalDeclaration {
   static String globalDuration = '';
   static double globalAmount = 0.0;
@@ -142,35 +170,20 @@ class DialogType {
   static const int success = 4;
 }
 
+/// =======================
+/// UTILITIES
+/// =======================
 String generateReceiptNumber() {
   final random = Random();
-  final receiptNumber = 100000 +
-      random.nextInt(900000); // Generates a number between 100000 and 999999
+  final receiptNumber = 100000 + random.nextInt(900000);
   return "P$receiptNumber";
 }
 
 String generateMonthlyPassReceiptNumber() {
   final random = Random();
-  final receiptNumber = 100000 +
-      random.nextInt(900000); // Generates a number between 100000 and 999999
+  final receiptNumber = 100000 + random.nextInt(900000);
   return "MP$receiptNumber";
 }
-
-// Success
-const kBgSuccess = Colors.green;
-const kTextSuccess = Color.fromRGBO(236, 253, 245, 1.0);
-
-// Danger
-const kBgDanger = Color.fromRGBO(153, 27, 27, 1.0);
-const kTextDanger = Color.fromRGBO(254, 242, 242, 1.0);
-
-// Warning
-const kBgWarning = Color.fromRGBO(188, 139, 20, 6);
-const kTextWarning = Color.fromRGBO(255, 251, 235, 1.0);
-
-// Info
-const kBgInfo = kPrimaryColor;
-const kTextInfo = Color.fromRGBO(236, 253, 245, 1.0);
 
 String generateSerialNumber({int length = 8}) {
   const String chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -181,8 +194,7 @@ String generateSerialNumber({int length = 8}) {
 
 String formatOffenceDate(String rawDate) {
   try {
-    final dateTime =
-        DateTime.parse(rawDate).toLocal(); // convert to local time if needed
+    final dateTime = DateTime.parse(rawDate).toLocal();
     int hour = dateTime.hour;
     final minute = dateTime.minute.toString().padLeft(2, '0');
     final second = dateTime.second.toString().padLeft(2, '0');
@@ -201,6 +213,6 @@ String formatOffenceDate(String rawDate) {
 
     return '$dateStr, $hourStr:$minute:$second $period';
   } catch (e) {
-    return rawDate; // fallback if parsing fails
+    return rawDate;
   }
 }

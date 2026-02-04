@@ -290,7 +290,7 @@ class AppLocalizationsMs extends AppLocalizations {
   String get firstName => 'Nama Pertama';
 
   @override
-  String get lastName => 'Nama Akhir';
+  String get secondName => 'Nama Akhir';
 
   @override
   String get totalLot => 'Jumlah Lot';
@@ -346,7 +346,7 @@ class AppLocalizationsMs extends AppLocalizations {
   String get notifications => 'Pemberitahuan';
 
   @override
-  String get forgetPassword => 'Lupa Kata Laluan';
+  String get forgetPassword => 'Forgot Password';
 
   @override
   String get login => 'Log Masuk';
@@ -535,4 +535,34 @@ class AppLocalizationsMs extends AppLocalizations {
 
   @override
   String get selectLocationError => 'Lokasi Tidak Boleh Kosong';
+
+  @override
+  String get autoDeduct => 'Auto-Deduct';
+
+  @override
+  String get autoDeductDescription =>
+      'Gunakan baki token anda secara automatik untuk bayaran parkir di lokasi yang disokong.';
+
+  @override
+  String get howItWorks => 'Bagaimana ia berfungsi:';
+
+  @override
+  String get howItWorksPoint1 =>
+      'Pastikan baki token anda mencukupi sebelum parkir.';
+
+  @override
+  String get howItWorksPoint2 =>
+      'Jika baki token mencukupi, bayaran parkir akan ditolak secara automatik.';
+
+  @override
+  String get howItWorksPoint3 =>
+      'Jika baki token tidak mencukupi, bayaran manual diperlukan.';
+
+  @override
+  String get keepBalanceTopped =>
+      'Pastikan baki anda sentiasa mencukupi untuk pengalaman parkir yang lancar.';
+
+  @override
+  String get autoDeductNotification =>
+      'Auto-deduct akan secara automatik menolak bayaran tempat letak kereta. Anda akan menerima notifikasi pengesahan sebelum setiap penolakan.';
 }

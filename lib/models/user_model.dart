@@ -47,9 +47,8 @@ class UserModel {
     city = json['city'];
     state = json['state'];
     postcode = json['postcode'];
-    wallet = json['wallet'] != null
-        ? WalletModel.fromJson(json['wallet'])
-        : null;
+    wallet =
+        json['wallet'] != null ? WalletModel.fromJson(json['wallet']) : null;
     if (json['plateNumbers'] != null) {
       plateNumbers = <PlateNumberModel>[];
       json['plateNumbers'].forEach((v) {

@@ -92,7 +92,7 @@
   "city": "City",
   "state": "State",
   "firstName": "First Name",
-  "lastName": "Last Name",
+  "secondName": "Last Name",
   "totalLot": "Total Lot",
   "lotNumber": "Lot Number",
   "intendedDesignatedBay": "Intended Designated Bay",
@@ -110,7 +110,7 @@
   "paymentDesc2": "You will be bring to 3rd Party website for Reload Token. Please ensure the detail above is accurate.",
   "search": "Search",
   "notifications": "Notifications",
-  "forgetPassword": "Forget Password",
+  "forgetPassword": "Forgot Password",
   "login": "Login",
   "loginDesc": "Don't have an account",
   "signUp": "Sign Up",
@@ -169,5 +169,13 @@
   "confirmPaymentDesc": "Are you sure you want to confirm this payment?",
   "areas": "Areas",
   "selectAreaError": "Area Cannot be empty",
-  "selectLocationError": "Location Cannot be empty"
+  "selectLocationError": "Location Cannot be empty",
+  "autoDeduct": "Auto-Deduct",
+  "autoDeductDescription": "Automatically use your token balance for parking fees at supported locations.",
+  "howItWorks": "How it works:",
+  "howItWorksPoint1": "Make sure your token balance is sufficient before parking.",
+  "howItWorksPoint2": "If your token balance is sufficient, parking fees will be auto-deducted.",
+  "howItWorksPoint3": "If your token balance is insufficient, manual payment will be required.",
+  "keepBalanceTopped": "Keep your balance topped up for a seamless parking experience.",
+  "autoDeductNotification": "Auto-deduct will automatically deduct parking fees. You will receive a confirmation notification before each deduction."
 }

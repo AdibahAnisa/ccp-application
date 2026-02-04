@@ -41,6 +41,8 @@
     <key>NSLocationAlwaysUsageDescription</key>
     <string>City Car Park uses your location to show nearby parking zones and services at all times
       for convenience and accuracy.</string>
+    <key>NSUserNotificationUsageDescription</key>
+    <string>This app uses notifications to remind you.</string>
 
 
     <!-- 🛜 File and Photo Access -->
@@ -66,6 +68,7 @@
       <string>fetch</string>
       <string>processing</string>
     </array>
+
 
     <!-- ✅ Required for 'processing' background mode -->
     <key>BGTaskSchedulerPermittedIdentifiers</key>

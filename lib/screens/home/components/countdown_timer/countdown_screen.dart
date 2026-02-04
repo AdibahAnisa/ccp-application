@@ -73,14 +73,18 @@ class _CountdownScreenState extends State<CountdownScreen> {
     });
   }
 
-  void initializeNotifications() async {
-    const AndroidInitializationSettings initializationSettingsAndroid =
+  Future<void> initializeNotifications() async {
+    const androidSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');
 
-    const InitializationSettings initializationSettings =
-        InitializationSettings(android: initializationSettingsAndroid);
+    const iosSettings = DarwinInitializationSettings();
 
-    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+    const settings = InitializationSettings(
+      android: androidSettings,
+      iOS: iosSettings,
+    );
+
+    await flutterLocalNotificationsPlugin.initialize(settings);
   }
 
   @override

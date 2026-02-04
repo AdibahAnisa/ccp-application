@@ -1,13 +1,12 @@
-// ignore_for_file: deprecated_member_use
-
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:project/app/helpers/biometric_helper.dart';
 import 'package:project/app/helpers/shared_preferences.dart';
 import 'package:project/constant.dart';
-import 'package:project/models/models.dart';
 import 'package:project/routes/route_manager.dart';
+import 'package:project/app/helpers/global_method.dart';
+import 'package:project/resources/auth/auth_resources.dart';
+import 'package:project/models/offences_rule/offence_data_model.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -18,15 +17,19 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   final BiometricHelper biometricHelper = BiometricHelper();
-  int activeStepper = 1;
-  bool _isLoading = true;
 
+  bool _isLoading = false;
   bool _isInit = false;
   late bool biometricStatus;
 
-  DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+  OffenceDataModel? offenceData;
 
-  List<OffenceAreasModel> offenceAreasList = []; // List to store models
+  @override
+  void initState() {
+    super.initState();
+    biometricStatus = false;
+    getBiometric();
+  }
 
   @override
   void didChangeDependencies() {
@@ -34,26 +37,59 @@ class _SplashScreenState extends State<SplashScreen> {
     _initialize();
   }
 
-  @override
-  void initState() {
-    super.initState();
-    // Initialize the biometric status
-    biometricStatus = false;
-    getBiometric();
+  Future<void> getBiometric() async {
+    biometricStatus = await SharedPreferencesHelper.getBiometric();
   }
 
-  void _initialize() async {
+  Future<void> _initialize() async {
     if (_isInit) return;
 
     await Future.delayed(const Duration(milliseconds: 1500));
 
-    Navigator.pushReplacementNamed(context, AppRoute.loginScreen);
+    final token = await AuthResources.getToken();
+
+    // Token exists, try biometric
+    if (token != null) {
+      final isAvailable = await biometricHelper.isBiometricAvailable();
+
+      if (isAvailable) {
+        setState(() => _isLoading = true);
+
+        final isAuthenticated = await biometricHelper.authenticateUser();
+
+        if (isAuthenticated) {
+          // Fetch offence data before going home
+          offenceData = await fetchOffenceAreasList();
+          Navigator.pushReplacementNamed(
+            context,
+            AppRoute.homeScreen,
+            arguments: {'offenceData': offenceData},
+          );
+        } else {
+          // Biometric failed, go to login
+          Navigator.pushReplacementNamed(
+            context,
+            AppRoute.loginScreen,
+            arguments: {'isBiometric': biometricStatus},
+          );
+        }
+
+        setState(() => _isLoading = false);
+      } else {
+        // Biometric not available, go home
+        offenceData = await fetchOffenceAreasList();
+        Navigator.pushReplacementNamed(
+          context,
+          AppRoute.homeScreen,
+          arguments: {'offenceData': offenceData},
+        );
+      }
+    } else {
+      // No token, go to login
+      Navigator.pushReplacementNamed(context, AppRoute.loginScreen);
+    }
 
     _isInit = true;
-  }
-
-  Future<void> getBiometric() async {
-    biometricStatus = await SharedPreferencesHelper.getBiometric();
   }
 
   @override
@@ -83,7 +119,7 @@ class _SplashScreenState extends State<SplashScreen> {
                         kPrimaryColor.withOpacity(0.5),
                         kWhite
                       ],
-                      backgroundColor: Colors.transparent, // transparent now
+                      backgroundColor: Colors.transparent,
                       pathBackgroundColor: Colors.transparent,
                     ),
                   ),

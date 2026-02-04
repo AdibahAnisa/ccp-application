@@ -1,11 +1,20 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
+import 'package:flutter_form_bloc/flutter_form_bloc.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_indicator/loading_indicator.dart';
+import 'package:ntp/ntp.dart';
 import 'package:project/constant.dart';
 import 'package:project/form_bloc/form_bloc.dart';
 import 'package:project/models/models.dart';
+import 'package:project/models/offences_rule/offence_data_model.dart';
+import 'package:project/routes/route_manager.dart';
+import 'package:project/src/localization/app_localizations.dart';
+import 'package:project/theme.dart';
+import 'package:project/widget/primary_button.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 class ParkingBodyScreen extends StatefulWidget {
   final UserModel userModel;
@@ -26,13 +35,14 @@ class ParkingBodyScreen extends StatefulWidget {
 }
 
 class _ParkingBodyScreenState extends State<ParkingBodyScreen> {
-  List<PlateNumberModel> carPlates = [];
+  DateTime _focusedDay = DateTime.now();
   String? selectedCarPlate;
   StoreParkingFormBloc? formBloc;
   late String selectedLocation;
   double _selectedHour = 1;
   double totalPrice = 0.0;
   bool hasMatchingLocation = true;
+  late Future<OffenceDataModel> _offenceAreasFuture;
 
   Map<String, List<double>> pricesPerHour = {
     'Pahang': [1, 2, 3, 4, 5, 6, 24],
@@ -70,104 +80,132 @@ class _ParkingBodyScreenState extends State<ParkingBodyScreen> {
     },
   };
 
-  final List<String> imgList = [
-    kuantanLogo,
-    terengganuLogo,
-    machangLogo,
-  ];
+  @override
+  void initState() {
+    super.initState();
+    selectedLocation = widget.details['state'];
+    getTime();
 
-  final List<String> imgName = [
-    'PBT Kuantan',
-    'PBT Kuala Terengganu',
-    'PBT Machang',
-  ];
+    // Stub: fetch offence areas list
+    _offenceAreasFuture = fetchOffenceAreasList();
 
-  final List<String> imgState = [
-    'Pahang',
-    'Terengganu',
-    'Kelantan',
-  ];
-
-  // Helper method to get the color based on index
-  int getColorForIndex(int index) {
-    switch (index) {
-      case 0:
-        return kPrimaryColor.value;
-      case 1:
-        return kOrange.value;
-      case 2:
-        return kYellow.value;
-      default:
-        return Colors.transparent.value; // Default color or handle error
+    // Initialize selected car plate
+    if (widget.carPlates.isNotEmpty) {
+      PlateNumberModel mainCarPlate = widget.carPlates.firstWhere(
+        (plate) => plate.isMain == true,
+        orElse: () => widget.carPlates.first,
+      );
+      selectedCarPlate = '${mainCarPlate.plateNumber}-${mainCarPlate.id}';
+    } else {
+      selectedCarPlate = null;
     }
+  }
+
+  Future<void> getTime() async {
+    _focusedDay = await NTP.now();
+  }
+
+  // Stub method to remove undefined error
+  Future<OffenceDataModel> fetchOffenceAreasList() async {
+    return OffenceDataModel(
+      areas: [],
+      locations: [],
+    );
+  }
+
+  double calculatePrice() {
+    return prices[selectedLocation]?[_selectedHour] ?? 0.0;
+  }
+
+  String _formatDuration(int totalSeconds) {
+    int hours = totalSeconds ~/ 3600;
+    int minutes = (totalSeconds % 3600) ~/ 60;
+    int seconds = totalSeconds % 60;
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
+    return "${twoDigits(hours)}:${twoDigits(minutes)}:${twoDigits(seconds)}";
   }
 
   String getDurationLabel(double hours) {
-    if (hours == 1.0) {
-      String hour = Get.locale!.languageCode == 'en' ? 'hour' : 'jam';
-      return '1 $hour';
-    } else {
-      String hour = Get.locale!.languageCode == 'en' ? 'hours' : 'jam';
-      return '${hours.toInt()} $hour';
-    }
-  }
-
-  @override
-  void initState() {
-    selectedLocation = widget.details['state'];
-    super.initState();
-    getTime();
-    // Check if carPlates list is not empty
-    try {
-      // Check if carPlates list is not empty
-      if (widget.carPlates.isNotEmpty) {
-        PlateNumberModel mainCarPlate = widget.carPlates.firstWhere(
-          (plate) => plate.isMain == true,
-          orElse: () => widget.carPlates.first,
-        );
-        // Set the selectedCarPlate with both plateNumber and id to match the Dropdown value
-        selectedCarPlate = '${mainCarPlate.plateNumber}-${mainCarPlate.id}';
-      } else {
-        // Handle case where no car plates are available
-        selectedCarPlate = null;
-      }
-    } catch (e) {
-      e.toString();
-    }
-  }
-
-  Future<void> getTime() async {}
-
-  double calculatePrice() {
-    // Check if selectedLocation is a valid key in pricesPerMonth
-    if (pricesPerHour.containsKey(selectedLocation)) {
-      // Check if _selectedMonth is a valid key in the selectedLocation
-      double? price = prices[selectedLocation]?[_selectedHour];
-
-      // If price is not null, return it, otherwise return a default value
-      return price ?? 0.0;
-    } else {
-      // Handle the case where selectedLocation is not a valid key
-      return 0.0;
-    }
+    String hourLabel = Get.locale!.languageCode == 'en'
+        ? (hours == 1 ? 'hour' : 'hours')
+        : 'jam';
+    return '${hours.toInt()} $hourLabel';
   }
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-        child: SizedBox(
-      width: 300,
-      height: 300,
-      child: LoadingIndicator(
-        indicatorType: Indicator.orbit,
-        colors: [
-          Color(widget.details['color']),
-          Color(widget.details['color']).withOpacity(0.5),
-          kWhite
-        ],
-        backgroundColor: kBackgroundColor,
-        pathBackgroundColor: kBackgroundColor,
-      ),
-    ));
+    return FutureBuilder(
+      future: _offenceAreasFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(
+            child: SizedBox(
+              width: 300,
+              height: 300,
+              child: LoadingIndicator(
+                indicatorType: Indicator.orbit,
+                colors: [
+                  Color(widget.details['color']),
+                  Color(widget.details['color']).withOpacity(0.5),
+                  kWhite
+                ],
+                backgroundColor: kBackgroundColor,
+                pathBackgroundColor: kBackgroundColor,
+              ),
+            ),
+          );
+        }
+
+        if (snapshot.hasError) {
+          return const Center(child: Text('Error loading offence areas'));
+        }
+
+        // Data is loaded (even if empty)
+        final offenceAreas = snapshot.data!;
+        List<double> availableHours = pricesPerHour[selectedLocation]!;
+
+        return SingleChildScrollView(
+          child: Column(
+            children: [
+              const SizedBox(height: 20),
+              // Placeholder for dropdowns / calendar / form
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    Text(
+                      'Duration: ${_formatDuration((_selectedHour * 3600).toInt())}',
+                      style: GoogleFonts.secularOne(fontSize: 20),
+                    ),
+                    Slider(
+                      min: 0,
+                      max: (availableHours.length - 1).toDouble(),
+                      divisions: availableHours.length - 1,
+                      value: availableHours.indexOf(_selectedHour).toDouble(),
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedHour = availableHours[value.toInt()];
+                        });
+                      },
+                      label: getDurationLabel(_selectedHour),
+                    ),
+                    Text(
+                      'Amount: RM ${calculatePrice().toStringAsFixed(2)}',
+                      style: GoogleFonts.secularOne(fontSize: 20),
+                    ),
+                  ],
+                ),
+              ),
+              PrimaryButton(
+                onPressed: () {
+                  // TODO: Navigate to payment or next screen
+                },
+                label: const Text('Confirm'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }

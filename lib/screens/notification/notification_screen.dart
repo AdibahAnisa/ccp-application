@@ -30,16 +30,15 @@ class _NotificationScreenState extends State<NotificationScreen> {
     return Scaffold(
       backgroundColor: kBackgroundColor,
       appBar: AppBar(
-        toolbarHeight: 100,
-        foregroundColor: details['color'] == 4294961979 ? kBlack : kWhite,
-        backgroundColor: Color(details['color']),
+        toolbarHeight: 70,
+        foregroundColor: kBlack,
         centerTitle: true,
         title: Text(
           AppLocalizations.of(context)!.notifications,
           style: textStyleNormal(
-            fontSize: 26,
-            color: details['color'] == 4294961979 ? kBlack : kWhite,
-            fontWeight: FontWeight.bold,
+            fontSize: 22,
+            color: kBlack,
+            fontWeight: FontWeight.w500,
           ),
         ),
       ),

@@ -66,7 +66,7 @@ class UpdateReserveBayFormBloc extends FormBloc<String, String> {
     ],
   );
 
-  final picLastName = TextFieldBloc(
+  final picsecondName = TextFieldBloc(
     validators: [
       InputValidator.required,
     ],
@@ -178,7 +178,7 @@ class UpdateReserveBayFormBloc extends FormBloc<String, String> {
     );
 
     picFirstName.updateValue(model.picFirstName ?? '');
-    picLastName.updateValue(model.picLastName ?? '');
+    picsecondName.updateValue(model.picsecondName ?? '');
     phoneNumber.updateValue(model.phoneNumber ?? '');
     email.updateValue(model.email ?? '');
     idNumber.updateValue(model.idNumber ?? '');
@@ -199,7 +199,7 @@ class UpdateReserveBayFormBloc extends FormBloc<String, String> {
       step: 1,
       fieldBlocs: [
         picFirstName,
-        picLastName,
+        picsecondName,
         phoneNumber,
         email,
         idNumber,

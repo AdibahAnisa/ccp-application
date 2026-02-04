@@ -289,7 +289,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get firstName => 'First Name';
 
   @override
-  String get lastName => 'Last Name';
+  String get secondName => 'Last Name';
 
   @override
   String get totalLot => 'Total Lot';
@@ -345,7 +345,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notifications => 'Notifications';
 
   @override
-  String get forgetPassword => 'Forget Password';
+  String get forgetPassword => 'Forgot Password';
 
   @override
   String get login => 'Login';
@@ -532,4 +532,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get selectLocationError => 'Location Cannot be empty';
+
+  @override
+  String get autoDeduct => 'Auto-Deduct';
+
+  @override
+  String get autoDeductDescription =>
+      'Automatically use your token balance for parking fees at supported locations.';
+
+  @override
+  String get howItWorks => 'How it works:';
+
+  @override
+  String get howItWorksPoint1 =>
+      'Make sure your token balance is sufficient before parking.';
+
+  @override
+  String get howItWorksPoint2 =>
+      'If your token balance is sufficient, parking fees will be auto-deducted.';
+
+  @override
+  String get howItWorksPoint3 =>
+      'If your token balance is insufficient, manual payment will be required.';
+
+  @override
+  String get keepBalanceTopped =>
+      'Keep your balance topped up for a seamless parking experience.';
+
+  @override
+  String get autoDeductNotification =>
+      'Auto-deduct will automatically deduct parking fees. You will receive a confirmation notification before each deduction.';
 }
