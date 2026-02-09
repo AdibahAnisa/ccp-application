@@ -22,15 +22,17 @@ class AuthResources {
 
   static Future signUp({
     required String prefix,
-    required Object body,
+    required Map<String, dynamic> body,
   }) async {
     var response = await http.post(
       Uri.parse('$baseUrl$prefix'),
-      body: body,
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json; charset=UTF-8',
       },
+      body: jsonEncode(body),
     );
+
+    print(response.body);
     return json.decode(response.body);
   }
 
@@ -57,11 +59,11 @@ class AuthResources {
     final token = await AuthResources.getToken();
     var response = await http.post(
       Uri.parse('$baseUrl$prefix'),
-      body: body,
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
       },
+      body: jsonEncode(body),
     );
     return json.decode(response.body);
   }

@@ -97,77 +97,77 @@ class SignUpFormBloc extends FormBloc<String, String> {
     ]);
   }
 
-  Future<void> signInWithGoogle() async {
-    try {
-      final googleSignIn = GoogleSignIn(
-        scopes: ['email', 'profile'],
-      );
+  // Future<void> signInWithGoogle() async {
+  //   try {
+  //     final googleSignIn = GoogleSignIn(
+  //       scopes: ['email', 'profile'],
+  //     );
 
-      final account = await googleSignIn.signIn();
-      if (account == null) {
-        emitFailure(failureResponse: 'Google sign-in cancelled');
-        return;
-      }
+  //     final account = await googleSignIn.signIn();
+  //     if (account == null) {
+  //       emitFailure(failureResponse: 'Google sign-in cancelled');
+  //       return;
+  //     }
 
-      final auth = await account.authentication;
+  //     final auth = await account.authentication;
 
-      final response = await http.post(
-        Uri.parse('http://127.0.0.1:3000/auth/google'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'idToken': auth.idToken,
-        }),
-      );
+  //     final response = await http.post(
+  //       Uri.parse('http://192.168.0.109:3000/auth/google'),
+  //       headers: {'Content-Type': 'application/json'},
+  //       body: jsonEncode({
+  //         'idToken': auth.idToken,
+  //       }),
+  //     );
 
-      if (response.statusCode != 200) {
-        emitFailure(failureResponse: 'Google authentication failed');
-        return;
-      }
+  //     if (response.statusCode != 200) {
+  //       emitFailure(failureResponse: 'Google authentication failed');
+  //       return;
+  //     }
 
-      final data = jsonDecode(response.body);
+  //     final data = jsonDecode(response.body);
 
-      // Save JWT
-      await SharedPreferencesHelper.saveToken(data['token']);
+  //     // Save JWT
+  //     await SharedPreferencesHelper.saveToken(data['token']);
 
-      emitSuccess(successResponse: 'Google login success');
-    } catch (e) {
-      emitFailure(failureResponse: 'Google sign-in error: $e');
-    }
-  }
+  //     emitSuccess(successResponse: 'Google login success');
+  //   } catch (e) {
+  //     emitFailure(failureResponse: 'Google sign-in error: $e');
+  //   }
+  // }
 
-  Future<void> signInWithApple() async {
-    try {
-      final credential = await SignInWithApple.getAppleIDCredential(
-        scopes: [
-          AppleIDAuthorizationScopes.email,
-          AppleIDAuthorizationScopes.fullName,
-        ],
-      );
+  // Future<void> signInWithApple() async {
+  //   try {
+  //     final credential = await SignInWithApple.getAppleIDCredential(
+  //       scopes: [
+  //         AppleIDAuthorizationScopes.email,
+  //         AppleIDAuthorizationScopes.fullName,
+  //       ],
+  //     );
 
-      final response = await http.post(
-        Uri.parse('http://127.0.0.1:3000/auth/apple'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'identityToken': credential.identityToken,
-          'userIdentifier': credential.userIdentifier,
-        }),
-      );
+  //     final response = await http.post(
+  //       Uri.parse('http://192.168.0.109:3000/auth/apple'),
+  //       headers: {'Content-Type': 'application/json'},
+  //       body: jsonEncode({
+  //         'identityToken': credential.identityToken,
+  //         'userIdentifier': credential.userIdentifier,
+  //       }),
+  //     );
 
-      if (response.statusCode != 200) {
-        emitFailure(failureResponse: 'Apple authentication failed');
-        return;
-      }
+  //     if (response.statusCode != 200) {
+  //       emitFailure(failureResponse: 'Apple authentication failed');
+  //       return;
+  //     }
 
-      final data = jsonDecode(response.body);
+  //     final data = jsonDecode(response.body);
 
-      // Save JWT
-      await SharedPreferencesHelper.saveToken(data['token']);
+  //     // Save JWT
+  //     await SharedPreferencesHelper.saveToken(data['token']);
 
-      emitSuccess(successResponse: 'Apple login success');
-    } catch (e) {
-      emitFailure(failureResponse: 'Apple sign-in error: $e');
-    }
-  }
+  //     emitSuccess(successResponse: 'Apple login success');
+  //   } catch (e) {
+  //     emitFailure(failureResponse: 'Apple sign-in error: $e');
+  //   }
+  // }
 
   @override
   FutureOr<void> onSubmitting() async {
@@ -177,6 +177,8 @@ class SignUpFormBloc extends FormBloc<String, String> {
         emitFailure(failureResponse: 'Passwords do not match');
         return;
       }
+
+      await Future.delayed(const Duration(milliseconds: 1000));
 
       model.firstName = firstName.value;
       model.secondName = secondName.value;
@@ -188,7 +190,6 @@ class SignUpFormBloc extends FormBloc<String, String> {
       model.password = password.value;
 
       emitSuccess();
-      return;
     }
 
     model.address1 = address1.value;
@@ -205,7 +206,7 @@ class SignUpFormBloc extends FormBloc<String, String> {
       // Create account
       final responseCreateAccount = await AuthResources.signUp(
         prefix: '/auth/signup',
-        body: jsonEncode({
+        body: {
           'firstName': model.firstName,
           'secondName': model.secondName,
           'email': model.email,
@@ -220,27 +221,27 @@ class SignUpFormBloc extends FormBloc<String, String> {
           'postcode': model.postcode,
           'city': model.city,
           'state': model.state,
-        }),
+        },
       );
 
       if (responseCreateAccount['error'] != null) {
-        emitFailure(
-          failureResponse: responseCreateAccount['error'].toString(),
-        );
+        emitFailure(failureResponse: responseCreateAccount['error'].toString());
         return;
       }
 
-      // Save token
-      SharedPreferencesHelper.saveToken(responseCreateAccount['token']);
+      await SharedPreferencesHelper.saveToken(
+        responseCreateAccount['token'],
+      );
       print(responseCreateAccount);
 
       // Create car plate
+
       final responseCarPlate = await AuthResources.carPlate(
         prefix: '/carplatenumber/create',
-        body: jsonEncode({
+        body: {
           'isMain': plateNumberModel.isMain,
           'plateNumber': plateNumberModel.plateNumber,
-        }),
+        },
       );
 
       if (responseCarPlate['error'] != null) {

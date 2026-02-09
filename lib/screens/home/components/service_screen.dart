@@ -161,138 +161,142 @@ class _ServiceScreenState extends State<ServiceScreen> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: _initData,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            // Show loading indicator while fetching data
-            return const Center(child: CircularProgressIndicator());
-          } else {
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    AppLocalizations.of(context)!.ourService,
-                    style: textStyleNormal(
-                      color: kBlack,
-                      fontSize: 20.0,
-                      fontWeight: FontWeight.bold,
-                    ),
+      future: _initData,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          // Show loading indicator while fetching data
+          return const Center(child: CircularProgressIndicator());
+        } else {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: Text(
+                  AppLocalizations.of(context)!.ourService,
+                  style: textStyleNormal(
+                    color: kBlack,
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.bold,
                   ),
-                  const SizedBox(height: 25),
-                  SizedBox(
-                    height: 135,
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      physics: const BouncingScrollPhysics(),
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.pushNamed(
-                              context,
-                              AppRoute.parkingScreen,
-                              arguments: {
-                                'locationDetail': widget.details,
-                                'userModel': widget.userModel,
-                                'plateNumbers': widget.plateNumbers ?? [],
-                                'pbtModel': pbtModel,
-                              },
-                            );
-                          },
-                          child: _buildServiceIcon(
-                            Icons.directions_car_filled_outlined,
-                            AppLocalizations.of(context)!.parking2,
-                            [Color(0xFFA7C7E7), Color(0xFFFFFFFF)],
-                            Color(0xFF0F52BA),
-                          ),
-                        ),
-                        const SizedBox(width: 20),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.pushNamed(
-                              context,
-                              AppRoute.summonsScreen,
-                              arguments: {
-                                'locationDetail': widget.details,
-                                'plateNumbers': widget.plateNumbers ?? [],
-                                'userModel': widget.userModel,
-                              },
-                            );
-                          },
-                          child: _buildServiceIcon(
-                            Icons.description_outlined,
-                            AppLocalizations.of(context)!.summons,
-                            [Color(0xFFAFE1AF), Color(0xFFFFFFFF)],
-                            Color(0xFF2AAA8A),
-                          ),
-                        ),
-                        const SizedBox(width: 20),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.pushNamed(
-                              context,
-                              AppRoute.reserveBayScreen,
-                              arguments: {
-                                'locationDetail': widget.details,
-                              },
-                            );
-                          },
-                          child: _buildServiceIcon(
-                            Icons.place_outlined,
-                            AppLocalizations.of(context)!.reserveBays,
-                            [Color(0xFFFFC0BC), Color(0xFFFFFFFF)],
-                            Color(0xFFE37383),
-                          ),
-                        ),
-                        const SizedBox(width: 20),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.pushNamed(
-                              context,
-                              AppRoute.monthlyPassScreen,
-                              arguments: {
-                                'locationDetail': widget.details,
-                                'userModel': widget.userModel,
-                                'plateNumbers': widget.plateNumbers ?? [],
-                                'pbtModel': pbtModel,
-                                'promotions': promotionMonthlyPassModel,
-                                'history': promotionMonthlyPassHistoryModel,
-                              },
-                            );
-                          },
-                          child: _buildServiceIcon(
-                            Icons.credit_card_outlined,
-                            AppLocalizations.of(context)!.monthlyPass,
-                            [Color(0xFFFA8072), Color(0xFFFFFFFF)],
-                            Color(0xFFD22B2B),
-                          ),
-                        ),
-                        const SizedBox(width: 20),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.pushNamed(
-                              context,
-                              AppRoute.transportInfoScreen,
-                              arguments: {
-                                'locationDetail': widget.details,
-                              },
-                            );
-                          },
-                          child: _buildServiceIcon(
-                            Icons.directions_bus_filled_outlined,
-                            AppLocalizations.of(context)!.transportInfo2,
-                            [Color(0xFFFAC898), Color(0xFFFFFFFF)],
-                            Color(0xFFE49B0F),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+                ),
               ),
-            );
-          }
-        });
+              const SizedBox(height: 25),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                child: SizedBox(
+                  height: 135,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    physics: const BouncingScrollPhysics(),
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pushNamed(
+                            context,
+                            AppRoute.parkingScreen,
+                            arguments: {
+                              'locationDetail': widget.details,
+                              'userModel': widget.userModel,
+                              'plateNumbers': widget.plateNumbers ?? [],
+                              'pbtModel': pbtModel,
+                            },
+                          );
+                        },
+                        child: _buildServiceIcon(
+                          Icons.directions_car_filled_outlined,
+                          AppLocalizations.of(context)!.parking2,
+                          [Color(0xFFA7C7E7), Color(0xFFFFFFFF)],
+                          Color(0xFF0F52BA),
+                        ),
+                      ),
+                      const SizedBox(width: 20),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pushNamed(
+                            context,
+                            AppRoute.summonsScreen,
+                            arguments: {
+                              'locationDetail': widget.details,
+                              'plateNumbers': widget.plateNumbers ?? [],
+                              'userModel': widget.userModel,
+                            },
+                          );
+                        },
+                        child: _buildServiceIcon(
+                          Icons.description_outlined,
+                          AppLocalizations.of(context)!.summons,
+                          [Color(0xFFAFE1AF), Color(0xFFFFFFFF)],
+                          Color(0xFF2AAA8A),
+                        ),
+                      ),
+                      const SizedBox(width: 20),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pushNamed(
+                            context,
+                            AppRoute.reserveBayScreen,
+                            arguments: {
+                              'locationDetail': widget.details,
+                            },
+                          );
+                        },
+                        child: _buildServiceIcon(
+                          Icons.place_outlined,
+                          AppLocalizations.of(context)!.reserveBays,
+                          [Color(0xFFFFC0BC), Color(0xFFFFFFFF)],
+                          Color(0xFFE37383),
+                        ),
+                      ),
+                      const SizedBox(width: 20),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pushNamed(
+                            context,
+                            AppRoute.monthlyPassScreen,
+                            arguments: {
+                              'locationDetail': widget.details,
+                              'userModel': widget.userModel,
+                              'plateNumbers': widget.plateNumbers ?? [],
+                              'pbtModel': pbtModel,
+                              'promotions': promotionMonthlyPassModel,
+                              'history': promotionMonthlyPassHistoryModel,
+                            },
+                          );
+                        },
+                        child: _buildServiceIcon(
+                          Icons.credit_card_outlined,
+                          AppLocalizations.of(context)!.monthlyPass,
+                          [Color(0xFFFA8072), Color(0xFFFFFFFF)],
+                          Color(0xFFD22B2B),
+                        ),
+                      ),
+                      const SizedBox(width: 20),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pushNamed(
+                            context,
+                            AppRoute.transportInfoScreen,
+                            arguments: {
+                              'locationDetail': widget.details,
+                            },
+                          );
+                        },
+                        child: _buildServiceIcon(
+                          Icons.directions_bus_filled_outlined,
+                          AppLocalizations.of(context)!.transportInfo2,
+                          [Color(0xFFFAC898), Color(0xFFFFFFFF)],
+                          Color(0xFFE49B0F),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
+        }
+      },
+    );
   }
 }

@@ -8,6 +8,7 @@ import 'package:project/screens/screens.dart';
 // import 'package:project/src/localization/app_localizations.dart';
 // import 'package:project/theme.dart';
 import 'package:project/widget/loading_dialog.dart';
+import 'package:flutter/services.dart';
 import 'package:project/widget/primary_button.dart';
 import 'package:project/data/malaysia_cities.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -77,8 +78,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
               onSubmitting: (context, state) => LoadingDialog.show(context),
               onSuccess: (context, state) {
                 LoadingDialog.hide(context);
-                Navigator.pushNamedAndRemoveUntil(
-                    context, AppRoute.homeScreen, (_) => false);
+                if (state.successResponse == 'Account Created Successfully') {
+                  Navigator.pushNamedAndRemoveUntil(
+                      context, AppRoute.homeScreen, (_) => false);
+                }
               },
               onFailure: (context, state) {
                 LoadingDialog.hide(context);
@@ -232,22 +235,22 @@ class _SignUpScreenState extends State<SignUpScreen> {
             ),
           ],
         ),
-        const SizedBox(height: 20),
-        _socialButton(
-          icon: Icons.g_mobiledata,
-          text: "Sign in with Google",
-          onTap: () {
-            formBloc.signInWithGoogle();
-          },
-        ),
-        const SizedBox(height: 10),
-        _socialButton(
-          icon: Icons.apple,
-          text: "Sign in with Apple",
-          onTap: () {
-            formBloc.signInWithApple();
-          },
-        ),
+        // const SizedBox(height: 20),
+        // _socialButton(
+        //   icon: Icons.g_mobiledata,
+        //   text: "Sign in with Google",
+        //   onTap: () {
+        //     formBloc.signInWithGoogle();
+        //   },
+        // ),
+        // const SizedBox(height: 10),
+        // _socialButton(
+        //   icon: Icons.apple,
+        //   text: "Sign in with Apple",
+        //   onTap: () {
+        //     formBloc.signInWithApple();
+        //   },
+        // ),
         const SizedBox(height: 25),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -361,7 +364,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
         const SizedBox(height: 10),
         const Text("Car Plate Number",
             style: TextStyle(fontWeight: FontWeight.w600)),
-        inputBloc(formBloc.carPlateNumber, hint: "Enter your car plate number"),
+        inputBloc(
+          formBloc.carPlateNumber,
+          hint: "Enter your car plate number",
+          inputFormatters: [
+            FilteringTextInputFormatter.allow(RegExp("[a-zA-Z0-9]")),
+            UpperCaseTextFormatter(),
+          ],
+        ),
         const SizedBox(height: 30),
         PrimaryButton(
           buttonWidth: 1.0,
@@ -446,6 +456,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     bool obscure = false,
     IconData? icon,
     bool enablePasswordToggle = false,
+    List<TextInputFormatter>? inputFormatters,
   }) {
     final ValueNotifier<bool> _obscureNotifier = ValueNotifier(obscure);
 
@@ -454,6 +465,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       builder: (context, value, child) {
         return TextFieldBlocBuilder(
           textFieldBloc: bloc,
+          inputFormatters: inputFormatters,
           obscureText: value,
           keyboardType: keyboard,
           decoration: InputDecoration(
@@ -549,6 +561,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class UpperCaseTextFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    return newValue.copyWith(
+      text: newValue.text.toUpperCase(),
+      selection: newValue.selection,
     );
   }
 }

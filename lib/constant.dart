@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 /// =======================
 /// BASE URL / API ENDPOINTS
 /// =======================
-const String baseUrl = 'http://127.0.0.1:3000'; // Server IP
+const String baseUrl = 'http://192.168.0.109:3000'; // Server IP
 const String pegeypayQRurl =
     'https://pegepay.com/api/npd-wa/order-create/custom-validity';
 const String myenforcementUrl = 'http://myenforcement-mbk.vista-summerose.com';
