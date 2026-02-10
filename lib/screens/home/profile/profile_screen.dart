@@ -22,6 +22,7 @@ import 'package:project/screens/home/profile/components/about_me_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final String fullName;
+  final String email;
   final String avatar;
   final UserModel? userModel;
   final Map<String, dynamic>? locationDetail;
@@ -31,6 +32,7 @@ class ProfileScreen extends StatefulWidget {
     this.locationDetail,
     this.fullName = 'User',
     this.avatar = '',
+    this.email = '',
   });
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -166,7 +168,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: Stack(
         children: [
           Container(
-            height: 280,
+            height: 320,
             decoration: const BoxDecoration(
               color: Color(0xFF1946AB),
               borderRadius: BorderRadius.only(
@@ -182,39 +184,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   padding: const EdgeInsets.symmetric(
                       horizontal: 10.0, vertical: 10),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const BackButton(color: kWhite),
-                      Text(
-                        AppLocalizations.of(context)!.profile,
-                        style: textStyleNormal(
-                          fontSize: 26,
-                          color: kWhite,
-                          fontWeight: FontWeight.bold,
+                      Expanded(
+                        child: Center(
+                          child: Text(
+                            AppLocalizations.of(context)!.profile,
+                            style: textStyleNormal(
+                              fontSize: 26,
+                              color: kWhite,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       ),
-                      ScaleTap(
-                        onPressed: () async {
-                          await CustomDialog.show(
-                            context,
-                            title: AppLocalizations.of(context)!.logout,
-                            description:
-                                '${AppLocalizations.of(context)!.logoutDesc}?',
-                            btnOkOnPress: () async {
-                              await logout();
-                            },
-                            btnOkText: AppLocalizations.of(context)!.yes,
-                            btnCancelOnPress: () {
-                              Navigator.pop(context);
-                            },
-                            btnCancelText: AppLocalizations.of(context)!.no,
-                          );
-                        },
-                        child: const Icon(
-                          Icons.logout,
-                          color: kRed,
-                        ),
-                      ),
+                      const SizedBox(width: 48),
                     ],
                   ),
                 ),
@@ -236,10 +220,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   style: GoogleFonts.dmSans(
                     fontWeight: FontWeight.bold,
                     color: kWhite,
-                    fontSize: 15,
+                    fontSize: 25,
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 4),
+                Text(
+                  userModel!.email ?? '',
+                  style: GoogleFonts.dmSans(
+                    fontWeight: FontWeight.w400,
+                    color: kWhite.withOpacity(0.7),
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 30),
                 // Profile list
                 Expanded(
                   child: ListView(
@@ -327,78 +320,104 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           );
                         },
                       ),
-
                       const SizedBox(height: 20),
-                      // Delete account button
+                      // DELETE BUTTON
+                      // PrimaryButton(
+                      //   borderRadius: 10.0,
+                      //   buttonWidth: 0.9,
+                      //   color: kRed,
+                      //   label: Text(
+                      //     AppLocalizations.of(context)!.logout,
+                      //     style: textStyleNormal(
+                      //         color: kWhite, fontWeight: FontWeight.bold),
+                      //   ),
+                      //   onPressed: () {
+                      //     CustomDialog.show(
+                      //       context,
+                      //       dialogType: DialogType.danger,
+                      //       title: AppLocalizations.of(context)!.deleteAccount,
+                      //       description:
+                      //           AppLocalizations.of(context)!.deleteDesc,
+                      //       center: Column(
+                      //         children: [
+                      //           Text(
+                      //             AppLocalizations.of(context)!.typeDelete,
+                      //             style: textStyleNormal(
+                      //               fontSize: 12,
+                      //               color: kRed,
+                      //               fontWeight: FontWeight.bold,
+                      //             ),
+                      //           ),
+                      //           const SizedBox(height: 10),
+                      //           TextField(
+                      //             controller: _controller,
+                      //             onChanged: _validateInput,
+                      //             decoration: InputDecoration(
+                      //               hintText:
+                      //                   '${AppLocalizations.of(context)!.enter} ${AppLocalizations.of(context)!.delete.toUpperCase()}',
+                      //               hintStyle: const TextStyle(
+                      //                 color: Colors.black26,
+                      //               ),
+                      //               border: OutlineInputBorder(
+                      //                 borderSide: const BorderSide(
+                      //                   color: Colors.black12,
+                      //                 ),
+                      //                 borderRadius: BorderRadius.circular(10),
+                      //               ),
+                      //               enabledBorder: OutlineInputBorder(
+                      //                 borderSide: const BorderSide(
+                      //                   color: Colors.black12,
+                      //                 ),
+                      //                 borderRadius: BorderRadius.circular(10),
+                      //               ),
+                      //               filled: true,
+                      //               fillColor: Colors.white.withOpacity(0.8),
+                      //             ),
+                      //           ),
+                      //         ],
+                      //       ),
+                      //       btnOkOnPress: () async {
+                      //         if (_isConfirmEnabled) {
+                      //           Navigator.pop(context);
+                      //         }
+                      //       },
+                      //       btnOkText: AppLocalizations.of(context)!.yes,
+                      //       btnCancelOnPress: () {
+                      //         _isConfirmEnabled = false;
+                      //         _controller.clear();
+                      //         Navigator.pop(context);
+                      //       },
+                      //       btnCancelText: AppLocalizations.of(context)!.no,
+                      //     );
+                      //   },
+                      // ),
                       PrimaryButton(
                         borderRadius: 10.0,
                         buttonWidth: 0.9,
                         color: kRed,
                         label: Text(
-                          AppLocalizations.of(context)!.deleteAccount,
+                          AppLocalizations.of(context)!.logout,
                           style: textStyleNormal(
                               color: kWhite, fontWeight: FontWeight.bold),
                         ),
-                        onPressed: () {
-                          CustomDialog.show(
+                        onPressed: () async {
+                          await CustomDialog.show(
                             context,
-                            dialogType: DialogType.danger,
-                            title: AppLocalizations.of(context)!.deleteAccount,
+                            title: AppLocalizations.of(context)!.logout,
                             description:
-                                AppLocalizations.of(context)!.deleteDesc,
-                            center: Column(
-                              children: [
-                                Text(
-                                  AppLocalizations.of(context)!.typeDelete,
-                                  style: textStyleNormal(
-                                    fontSize: 12,
-                                    color: kRed,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(height: 10),
-                                TextField(
-                                  controller: _controller,
-                                  onChanged: _validateInput,
-                                  decoration: InputDecoration(
-                                    hintText:
-                                        '${AppLocalizations.of(context)!.enter} ${AppLocalizations.of(context)!.delete.toUpperCase()}',
-                                    hintStyle: const TextStyle(
-                                      color: Colors.black26,
-                                    ),
-                                    border: OutlineInputBorder(
-                                      borderSide: const BorderSide(
-                                        color: Colors.black12,
-                                      ),
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    enabledBorder: OutlineInputBorder(
-                                      borderSide: const BorderSide(
-                                        color: Colors.black12,
-                                      ),
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    filled: true,
-                                    fillColor: Colors.white.withOpacity(0.8),
-                                  ),
-                                ),
-                              ],
-                            ),
+                                '${AppLocalizations.of(context)!.logoutDesc}?',
                             btnOkOnPress: () async {
-                              if (_isConfirmEnabled) {
-                                Navigator.pop(context);
-                              }
+                              await logout();
                             },
                             btnOkText: AppLocalizations.of(context)!.yes,
                             btnCancelOnPress: () {
-                              _isConfirmEnabled = false;
-                              _controller.clear();
                               Navigator.pop(context);
                             },
                             btnCancelText: AppLocalizations.of(context)!.no,
                           );
                         },
                       ),
+
                       const SizedBox(height: 50),
                     ],
                   ),

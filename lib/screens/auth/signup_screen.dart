@@ -32,37 +32,37 @@ class _SignUpScreenState extends State<SignUpScreen> {
   String? selectedState;
   String? selectedCity;
 
-  Future<void> _signInWithGoogle() async {
-    try {
-      final GoogleSignIn googleSignIn = GoogleSignIn();
-      final user = await googleSignIn.signIn();
+  // Future<void> _signInWithGoogle() async {
+  //   try {
+  //     final GoogleSignIn googleSignIn = GoogleSignIn();
+  //     final user = await googleSignIn.signIn();
 
-      if (user != null) {
-        debugPrint('Google user: ${user.email}');
-        // TODO: send user.id / email to backend
-        // TODO: navigate to home page
-      }
-    } catch (e) {
-      debugPrint('Google sign-in error: $e');
-    }
-  }
+  //     if (user != null) {
+  //       debugPrint('Google user: ${user.email}');
+  //       // TODO: send user.id / email to backend
+  //       // TODO: navigate to home page
+  //     }
+  //   } catch (e) {
+  //     debugPrint('Google sign-in error: $e');
+  //   }
+  // }
 
-  Future<void> _signInWithApple() async {
-    try {
-      final credential = await SignInWithApple.getAppleIDCredential(
-        scopes: [
-          AppleIDAuthorizationScopes.email,
-          AppleIDAuthorizationScopes.fullName,
-        ],
-      );
+  // Future<void> _signInWithApple() async {
+  //   try {
+  //     final credential = await SignInWithApple.getAppleIDCredential(
+  //       scopes: [
+  //         AppleIDAuthorizationScopes.email,
+  //         AppleIDAuthorizationScopes.fullName,
+  //       ],
+  //     );
 
-      debugPrint('Apple user: ${credential.userIdentifier}');
-      // TODO: send credential.userIdentifier to backend
-      // TODO: navigate to home page
-    } catch (e) {
-      debugPrint('Apple sign-in error: $e');
-    }
-  }
+  //     debugPrint('Apple user: ${credential.userIdentifier}');
+  //     // TODO: send credential.userIdentifier to backend
+  //     // TODO: navigate to home page
+  //   } catch (e) {
+  //     debugPrint('Apple sign-in error: $e');
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {

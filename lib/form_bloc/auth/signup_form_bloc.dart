@@ -188,8 +188,6 @@ class SignUpFormBloc extends FormBloc<String, String> {
       model.phoneCode = phoneCode.value;
       model.phoneNumber = phoneNumber.value;
       model.password = password.value;
-
-      emitSuccess();
     }
 
     model.address1 = address1.value;
