@@ -16,7 +16,7 @@ class AuthResources {
         'Content-Type': 'application/json',
       },
     );
-    // print(baseUrl + prefix);
+
     return json.decode(response.body);
   }
 
@@ -43,7 +43,7 @@ class AuthResources {
     final token = await AuthResources.getToken();
     var response = await http.put(
       Uri.parse('$baseUrl$prefix'),
-      body: body,
+      body: jsonEncode(body),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',

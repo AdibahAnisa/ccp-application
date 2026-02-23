@@ -63,21 +63,21 @@ class QrCodeScreen extends StatelessWidget {
               children: [
                 Text(
                   '1.Please screenshot the QR Code',
-                  style: GoogleFonts.dmSans(color: Colors.red),
+                  style: TextStyle(color: Colors.red),
                 ),
                 Text(
                   '(QR Code will expire in 10 minutes)',
-                  style: GoogleFonts.dmSans(color: Colors.red),
+                  style: TextStyle(color: Colors.red),
                 ),
                 const SizedBox(height: 10),
                 Text(
                   '2.Open you banking online app',
-                  style: GoogleFonts.dmSans(color: Colors.red),
+                  style: TextStyle(color: Colors.red),
                 ),
                 const SizedBox(height: 10),
                 Text(
                   '3. Scan the QR code',
-                  style: GoogleFonts.dmSans(color: Colors.red),
+                  style: TextStyle(color: Colors.red),
                 )
               ],
             )

@@ -594,7 +594,7 @@ class _MonthlyPassBodyState extends State<MonthlyPassBody> {
                                 children: [
                                   Text(
                                     AppLocalizations.of(context)!.monthlyPass2,
-                                    style: GoogleFonts.dmSans(
+                                    style: TextStyle(
                                       color: const Color.fromARGB(
                                           255, 31, 36, 132),
                                       fontSize: 20,
@@ -633,7 +633,7 @@ class _MonthlyPassBodyState extends State<MonthlyPassBody> {
                                 children: [
                                   Text(
                                     AppLocalizations.of(context)!.amount2,
-                                    style: GoogleFonts.dmSans(
+                                    style: TextStyle(
                                       color: const Color.fromARGB(
                                           255, 31, 36, 132),
                                       fontSize: 20,

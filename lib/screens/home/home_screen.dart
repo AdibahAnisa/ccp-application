@@ -186,6 +186,14 @@ class _HomeScreenState extends State<HomeScreen> {
         userModel.id = data['id'];
         userModel.firstName = data['firstName'];
         userModel.secondName = data['secondName'];
+        userModel.email = data['email'];
+        userModel.phoneNumber = data['phoneNumber'];
+        userModel.address1 = data['address1'];
+        userModel.address2 = data['address2'];
+        userModel.address3 = data['address3'];
+        userModel.city = data['city'];
+        userModel.state = data['state'];
+        userModel.postcode = data['postcode'];
         if (data['wallet'] != null)
           userModel.wallet = WalletModel.fromJson(data['wallet']);
         if (data['plateNumbers'] != null) {

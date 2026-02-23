@@ -1,8 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
-import 'package:flutter_scale_tap/flutter_scale_tap.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:project/constant.dart';
 import 'package:project/models/models.dart';
 import 'package:project/routes/route_manager.dart';
@@ -32,7 +30,7 @@ class ProfileScreen extends StatefulWidget {
     this.locationDetail,
     this.fullName = 'User',
     this.avatar = '',
-    this.email = '',
+    this.email = 'User',
   });
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -144,6 +142,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
     UserModel? userModel = arguments?['userModel'] as UserModel?;
+
     Map<String, dynamic>? details =
         arguments?['locationDetail'] as Map<String, dynamic>?;
     String avatar = arguments?['avatar'] as String? ?? '';
@@ -168,7 +167,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: Stack(
         children: [
           Container(
-            height: 320,
+            height: 340,
             decoration: const BoxDecoration(
               color: Color(0xFF1946AB),
               borderRadius: BorderRadius.only(
@@ -202,32 +201,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 15),
                 // Profile avatar
                 CircleAvatar(
-                  radius: 40,
+                  radius: 50,
                   backgroundImage: avatar.isNotEmpty
                       ? NetworkImage(avatar)
                       : const AssetImage('assets/images/account.png')
                           as ImageProvider,
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 15),
                 // Profile name
                 Text(
                   userModel != null
                       ? '${userModel.firstName} ${userModel.secondName}'
                       : widget.fullName,
-                  style: GoogleFonts.dmSans(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: kWhite,
                     fontSize: 25,
                   ),
                 ),
-                const SizedBox(height: 4),
+
                 Text(
-                  userModel!.email ?? '',
-                  style: GoogleFonts.dmSans(
-                    fontWeight: FontWeight.w400,
+                  userModel != null ? '${userModel.email}' : widget.email,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w500,
                     color: kWhite.withOpacity(0.7),
                     fontSize: 14,
                   ),
@@ -249,8 +248,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 leading: profileListIcon[index],
                                 title: Text(
                                   profileList[index],
-                                  style: GoogleFonts.dmSans(
-                                      fontWeight: FontWeight.bold),
+                                  style: TextStyle(fontWeight: FontWeight.bold),
                                 ),
                                 subtitle: index == 4
                                     ? Text(
@@ -273,7 +271,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   if (userModel == null) return;
 
                                   if (index == 0) {
-                                    displayAboutMe(context, userModel);
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) =>
+                                            AboutMeScreen(userModel: userModel),
+                                      ),
+                                    );
                                   } else if (index == 1) {
                                     displayEmailPassword(
                                         context, userModel, details ?? {});

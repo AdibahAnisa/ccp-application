@@ -327,7 +327,7 @@ class _MonthlyPassReceiptScreenState extends State<MonthlyPassReceiptScreen> {
                       Center(
                         child: Text(
                           AppLocalizations.of(context)!.thankYou,
-                          style: GoogleFonts.dmSans(
+                          style: TextStyle(
                             fontSize: 20,
                           ),
                         ),

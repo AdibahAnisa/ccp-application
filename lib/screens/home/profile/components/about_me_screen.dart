@@ -1,100 +1,177 @@
 import 'package:flutter/material.dart';
-import 'package:project/constant.dart';
 import 'package:project/models/models.dart';
-import 'package:project/src/localization/app_localizations.dart';
-import 'package:project/theme.dart';
+import 'package:project/screens/home/profile/components/edit_about_me.dart';
 import 'package:project/widget/primary_button.dart';
+import 'package:project/constant.dart';
+import 'package:project/src/localization/app_localizations.dart';
 
-Future<void> displayAboutMe(BuildContext context, UserModel userModel) {
-  Widget buildRow(String label, String? value) {
-    if (value == null || value.isEmpty) return const SizedBox.shrink();
-    return Column(
-      children: [
-        const SizedBox(height: 10),
-        Text(
-          label,
-          style: textStyleNormal(fontWeight: FontWeight.bold, fontSize: 15),
-        ),
-        const SizedBox(height: 5),
-        Text(
-          value,
-          style: textStyleNormal(fontSize: 15),
-          textAlign: TextAlign.center,
-        ),
-      ],
-    );
+class AboutMeScreen extends StatefulWidget {
+  late UserModel userModel;
+  AboutMeScreen({super.key, required this.userModel});
+
+  @override
+  State<AboutMeScreen> createState() => _AboutMeScreenState();
+}
+
+class _AboutMeScreenState extends State<AboutMeScreen> {
+  UserModel? userModel;
+  UserModel get user => userModel!;
+
+  @override
+  void initState() {
+    super.initState();
+    userModel = widget.userModel;
   }
 
-  return showModalBottomSheet(
-    context: context,
-    isDismissible: false,
-    isScrollControlled:
-        true, // Makes the bottom sheet take full height if needed
-    builder: (BuildContext context) {
-      return DraggableScrollableSheet(
-        expand: false,
-        initialChildSize: 0.6,
-        minChildSize: 0.4,
-        maxChildSize: 0.9,
-        builder: (context, scrollController) {
-          return SingleChildScrollView(
-            controller: scrollController,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+  String displayValue(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return '-';
+    }
+    return value;
+  }
+
+  String buildAddress(UserModel user) {
+    final address = [
+      user.address1,
+      user.address2,
+      user.address3,
+      user.postcode,
+      user.city,
+      user.state,
+    ].whereType<String>().where((e) => e.trim().isNotEmpty).join(', ');
+
+    return address.isEmpty ? '-' : address;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          AppLocalizations.of(context)!.aboutMe,
+          style: const TextStyle(fontWeight: FontWeight.w500),
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade100,
+                borderRadius: BorderRadius.circular(12),
+              ),
               child: Column(
                 children: [
-                  Container(
-                    width: 100,
-                    margin: const EdgeInsets.only(bottom: 20),
-                    child: const Divider(color: kGrey, thickness: 3),
+                  ProfileInfoRow(
+                    label: AppLocalizations.of(context)!.name,
+                    value: '${user.firstName} ${user.secondName}',
                   ),
-                  Text(
-                    AppLocalizations.of(context)!.aboutMe,
-                    style: textStyleNormal(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: kBlack,
-                    ),
+                  ProfileInfoRow(
+                    label: AppLocalizations.of(context)!.idNumber,
+                    value: user.idNumber ?? '-',
                   ),
-                  buildRow(
-                      AppLocalizations.of(context)!.name, userModel.firstName),
-                  if (userModel.idNumber?.isNotEmpty ?? false)
-                    buildRow(AppLocalizations.of(context)!.idNumber,
-                        userModel.idNumber),
-                  buildRow(AppLocalizations.of(context)!.phoneNumber,
-                      userModel.phoneNumber),
-                  buildRow(
-                      AppLocalizations.of(context)!.email, userModel.email),
-                  buildRow(
-                    AppLocalizations.of(context)!.address,
-                    "${userModel.address1 ?? ''} ${userModel.address2 ?? ''} ${userModel.address3 ?? ''}"
-                        .trim(),
+                  ProfileInfoRow(
+                    label: AppLocalizations.of(context)!.phoneNumber,
+                    value: displayValue(user.phoneNumber),
                   ),
-                  if (userModel.postcode != null ||
-                      userModel.city != null ||
-                      userModel.state != null)
-                    buildRow(
-                      '',
-                      "${userModel.postcode ?? ''} ${userModel.city ?? ''} ${userModel.state ?? ''}"
-                          .trim(),
-                    ),
-                  const SizedBox(height: 20),
-                  PrimaryButton(
-                    color: kRed,
-                    label: Text(
-                      AppLocalizations.of(context)!.close,
-                      style: textStyleNormal(
-                          color: kWhite, fontWeight: FontWeight.bold),
-                    ),
-                    borderRadius: 20.0,
-                    onPressed: () => Navigator.pop(context),
+                  ProfileInfoRow(
+                    label: AppLocalizations.of(context)!.email,
+                    value: displayValue(user.email),
+                  ),
+                  ProfileInfoRow(
+                    label: AppLocalizations.of(context)!.address,
+                    value: buildAddress(user),
+                    isLast: true,
                   ),
                 ],
               ),
             ),
-          );
-        },
-      );
-    },
-  );
+
+            const Spacer(),
+
+            /// EDIT BUTTON
+            PrimaryButton(
+                borderRadius: 10,
+                buttonWidth: 1,
+                color: kPrimaryColor,
+                label: const Text(
+                  'Edit',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                onPressed: () async {
+                  final updatedUser = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => EditAboutMe(userModel: user),
+                    ),
+                  );
+
+                  if (updatedUser != null) {
+                    setState(() {
+                      userModel = updatedUser;
+                    });
+                  }
+                }),
+
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class ProfileInfoRow extends StatelessWidget {
+  final String label;
+  final String value;
+  final bool isLast;
+
+  const ProfileInfoRow({
+    super.key,
+    required this.label,
+    required this.value,
+    this.isLast = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              flex: 2,
+              child: Text(
+                '$label:',
+                style: TextStyle(
+                  color: Colors.grey.shade600,
+                  fontSize: 14,
+                ),
+              ),
+            ),
+            Expanded(
+              flex: 3,
+              child: Text(
+                value,
+                textAlign: TextAlign.right,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+        ),
+        if (!isLast) ...[
+          const SizedBox(height: 12),
+        ]
+      ],
+    );
+  }
 }
