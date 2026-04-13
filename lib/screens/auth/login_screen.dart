@@ -8,6 +8,7 @@ import 'package:project/src/localization/app_localizations.dart';
 import 'package:project/theme.dart';
 import 'package:project/widget/loading_dialog.dart';
 import 'package:project/widget/primary_button.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -32,6 +33,16 @@ class LoginScreenState extends State<LoginScreen> {
   void dispose() {
     _showPasswordNotifier.dispose();
     super.dispose();
+  }
+
+  Future<String?> getFcmToken() async {
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+
+    String? fcmToken = await messaging.getToken();
+
+    print("FCM Token: $fcmToken");
+
+    return fcmToken;
   }
 
   // void _loginUserByBiometric() async {

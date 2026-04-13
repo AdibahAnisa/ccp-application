@@ -1,174 +1,123 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_form_bloc/flutter_form_bloc.dart';
 import 'package:project/constant.dart';
 import 'package:project/form_bloc/form_bloc.dart';
 import 'package:project/models/models.dart';
+import 'package:project/resources/resources.dart';
 import 'package:project/routes/route_manager.dart';
+import 'package:project/screens/home/profile/components/help_center/app_hc.dart';
+import 'package:project/screens/home/profile/components/help_center/compound_hc.dart';
+import 'package:project/screens/home/profile/components/help_center/monthly_pass_hc.dart';
+import 'package:project/screens/home/profile/components/help_center/reserve_bay_hc.dart';
+import 'package:project/screens/home/profile/components/help_center/terminal_hc.dart';
 import 'package:project/src/localization/app_localizations.dart';
 import 'package:project/theme.dart';
+import 'package:project/widget/loading_dialog.dart';
 import 'package:project/widget/primary_button.dart';
 
-Future<void> helpCenter(BuildContext context, List<PBTModel> pbtModel) async {
-  HelpDeskFormBloc? formBloc;
+class HelpCentreScreen extends StatelessWidget {
+  final List<PBTModel> pbtModel;
 
-  List<String> item = [
-    AppLocalizations.of(context)!.seasonPass,
-    AppLocalizations.of(context)!.reserveBays,
-    AppLocalizations.of(context)!.parking,
-    AppLocalizations.of(context)!.enforcement,
-    AppLocalizations.of(context)!.others
-  ];
+  const HelpCentreScreen({super.key, required this.pbtModel});
 
-  return showModalBottomSheet(
-    context: context,
-    isDismissible: false,
-    isScrollControlled: true,
-    builder: (BuildContext context) {
-      return BlocProvider(
-        create: (context) => HelpDeskFormBloc(
-          item: item,
-          pbtModel: pbtModel,
+  @override
+  Widget build(BuildContext context) {
+    final items = [
+      "Terminal",
+      AppLocalizations.of(context)!.compound,
+      AppLocalizations.of(context)!.reserveBays,
+      AppLocalizations.of(context)!.monthlyPass,
+      "App",
+    ];
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(AppLocalizations.of(context)!.helpCenter),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
         ),
-        child: Builder(builder: (context) {
-          formBloc = BlocProvider.of<HelpDeskFormBloc>(context);
+      ),
+      body: ListView.separated(
+        padding: const EdgeInsets.all(16),
+        itemCount: items.length,
+        separatorBuilder: (_, __) => const SizedBox(height: 12),
+        itemBuilder: (context, index) {
+          return InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: () {
+              switch (index) {
+                case 0:
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const TerminalHelpScreen(),
+                    ),
+                  );
+                  break;
 
-          return FormBlocListener<HelpDeskFormBloc, String, String>(
-            onSuccess: (context, state) {
-              Navigator.pop(context);
-              Navigator.pushNamedAndRemoveUntil(
-                context,
-                AppRoute.homeScreen,
-                (route) => false,
-              );
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(state.successResponse!),
-                ),
-              );
+                case 1:
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const CompoundHelpScreen(),
+                    ),
+                  );
+                  break;
+
+                case 2:
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ReserveBayHelpScreen(),
+                    ),
+                  );
+                  break;
+
+                case 3:
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const MonthlyPassHelpScreen(),
+                    ),
+                  );
+                  break;
+
+                case 4:
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const AppHelpScreen(),
+                    ),
+                  );
+                  break;
+              }
             },
-            onFailure: (context, state) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(state.failureResponse!),
-                ),
-              );
-            },
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.only(
-                    top: 20.0, bottom: 50.0, left: 30.0, right: 30.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Center(
-                      child: Text(
-                        AppLocalizations.of(context)!.helpCenter,
-                        style: textStyleNormal(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: kBlack,
-                        ),
-                      ),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey.shade300),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.help_outline, color: kPrimaryColor),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      items[index],
+                      style: const TextStyle(fontSize: 16),
                     ),
-                    const SizedBox(height: 10),
-                    Center(
-                      child: DropdownFieldBlocBuilder<String>(
-                        showEmptyItem: false,
-                        selectFieldBloc: formBloc!.section,
-                        decoration: InputDecoration(
-                          hintText: AppLocalizations.of(context)!.selectItem,
-                          labelText: AppLocalizations.of(context)!.selectItem,
-                          hintStyle: const TextStyle(color: Colors.grey),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(20),
-                            borderSide:
-                                const BorderSide(width: 3, color: Colors.black),
-                          ),
-                        ),
-                        itemBuilder: (context, value) => FieldItem(
-                          child: Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 10.0),
-                            child: Text(value),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Center(
-                      child: DropdownFieldBlocBuilder<String?>(
-                        showEmptyItem: false,
-                        selectFieldBloc: formBloc!.pbt,
-                        decoration: InputDecoration(
-                          hintText: AppLocalizations.of(context)!.selectPbt,
-                          labelText: AppLocalizations.of(context)!.selectPbt,
-                          hintStyle: const TextStyle(color: Colors.grey),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(20),
-                            borderSide:
-                                const BorderSide(width: 3, color: Colors.black),
-                          ),
-                        ),
-                        itemBuilder: (context, value) {
-                          final pbt = formBloc!.pbtModel
-                              .firstWhere((pbt) => pbt.id == value);
-                          return FieldItem(
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 10.0),
-                              child: Text(pbt.name!),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    TextFieldBlocBuilder(
-                      maxLines: 15,
-                      textFieldBloc: formBloc!.description,
-                      decoration: InputDecoration(
-                        hintText:
-                            '${AppLocalizations.of(context)!.pleaseWriteHere}.....',
-                        hintStyle: const TextStyle(color: Colors.grey),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    Center(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          PrimaryButton(
-                            color: kRed,
-                            buttonWidth: 0.4,
-                            label: Text(
-                              AppLocalizations.of(context)!.cancel,
-                              style: textStyleNormal(color: kWhite),
-                            ),
-                            borderRadius: 20.0,
-                            onPressed: () => Navigator.pop(context),
-                          ),
-                          PrimaryButton(
-                            buttonWidth: 0.4,
-                            label: Text(
-                              AppLocalizations.of(context)!.submit,
-                              style: textStyleNormal(color: kWhite),
-                            ),
-                            borderRadius: 20.0,
-                            onPressed: () => formBloc!.submit(),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                  const Icon(Icons.arrow_forward_ios, size: 16),
+                ],
               ),
             ),
           );
-        }),
-      );
-    },
-  );
+        },
+      ),
+    );
+  }
 }

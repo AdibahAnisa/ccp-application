@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:project/app/helpers/shared_preferences.dart';
 import 'package:project/constant.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -16,6 +17,29 @@ class AuthResources {
         'Content-Type': 'application/json',
       },
     );
+
+    return json.decode(response.body);
+  }
+
+  static Future saveFcmToken({
+    required String prefix,
+    required Object body,
+  }) async {
+    final token = await SharedPreferencesHelper.getToken();
+
+    print("🔥 TOKEN FROM STORAGE: $token");
+
+    var response = await http.post(
+      Uri.parse('$baseUrl$prefix'),
+      body: jsonEncode(body),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    print("🔥 STATUS: ${response.statusCode}");
+    print("🔥 RESPONSE: ${response.body}");
 
     return json.decode(response.body);
   }
@@ -75,12 +99,16 @@ class AuthResources {
     final token = await AuthResources.getToken();
     var response = await http.put(
       Uri.parse('$baseUrl$prefix'),
-      body: body,
+      body: jsonEncode(body),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
       },
     );
+
+    print("STATUS: ${response.statusCode}");
+    print("BODY: ${response.body}");
+
     return json.decode(response.body);
   }
 

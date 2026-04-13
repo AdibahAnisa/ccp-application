@@ -103,7 +103,7 @@ class _ParkingPaymentScreenState extends State<ParkingPaymentScreen> {
           style: textStyleNormal(
             fontSize: 26,
             color: details['color'] == 4294961979 ? kBlack : kWhite,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ),
@@ -118,13 +118,13 @@ class _ParkingPaymentScreenState extends State<ParkingPaymentScreen> {
                 children: [
                   Text(
                     AppLocalizations.of(context)!.date,
-                    style: GoogleFonts.firaCode(fontWeight: FontWeight.bold),
+                    style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(width: 50),
                   Expanded(
                     child: Text(
                       _currentDate,
-                      style: GoogleFonts.firaCode(),
+                      style: GoogleFonts.poppins(),
                       textAlign: TextAlign.right, // Align text to the right
                     ),
                   ),
@@ -135,13 +135,13 @@ class _ParkingPaymentScreenState extends State<ParkingPaymentScreen> {
                 children: [
                   Text(
                     AppLocalizations.of(context)!.time,
-                    style: GoogleFonts.firaCode(fontWeight: FontWeight.bold),
+                    style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(width: 50),
                   Expanded(
                     child: Text(
                       _currentTime,
-                      style: GoogleFonts.firaCode(),
+                      style: GoogleFonts.poppins(),
                       textAlign: TextAlign.right, // Align text to the right
                     ),
                   ),
@@ -152,13 +152,13 @@ class _ParkingPaymentScreenState extends State<ParkingPaymentScreen> {
                 children: [
                   Text(
                     "PBT",
-                    style: GoogleFonts.firaCode(fontWeight: FontWeight.bold),
+                    style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(width: 50),
                   Expanded(
                     child: Text(
                       formBloc.pbt.value!,
-                      style: GoogleFonts.firaCode(),
+                      style: GoogleFonts.poppins(),
                       textAlign: TextAlign.right, // Align text to the right
                     ),
                   ),
@@ -173,13 +173,13 @@ class _ParkingPaymentScreenState extends State<ParkingPaymentScreen> {
                         Text(
                           AppLocalizations.of(context)!.areas,
                           style:
-                              GoogleFonts.firaCode(fontWeight: FontWeight.bold),
+                              GoogleFonts.poppins(fontWeight: FontWeight.w600),
                         ),
                         const SizedBox(width: 50),
                         Expanded(
                           child: Text(
                             formBloc.offenceAreas.value!.description!,
-                            style: GoogleFonts.firaCode(),
+                            style: GoogleFonts.poppins(),
                             textAlign:
                                 TextAlign.right, // Align text to the right
                           ),
@@ -197,13 +197,13 @@ class _ParkingPaymentScreenState extends State<ParkingPaymentScreen> {
                         Text(
                           AppLocalizations.of(context)!.state,
                           style:
-                              GoogleFonts.firaCode(fontWeight: FontWeight.bold),
+                              GoogleFonts.poppins(fontWeight: FontWeight.w600),
                         ),
                         const SizedBox(width: 50),
                         Expanded(
                           child: Text(
                             formBloc.offenceLocation.value!.description!,
-                            style: GoogleFonts.firaCode(),
+                            style: GoogleFonts.poppins(),
                             textAlign:
                                 TextAlign.right, // Align text to the right
                           ),
@@ -217,13 +217,13 @@ class _ParkingPaymentScreenState extends State<ParkingPaymentScreen> {
                 children: [
                   Text(
                     AppLocalizations.of(context)!.plateNumber,
-                    style: GoogleFonts.firaCode(fontWeight: FontWeight.bold),
+                    style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(width: 50),
                   Expanded(
                     child: Text(
                       parkingCar!.split('-')[0],
-                      style: GoogleFonts.firaCode(),
+                      style: GoogleFonts.poppins(),
                       textAlign: TextAlign.right, // Align text to the right
                     ),
                   ),
@@ -234,13 +234,13 @@ class _ParkingPaymentScreenState extends State<ParkingPaymentScreen> {
                 children: [
                   Text(
                     AppLocalizations.of(context)!.duration,
-                    style: GoogleFonts.firaCode(fontWeight: FontWeight.bold),
+                    style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(width: 50),
                   Expanded(
                     child: Text(
                       duration!,
-                      style: GoogleFonts.firaCode(),
+                      style: GoogleFonts.poppins(),
                       textAlign: TextAlign.right, // Align text to the right
                     ),
                   ),
@@ -251,13 +251,13 @@ class _ParkingPaymentScreenState extends State<ParkingPaymentScreen> {
                 children: [
                   Text(
                     AppLocalizations.of(context)!.description,
-                    style: GoogleFonts.firaCode(fontWeight: FontWeight.bold),
+                    style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(width: 50),
                   Expanded(
                     child: Text(
                       AppLocalizations.of(context)!.parking,
-                      style: GoogleFonts.firaCode(),
+                      style: GoogleFonts.poppins(),
                       textAlign: TextAlign.right, // Align text to the right
                     ),
                   ),
@@ -268,13 +268,13 @@ class _ParkingPaymentScreenState extends State<ParkingPaymentScreen> {
                 children: [
                   Text(
                     AppLocalizations.of(context)!.total,
-                    style: GoogleFonts.firaCode(fontWeight: FontWeight.bold),
+                    style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(width: 50),
                   Expanded(
                     child: Text(
                       'RM ${amount.toStringAsFixed(2)}',
-                      style: GoogleFonts.firaCode(fontWeight: FontWeight.bold),
+                      style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
                       textAlign: TextAlign.right, // Align text to the right
                     ),
                   ),
@@ -284,8 +284,8 @@ class _ParkingPaymentScreenState extends State<ParkingPaymentScreen> {
               Center(
                 child: Text(
                   AppLocalizations.of(context)!.paymentDesc,
-                  style: GoogleFonts.firaCode(
-                    fontWeight: FontWeight.bold,
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.w600,
                     fontSize: 15,
                   ),
                   textAlign: TextAlign.center,
@@ -380,7 +380,7 @@ class _ParkingPaymentScreenState extends State<ParkingPaymentScreen> {
                   label: Text(
                     AppLocalizations.of(context)!.pay,
                     style: textStyleNormal(
-                        color: kWhite, fontWeight: FontWeight.bold),
+                        color: kWhite, fontWeight: FontWeight.w600),
                   ),
                   color: kPrimaryColor,
                   borderRadius: 10.0,

@@ -2,7 +2,10 @@
 
 import 'dart:async';
 import 'dart:io';
-
+import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:project/app/helpers/avatar_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_scale_tap/flutter_scale_tap.dart';
 import 'package:get/get.dart';
@@ -22,6 +25,7 @@ import 'package:project/widget/loading_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:intl/intl.dart';
+import 'package:location/location.dart';
 import 'package:project/controllers/active_parking_controller.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -33,11 +37,16 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late final UserModel userModel;
+  late Timer _timer;
+  Duration remainingDuration = const Duration();
   String lastUpdated = '';
+  String? detectedPlate;
+  bool isScanning = false;
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
       GlobalKey<RefreshIndicatorState>();
   late Future<void> _initData;
   late Map<String, dynamic> details;
+  File? avatarFile;
 
   Location locationController = Location();
   late final List<PromotionMonthlyPassModel> promotionMonthlyPassModel;
@@ -45,17 +54,41 @@ class _HomeScreenState extends State<HomeScreen> {
 
   DateTime currentTime = DateTime.now();
   DateTime? parkingStartTime;
+  DateTime? startTime;
+  DateTime? endTime;
+  String zone = "Detecting...";
 
   Timer? _parkingTimer;
   double currentAmount = 0.0;
   Duration parkedDuration = Duration.zero;
 
+  double calculateCurrentAmount() {
+    if (startTime == null) return 0.0;
+
+    final usedMinutes = DateTime.now().difference(startTime!).inMinutes;
+    final ratePerHour = getHourlyRateByState(details['state']);
+
+    return (usedMinutes / 60) * ratePerHour;
+  }
+
   final ActiveParkingController controller = Get.put(ActiveParkingController());
 
   String formatDuration(Duration d) {
-    final h = d.inHours;
-    final m = d.inMinutes.remainder(60);
-    return "${h}h ${m}m";
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
+
+    final hours = twoDigits(d.inHours);
+    final minutes = twoDigits(d.inMinutes.remainder(60));
+    final seconds = twoDigits(d.inSeconds.remainder(60));
+
+    return "$hours:$minutes:$seconds";
+  }
+
+  String detectZone(double lat, double lng) {
+    if (lat > 3.13 && lat < 3.15) {
+      return "Zone A";
+    } else {
+      return "Zone B";
+    }
   }
 
   double getHourlyRateByState(String? state) {
@@ -120,6 +153,7 @@ class _HomeScreenState extends State<HomeScreen> {
         List<PromotionMonthlyPassModel>.empty(growable: true);
 
     _initData = _initApp();
+
     _getPromotionMonthlyPass();
     _getPegeypayToken();
     _getNotification();
@@ -127,17 +161,140 @@ class _HomeScreenState extends State<HomeScreen> {
     analyzeLocation();
     getLocation();
     getCurrentTime();
+    _loadAvatar();
+
+    loadParkingSession();
+
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      updateTimer();
+    });
   }
 
   @override
   void dispose() {
-    _parkingTimer?.cancel();
+    _timer.cancel();
     super.dispose();
+  }
+
+  void updateTimer() {
+    if (endTime == null) return;
+
+    final now = DateTime.now();
+
+    final diff = endTime!.difference(now);
+
+    setState(() {
+      remainingDuration = diff.isNegative ? Duration.zero : diff;
+    });
+
+    if (remainingDuration == Duration.zero && endTime != null) {
+      clearParkingSession();
+    }
   }
 
   Future<void> _initApp() async {
     await analyzeLocation();
     await _getUserDetails();
+  }
+
+  Future<String?> _getAvatar() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('profile_avatar');
+  }
+
+  Future<void> _loadAvatar() async {
+    final file = await AvatarHelper.getAvatarFile();
+
+    if (file != null && mounted) {
+      setState(() {
+        avatarFile = file;
+      });
+    }
+  }
+
+  Future<void> clearParkingSession() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    await prefs.remove('startTime');
+    await prefs.remove('endTime');
+    await prefs.remove('zone');
+
+    setState(() {
+      startTime = null;
+      endTime = null;
+      zone = "No Active Parking";
+      remainingDuration = Duration.zero;
+    });
+  }
+
+  Future<File?> capturePlateImage() async {
+    final picker = ImagePicker();
+
+    final pickedFile = await picker.pickImage(
+      source: ImageSource.camera,
+      imageQuality: 70,
+    );
+
+    if (pickedFile == null) return null;
+
+    return File(pickedFile.path);
+  }
+
+  Future<String?> detectPlate(String imagePath) async {
+    try {
+      final request = http.MultipartRequest(
+        'POST',
+        Uri.parse('http://lpr.vista-summerose.com:5002/api/plates'),
+      );
+
+      request.headers['Authorization'] = 'Token YOUR_API_KEY';
+
+      request.files.add(
+        await http.MultipartFile.fromPath('upload', imagePath),
+      );
+
+      final response = await request.send();
+
+      if (response.statusCode == 200) {
+        final resBody = await response.stream.bytesToString();
+        final data = json.decode(resBody);
+
+        if (data['results'] != null && data['results'].isNotEmpty) {
+          return data['results'][0]['plate'];
+        }
+      } else {
+        print("LPR API Error: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("LPR ERROR: $e");
+    }
+
+    return null;
+  }
+
+  Future<void> saveParkingSession() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    await prefs.setString('startTime', startTime!.toIso8601String());
+    await prefs.setString('endTime', endTime!.toIso8601String());
+    await prefs.setString('zone', zone);
+  }
+
+  Future<void> loadParkingSession() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    final start = prefs.getString('startTime');
+    final end = prefs.getString('endTime');
+
+    if (start != null && end != null) {
+      setState(() {
+        startTime = DateTime.parse(start);
+        endTime = DateTime.parse(end);
+        zone = prefs.getString('zone') ?? "Unknown";
+      });
+
+      startTimer(); // resume timer
+    }
   }
 
   Future<void> getCurrentTime() async {
@@ -181,29 +338,59 @@ class _HomeScreenState extends State<HomeScreen> {
     final data =
         await ProfileResources.getProfile(prefix: '/auth/user-profile');
     if (data != null && mounted) {
+      final user = data['user'];
       DateTime liveTime = await NTP.now();
       setState(() {
-        userModel.id = data['id'];
-        userModel.firstName = data['firstName'];
-        userModel.secondName = data['secondName'];
-        userModel.email = data['email'];
-        userModel.phoneNumber = data['phoneNumber'];
-        userModel.address1 = data['address1'];
-        userModel.address2 = data['address2'];
-        userModel.address3 = data['address3'];
-        userModel.city = data['city'];
-        userModel.state = data['state'];
-        userModel.postcode = data['postcode'];
-        if (data['wallet'] != null)
-          userModel.wallet = WalletModel.fromJson(data['wallet']);
-        if (data['plateNumbers'] != null) {
-          userModel.plateNumbers = (data['plateNumbers'] as List)
+        userModel.id = user['id'];
+        userModel.firstName = user['firstName'];
+        userModel.secondName = user['secondName'];
+        userModel.email = user['email'];
+        userModel.phoneNumber = user['phoneNumber'];
+        userModel.address1 = user['address1'];
+        userModel.address2 = user['address2'];
+        userModel.address3 = user['address3'];
+        userModel.city = user['city'];
+        userModel.state = user['state'];
+        userModel.postcode = user['postcode'];
+        if (user['wallet'] != null) {
+          userModel.wallet = WalletModel.fromJson(user['wallet']);
+        }
+        if (user['plateNumber'] != null) {
+          userModel.plateNumbers = (user['plateNumber'] as List)
               .map((e) => PlateNumberModel.fromJson(e))
               .toList();
         }
+
         lastUpdated = DateFormat('d MMMM y HH:mm').format(liveTime);
       });
     }
+  }
+
+  void startTimer() {
+    _timer.cancel();
+
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      updateTimer();
+    });
+  }
+
+  Future<void> startParkingSession(int hours) async {
+    final now = DateTime.now();
+
+    startTime = now;
+    endTime = now.add(Duration(hours: hours));
+
+    final locationData = await locationController.getLocation();
+
+    zone = detectZone(
+      locationData.latitude!,
+      locationData.longitude!,
+    );
+
+    await saveParkingSession();
+
+    startTimer();
+    setState(() {});
   }
 
   Future<void> startParking() async {
@@ -254,6 +441,11 @@ class _HomeScreenState extends State<HomeScreen> {
       await SharedPreferencesHelper.setPegeypayToken(
           token: response['accessToken']);
     }
+  }
+
+  Future<void> scheduleNotification() async {
+    // For now just print (we can upgrade later)
+    print("Parking will end at $endTime");
   }
 
   Future<void> _getNotification() async {
@@ -307,17 +499,26 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   CircleAvatar(
                       backgroundColor: Colors.blue[50],
-                      child:
-                          const Icon(Icons.directions_car, color: Colors.blue)),
+                      child: const Icon(Icons.directions_car,
+                          color: Color(0xFF0F52BA))),
                   const SizedBox(width: 12),
-                  const Column(
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("Active Parking",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 16)),
-                      Text("Zone A - Slot 15",
-                          style: TextStyle(color: Colors.grey, fontSize: 12)),
+                      Text(
+                        startTime == null
+                            ? "No Active Parking"
+                            : "Active Parking",
+                        style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600),
+                      ),
+                      Text(
+                        startTime == null ? "No Active Parking" : zone,
+                        style:
+                            const TextStyle(color: Colors.grey, fontSize: 12),
+                      ),
                     ],
                   ),
                 ],
@@ -325,13 +526,17 @@ class _HomeScreenState extends State<HomeScreen> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text(formatDuration(parkedDuration),
+                  Text(formatDuration(remainingDuration),
                       style: const TextStyle(
-                          color: Colors.blue,
+                          color: Color(0xFF0F52BA),
                           fontSize: 24,
-                          fontWeight: FontWeight.bold)),
-                  Text("Ended : 05:30 AM",
-                      style: const TextStyle(color: Colors.grey, fontSize: 11)),
+                          fontWeight: FontWeight.w500)),
+                  Text(
+                    endTime != null
+                        ? "Ended : ${DateFormat('hh:mm a').format(endTime!)}"
+                        : "No session",
+                    style: const TextStyle(color: Colors.grey, fontSize: 11),
+                  )
                 ],
               )
             ],
@@ -346,7 +551,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 decoration: BoxDecoration(
                     color: Colors.grey[200],
                     borderRadius: BorderRadius.circular(6)),
-                child: Text(plate,
+                child: Text(detectedPlate ?? plate,
                     style: const TextStyle(fontWeight: FontWeight.bold)),
               ),
             ],
@@ -359,10 +564,11 @@ class _HomeScreenState extends State<HomeScreen> {
               Text(
                   "Rate: RM ${getHourlyRateByState(details['state']).toStringAsFixed(2)}/hour",
                   style: const TextStyle(color: Colors.grey, fontSize: 12)),
-              Text("Current : RM ${currentAmount.toStringAsFixed(2)}",
+              Text(
+                  "Current : RM ${calculateCurrentAmount().toStringAsFixed(2)}",
                   style: const TextStyle(color: Colors.grey, fontSize: 12)),
             ],
-          )
+          ),
         ],
       ),
     );
@@ -401,7 +607,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         // --- HEADER SECTION ---
                         Container(
-                          padding: const EdgeInsets.fromLTRB(25, 90, 25, 130),
+                          padding: const EdgeInsets.fromLTRB(25, 70, 25, 130),
                           decoration: BoxDecoration(
                             color: mainColor,
                             borderRadius: const BorderRadius.only(
@@ -413,17 +619,26 @@ class _HomeScreenState extends State<HomeScreen> {
                               Row(
                                 children: [
                                   ScaleTap(
-                                    onPressed: () {
-                                      Navigator.pushNamed(
-                                          context, AppRoute.profileScreen,
-                                          arguments: {
-                                            'userModel': userModel,
-                                            'locationDetail': details,
-                                          });
+                                    onPressed: () async {
+                                      await Navigator.pushNamed(
+                                        context,
+                                        AppRoute.profileScreen,
+                                        arguments: {
+                                          'userModel': userModel,
+                                          'locationDetail': details,
+                                        },
+                                      );
+
+                                      await _getUserDetails();
+                                      await _loadAvatar();
                                     },
-                                    child: const CircleAvatar(
+                                    child: CircleAvatar(
                                       radius: 30,
-                                      child: Icon(Icons.person, size: 40),
+                                      backgroundImage: avatarFile != null
+                                          ? FileImage(avatarFile!)
+                                          : const AssetImage(
+                                                  'assets/images/account.png')
+                                              as ImageProvider,
                                     ),
                                   ),
                                   const SizedBox(width: 15),
@@ -555,6 +770,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           },
                                           child: Stack(
                                             alignment: Alignment.topRight,
+                                            clipBehavior: Clip.none,
                                             children: [
                                               CircleAvatar(
                                                 backgroundColor: kWhite,
@@ -601,7 +817,58 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: _buildActiveParkingCard()),
                       ],
                     ),
-                    const SizedBox(height: 95),
+                    // const SizedBox(height: 80),
+                    // ElevatedButton(
+                    //   onPressed: () async {
+                    //     print("START LPR FLOW");
+
+                    //     final image = await capturePlateImage();
+
+                    //     if (image == null) {
+                    //       print("No image captured");
+                    //       return;
+                    //     }
+
+                    //     final plate = await detectPlate(image.path);
+
+                    //     if (plate == null) {
+                    //       ScaffoldMessenger.of(context).showSnackBar(
+                    //         const SnackBar(
+                    //           content: Text("Plate not detected. Try again."),
+                    //         ),
+                    //       );
+                    //       return;
+                    //     }
+
+                    //     print("Detected Plate: $plate");
+
+                    //     final userPlates = userModel.plateNumbers ?? [];
+
+                    //     final isMatch = userPlates.any(
+                    //       (p) =>
+                    //           p.plateNumber?.toUpperCase() ==
+                    //           plate.toUpperCase(),
+                    //     );
+
+                    //     if (!isMatch) {
+                    //       ScaffoldMessenger.of(context).showSnackBar(
+                    //         const SnackBar(
+                    //           content: Text("Plate not registered!"),
+                    //         ),
+                    //       );
+                    //       return;
+                    //     }
+
+                    //     setState(() {
+                    //       detectedPlate = plate.toUpperCase();
+                    //     });
+
+                    //     // 🔥 START PARKING AFTER SUCCESS
+                    //     await startParkingSession(1);
+                    //   },
+                    //   child: const Text("Scan Plate & Start Parking"),
+                    // ),
+                    const SizedBox(height: 80),
                     ServiceScreen(
                       details: details,
                       userModel: userModel,

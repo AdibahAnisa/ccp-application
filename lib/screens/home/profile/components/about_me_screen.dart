@@ -47,6 +47,12 @@ class _AboutMeScreenState extends State<AboutMeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_outlined),
+          onPressed: () {
+            Navigator.pop(context, userModel);
+          },
+        ),
         title: Text(
           AppLocalizations.of(context)!.aboutMe,
           style: const TextStyle(fontWeight: FontWeight.w500),
@@ -96,8 +102,8 @@ class _AboutMeScreenState extends State<AboutMeScreen> {
                 borderRadius: 10,
                 buttonWidth: 1,
                 color: kPrimaryColor,
-                label: const Text(
-                  'Edit',
+                label: Text(
+                  AppLocalizations.of(context)!.edit,
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -151,7 +157,7 @@ class ProfileInfoRow extends StatelessWidget {
                 '$label:',
                 style: TextStyle(
                   color: Colors.grey.shade600,
-                  fontSize: 14,
+                  fontSize: 16,
                 ),
               ),
             ),
@@ -161,7 +167,7 @@ class ProfileInfoRow extends StatelessWidget {
                 value,
                 textAlign: TextAlign.right,
                 style: const TextStyle(
-                  fontSize: 14,
+                  fontSize: 16,
                   fontWeight: FontWeight.w500,
                 ),
               ),

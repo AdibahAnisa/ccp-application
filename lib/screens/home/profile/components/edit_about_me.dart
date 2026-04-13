@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:project/models/models.dart';
 import 'package:project/widget/primary_button.dart';
 import 'package:project/constant.dart';
-import 'package:project/theme.dart';
 import 'package:project/widget/loading_dialog.dart';
 import 'package:project/resources/resources.dart';
 import 'package:project/src/localization/app_localizations.dart';
@@ -130,13 +129,13 @@ class _EditAboutMeState extends State<EditAboutMe> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            buildLabel("First Name"),
+            buildLabel(AppLocalizations.of(context)!.firstName),
             buildInput(_firstNameController, hint: "Enter your first name"),
             const SizedBox(height: 12),
-            buildLabel("Last Name"),
+            buildLabel(AppLocalizations.of(context)!.secondName),
             buildInput(_lastNameController, hint: "Enter your last name"),
             const SizedBox(height: 12),
-            buildLabel("Email"),
+            buildLabel(AppLocalizations.of(context)!.email),
             buildInput(
               _emailController,
               hint: "Enter email address",
@@ -144,33 +143,33 @@ class _EditAboutMeState extends State<EditAboutMe> {
               icon: Icons.email_outlined,
             ),
             const SizedBox(height: 12),
-            buildLabel("ID Number"),
+            buildLabel(AppLocalizations.of(context)!.idNumber),
             buildInput(_idNumberController, hint: "Enter your ID number"),
             const SizedBox(height: 12),
-            buildLabel("Phone Number"),
+            buildLabel(AppLocalizations.of(context)!.phoneNumber),
             buildInput(
               _phoneController,
               hint: "Enter phone number",
               keyboard: TextInputType.phone,
             ),
             const SizedBox(height: 12),
-            buildLabel("Address 1"),
+            buildLabel(AppLocalizations.of(context)!.address1),
             buildInput(_address1Controller, hint: "Enter your address"),
             const SizedBox(height: 12),
-            buildLabel("Address 2"),
+            buildLabel(AppLocalizations.of(context)!.address2),
             buildInput(_address2Controller, hint: "Enter your address"),
             const SizedBox(height: 12),
-            buildLabel("Address 3"),
+            buildLabel(AppLocalizations.of(context)!.address3),
             buildInput(_address3Controller, hint: "Enter your address"),
             const SizedBox(height: 12),
             const SizedBox(height: 12),
-            buildLabel("Postcode"),
+            buildLabel(AppLocalizations.of(context)!.postcode),
             buildInput(_postcodeController, hint: "Enter your postcode"),
             const SizedBox(height: 12),
-            buildLabel("City"),
+            buildLabel(AppLocalizations.of(context)!.city),
             buildInput(_cityController, hint: "Enter your city"),
             const SizedBox(height: 12),
-            buildLabel("State"),
+            buildLabel(AppLocalizations.of(context)!.state),
             buildInput(_stateController, hint: "Enter your state"),
           ],
         ),
@@ -182,9 +181,9 @@ class _EditAboutMeState extends State<EditAboutMe> {
             borderRadius: 10.0,
             buttonWidth: 1,
             color: kPrimaryColor,
-            label: const Text(
-              'Save Changes',
-              style: TextStyle(
+            label: Text(
+              AppLocalizations.of(context)!.firstName,
+              style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
               ),

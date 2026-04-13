@@ -70,17 +70,15 @@ class _MonthlyPassPaymentScreenState extends State<MonthlyPassPaymentScreen> {
 
     return Scaffold(
         appBar: AppBar(
-          toolbarHeight: 100,
-          foregroundColor: details['color'] == 4294961979 ? kBlack : kWhite,
-          backgroundColor: Color(details['color']),
-          centerTitle: true,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new_outlined),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
           title: Text(
             AppLocalizations.of(context)!.payment,
-            style: textStyleNormal(
-              fontSize: 26,
-              color: kWhite,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontWeight: FontWeight.w500),
           ),
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
@@ -172,12 +170,12 @@ class _MonthlyPassPaymentScreenState extends State<MonthlyPassPaymentScreen> {
           },
           label: Text(
             AppLocalizations.of(context)!.pay,
-            style: textStyleNormal(color: kWhite, fontWeight: FontWeight.bold),
+            style: textStyleNormal(color: kWhite, fontWeight: FontWeight.w600),
           ),
         ),
         body: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.only(top: 50, left: 20, right: 20),
+            padding: const EdgeInsets.only(top: 10, left: 20, right: 20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -186,13 +184,13 @@ class _MonthlyPassPaymentScreenState extends State<MonthlyPassPaymentScreen> {
                   children: [
                     Text(
                       AppLocalizations.of(context)!.date,
-                      style: GoogleFonts.firaCode(fontWeight: FontWeight.bold),
+                      style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(width: 50),
                     Expanded(
                       child: Text(
                         _currentDate,
-                        style: GoogleFonts.firaCode(),
+                        style: GoogleFonts.poppins(),
                         textAlign: TextAlign.right, // Align text to the right
                       ),
                     ),
@@ -203,13 +201,13 @@ class _MonthlyPassPaymentScreenState extends State<MonthlyPassPaymentScreen> {
                   children: [
                     Text(
                       AppLocalizations.of(context)!.time,
-                      style: GoogleFonts.firaCode(fontWeight: FontWeight.bold),
+                      style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(width: 50),
                     Expanded(
                       child: Text(
                         _currentTime,
-                        style: GoogleFonts.firaCode(),
+                        style: GoogleFonts.poppins(),
                         textAlign: TextAlign.right, // Align text to the right
                       ),
                     ),
@@ -220,13 +218,13 @@ class _MonthlyPassPaymentScreenState extends State<MonthlyPassPaymentScreen> {
                   children: [
                     Text(
                       AppLocalizations.of(context)!.location,
-                      style: GoogleFonts.firaCode(fontWeight: FontWeight.bold),
+                      style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(width: 50),
                     Expanded(
                       child: Text(
                         formBloc.pbt.value!,
-                        style: GoogleFonts.firaCode(),
+                        style: GoogleFonts.poppins(),
                         textAlign: TextAlign.right, // Align text to the right
                       ),
                     ),
@@ -237,13 +235,13 @@ class _MonthlyPassPaymentScreenState extends State<MonthlyPassPaymentScreen> {
                   children: [
                     Text(
                       AppLocalizations.of(context)!.plateNumber,
-                      style: GoogleFonts.firaCode(fontWeight: FontWeight.bold),
+                      style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(width: 50),
                     Expanded(
                       child: Text(
                         parkingCar!,
-                        style: GoogleFonts.firaCode(),
+                        style: GoogleFonts.poppins(),
                         textAlign: TextAlign.right, // Align text to the right
                       ),
                     ),
@@ -254,13 +252,13 @@ class _MonthlyPassPaymentScreenState extends State<MonthlyPassPaymentScreen> {
                   children: [
                     Text(
                       AppLocalizations.of(context)!.duration,
-                      style: GoogleFonts.firaCode(fontWeight: FontWeight.bold),
+                      style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(width: 50),
                     Expanded(
                       child: Text(
                         duration!,
-                        style: GoogleFonts.firaCode(),
+                        style: GoogleFonts.poppins(),
                         textAlign: TextAlign.right, // Align text to the right
                       ),
                     ),
@@ -271,13 +269,13 @@ class _MonthlyPassPaymentScreenState extends State<MonthlyPassPaymentScreen> {
                   children: [
                     Text(
                       AppLocalizations.of(context)!.description,
-                      style: GoogleFonts.firaCode(fontWeight: FontWeight.bold),
+                      style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(width: 50),
                     Expanded(
                       child: Text(
                         AppLocalizations.of(context)!.monthlyPass,
-                        style: GoogleFonts.firaCode(),
+                        style: GoogleFonts.poppins(),
                         textAlign: TextAlign.right, // Align text to the right
                       ),
                     ),
@@ -288,14 +286,13 @@ class _MonthlyPassPaymentScreenState extends State<MonthlyPassPaymentScreen> {
                   children: [
                     Text(
                       AppLocalizations.of(context)!.total,
-                      style: GoogleFonts.firaCode(fontWeight: FontWeight.bold),
+                      style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(width: 50),
                     Expanded(
                       child: Text(
                         'RM ${totalAmount.toStringAsFixed(2)}',
-                        style:
-                            GoogleFonts.firaCode(fontWeight: FontWeight.bold),
+                        style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
                         textAlign: TextAlign.right, // Align text to the right
                       ),
                     ),
@@ -305,8 +302,8 @@ class _MonthlyPassPaymentScreenState extends State<MonthlyPassPaymentScreen> {
                 Center(
                   child: Text(
                     AppLocalizations.of(context)!.paymentDesc,
-                    style: GoogleFonts.firaCode(
-                      fontWeight: FontWeight.bold,
+                    style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.w600,
                       fontSize: 15,
                     ),
                     textAlign: TextAlign.center,
@@ -330,7 +327,7 @@ class _MonthlyPassPaymentScreenState extends State<MonthlyPassPaymentScreen> {
                     decoration: InputDecoration(
                       labelText: AppLocalizations.of(context)!.paymentMethod,
                       labelStyle: textStyleNormal(
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w600,
                         fontSize: 18,
                       ),
                     ),
@@ -378,7 +375,7 @@ class _MonthlyPassPaymentScreenState extends State<MonthlyPassPaymentScreen> {
                       Flexible(
                         child: Text(
                           AppLocalizations.of(context)!.paymentDesc2,
-                          style: GoogleFonts.firaCode(
+                          style: GoogleFonts.poppins(
                             color: Colors.red,
                             fontSize: 12,
                           ),

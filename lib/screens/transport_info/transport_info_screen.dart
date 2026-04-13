@@ -44,17 +44,15 @@ class _TransportInfoScreenState extends State<TransportInfoScreen> {
       ),
       backgroundColor: kBackgroundColor,
       appBar: AppBar(
-        toolbarHeight: 100,
-        foregroundColor: details['color'] == 4294961979 ? kBlack : kWhite,
-        backgroundColor: Color(details['color']),
-        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_outlined),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
         title: Text(
           AppLocalizations.of(context)!.transportInfo,
-          style: textStyleNormal(
-            fontSize: 26,
-            color: details['color'] == 4294961979 ? kBlack : kWhite,
-            fontWeight: FontWeight.bold,
-          ),
+          style: const TextStyle(fontWeight: FontWeight.w500),
         ),
       ),
       body: TransportInfoBody(

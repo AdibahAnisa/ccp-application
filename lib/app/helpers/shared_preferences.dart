@@ -366,4 +366,10 @@ class SharedPreferencesHelper {
 
     return token;
   }
+
+  static Future<String?> getToken() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString(keyToken); // keyToken is your saved key
+    return token;
+  }
 }

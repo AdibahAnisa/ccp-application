@@ -40,8 +40,7 @@ class NotificationService {
       android: AndroidNotificationDetails(
         'city_car_park',
         'City Car Park',
-        channelDescription:
-            'City Car Park, Your Parking App.',
+        channelDescription: 'City Car Park, Your Parking App.',
         importance: Importance.max,
         priority: Priority.high,
         icon: '@mipmap/ic_launcher',

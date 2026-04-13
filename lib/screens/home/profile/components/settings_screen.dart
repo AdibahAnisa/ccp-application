@@ -38,91 +38,99 @@ class _SettingsScreenState extends State<SettingsScreen> {
     ];
 
     return Scaffold(
-      backgroundColor: kBackgroundColor,
       appBar: AppBar(
-        toolbarHeight: 100,
-        foregroundColor: details['color'] == 4294961979 ? kBlack : kWhite,
-        backgroundColor: Color(details['color'] ?? 0xFFFFFFFF),
-        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_outlined),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
         title: Text(
           AppLocalizations.of(context)!.settings,
-          style: textStyleNormal(
-            fontSize: 26,
-            color: details['color'] == 4294961979 ? kBlack : kWhite,
-            fontWeight: FontWeight.bold,
-          ),
+          style: const TextStyle(fontWeight: FontWeight.w500),
         ),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Language selection tile
-          ListTile(
-            onTap: () {
-              setState(() {
-                isDropDownLanguage = !isDropDownLanguage;
-              });
-            },
-            leading: const Icon(
-              Icons.language,
-              color: kPrimaryColor,
-            ),
-            title: Text(
-              AppLocalizations.of(context)!.language,
-              style: textStyleNormal(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            trailing: Icon(
-              isDropDownLanguage
-                  ? Icons.keyboard_arrow_up
-                  : Icons.keyboard_arrow_down,
-            ),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color.fromARGB(255, 255, 255, 255),
+            borderRadius: BorderRadius.circular(12),
           ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              /// Language selection tile
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                onTap: () {
+                  setState(() {
+                    isDropDownLanguage = !isDropDownLanguage;
+                  });
+                },
+                leading: const Icon(
+                  Icons.language,
+                  color: kPrimaryColor,
+                ),
+                title: Text(
+                  AppLocalizations.of(context)!.language,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                trailing: Icon(
+                  isDropDownLanguage
+                      ? Icons.keyboard_arrow_up
+                      : Icons.keyboard_arrow_down,
+                ),
+              ),
 
-          // Language options dropdown
-          if (isDropDownLanguage)
-            ListView.builder(
-              itemCount: language.length,
-              shrinkWrap: true,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  onTap: () async {
-                    // Save the selected language
-                    if (index == 0) {
-                      await SharedPreferencesHelper.saveLanguage('ms');
-                      Get.updateLocale(const Locale('ms'));
-                    } else {
-                      await SharedPreferencesHelper.saveLanguage('en');
-                      Get.updateLocale(const Locale('en'));
-                    }
+              // Language options dropdown
+              if (isDropDownLanguage)
+                ListView.builder(
+                  itemCount: language.length,
+                  shrinkWrap: true,
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      onTap: () async {
+                        // Save the selected language
+                        if (index == 0) {
+                          await SharedPreferencesHelper.saveLanguage('ms');
+                          Get.updateLocale(const Locale('ms'));
+                        } else {
+                          await SharedPreferencesHelper.saveLanguage('en');
+                          Get.updateLocale(const Locale('en'));
+                        }
 
-                    // Show loading dialog
-                    LoadingDialog.show(context);
-                    await Future.delayed(const Duration(milliseconds: 500));
-                    LoadingDialog.hide(context);
+                        // Show loading dialog
+                        LoadingDialog.show(context);
+                        await Future.delayed(const Duration(milliseconds: 500));
+                        LoadingDialog.hide(context);
 
-                    // Reload screen with new settings
-                    Navigator.popAndPushNamed(
-                      context,
-                      AppRoute.settingsScreen,
-                      arguments: {'locationDetail': details},
+                        // Reload screen with new settings
+                        Navigator.popAndPushNamed(
+                          context,
+                          AppRoute.settingsScreen,
+                          arguments: {'locationDetail': details},
+                        );
+                      },
+                      leading: const SizedBox.shrink(),
+                      title: Text(
+                        language[index],
+                        style: textStyleNormal(fontSize: 18),
+                      ),
+                      trailing:
+                          Get.locale?.languageCode == (index == 0 ? 'ms' : 'en')
+                              ? const Icon(Icons.done, weight: 800)
+                              : const SizedBox.shrink(),
                     );
                   },
-                  leading: const SizedBox.shrink(),
-                  title: Text(
-                    language[index],
-                    style: textStyleNormal(fontSize: 18),
-                  ),
-                  trailing:
-                      Get.locale?.languageCode == (index == 0 ? 'ms' : 'en')
-                          ? const Icon(Icons.done, weight: 800)
-                          : const SizedBox.shrink(),
-                );
-              },
-            ),
-        ],
+                ),
+            ],
+          ),
+        ),
       ),
     );
   }

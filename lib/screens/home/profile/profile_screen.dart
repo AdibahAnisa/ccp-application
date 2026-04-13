@@ -1,11 +1,15 @@
 // ignore_for_file: use_build_context_synchronously
-
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
+import 'package:project/app/helpers/avatar_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:project/constant.dart';
 import 'package:project/models/models.dart';
 import 'package:project/routes/route_manager.dart';
 import 'package:project/screens/home/profile/components/email_password_screen.dart';
 import 'package:project/screens/home/profile/components/help_center_screen.dart';
+import 'package:project/screens/home/profile/components/privacy_policy_screen.dart';
+import 'package:project/screens/home/profile/components/terms_condition_screen.dart';
 import 'package:project/screens/home/profile/components/vehicle_list_screen.dart';
 import 'package:project/screens/home/profile/components/auto_deduct_screen.dart';
 import 'package:project/src/localization/app_localizations.dart';
@@ -49,10 +53,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final TextEditingController _controller = TextEditingController();
   bool _isConfirmEnabled = false;
   bool _isAutoDeductEnabled = false;
+  UserModel? userModel;
+  bool _isInitialized = false;
+  File? _profileImage;
 
   List<Icon> profileListIcon = [
     const Icon(Icons.person),
-    const Icon(Icons.email_sharp),
+    const Icon(Icons.email_outlined),
     const Icon(Icons.location_on),
     const Icon(Icons.history),
     const Icon(Icons.autorenew_outlined),
@@ -60,13 +67,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
     const Icon(Icons.share),
     const Icon(Icons.help_outline_rounded),
     const Icon(Icons.telegram),
+    const Icon(Icons.privacy_tip_outlined),
   ];
 
   @override
   void initState() {
     super.initState();
     pbtModel = [];
+    userModel = widget.userModel;
     _loadAutoDeductStatus();
+    _loadAvatar();
   }
 
   Future<void> _loadAutoDeductStatus() async {
@@ -74,6 +84,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
     setState(() {
       _isAutoDeductEnabled = prefs.getBool('auto_deduct_enabled') ?? false;
     });
+  }
+
+  Future<void> _loadAvatar() async {
+    final file = await AvatarHelper.getAvatarFile();
+
+    if (file != null) {
+      setState(() {
+        _profileImage = file;
+      });
+    }
+  }
+
+  Future<void> _pickImage() async {
+    final ImagePicker picker = ImagePicker();
+
+    final XFile? pickedFile =
+        await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      await AvatarHelper.saveAvatar(pickedFile.path);
+
+      setState(() {
+        _profileImage = File(pickedFile.path);
+      });
+    }
   }
 
   @override
@@ -137,19 +172,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    if (!_isInitialized) {
+      final arguments =
+          ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+
+      if (arguments != null) {
+        userModel = arguments['userModel'];
+      }
+
+      _isInitialized = true;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final arguments =
-        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    Map<String, dynamic>? details = widget.locationDetail;
+    String avatar = widget.avatar;
+    // final arguments =
+    //     ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
-    UserModel? userModel = arguments?['userModel'] as UserModel?;
+    // Map<String, dynamic>? details =
+    //     arguments?['locationDetail'] as Map<String, dynamic>?;
+    // String avatar = arguments?['avatar'] as String? ?? '';
 
-    Map<String, dynamic>? details =
-        arguments?['locationDetail'] as Map<String, dynamic>?;
-    String avatar = arguments?['avatar'] as String? ?? '';
-
-    final int colorValue = details != null && details['color'] != null
-        ? details['color'] as int
-        : 0xFFFFFFFF;
+    // final int colorValue = details != null && details['color'] != null
+    //     ? details['color'] as int
+    //     : 0xFFFFFFFF;
 
     List<String> profileList = [
       AppLocalizations.of(context)!.aboutMe,
@@ -161,6 +212,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       AppLocalizations.of(context)!.shareThisApp,
       AppLocalizations.of(context)!.helpCenter,
       AppLocalizations.of(context)!.termAndConditions,
+      AppLocalizations.of(context)!.privacyPolicy,
     ];
 
     return Scaffold(
@@ -205,8 +257,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 // Profile avatar
                 CircleAvatar(
                   radius: 50,
-                  backgroundImage: avatar.isNotEmpty
-                      ? NetworkImage(avatar)
+                  backgroundImage: _profileImage != null
+                      ? FileImage(_profileImage!)
                       : const AssetImage('assets/images/account.png')
                           as ImageProvider,
                 ),
@@ -214,9 +266,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 // Profile name
                 Text(
                   userModel != null
-                      ? '${userModel.firstName} ${userModel.secondName}'
+                      ? '${userModel!.firstName} ${userModel!.secondName}'
                       : widget.fullName,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     color: kWhite,
                     fontSize: 25,
@@ -224,7 +276,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
 
                 Text(
-                  userModel != null ? '${userModel.email}' : widget.email,
+                  userModel != null ? '${userModel!.email}' : widget.email,
                   style: TextStyle(
                     fontWeight: FontWeight.w500,
                     color: kWhite.withOpacity(0.7),
@@ -267,22 +319,51 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     : null,
                                 trailing: const Icon(
                                     Icons.keyboard_arrow_right_sharp),
-                                onTap: () {
+                                onTap: () async {
                                   if (userModel == null) return;
 
                                   if (index == 0) {
-                                    Navigator.push(
+                                    final result = await Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (_) =>
-                                            AboutMeScreen(userModel: userModel),
+                                        builder: (_) => AboutMeScreen(
+                                            userModel: userModel!),
                                       ),
                                     );
+
+                                    if (result != null) {
+                                      setState(() {
+                                        userModel = result;
+                                      });
+                                    }
                                   } else if (index == 1) {
-                                    displayEmailPassword(
-                                        context, userModel, details ?? {});
+                                    final result = await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => EmailPasswordScreen(
+                                            userModel: userModel!),
+                                      ),
+                                    );
+
+                                    if (result != null) {
+                                      setState(() {
+                                        userModel = result;
+                                      });
+                                    }
                                   } else if (index == 2) {
-                                    vehicleList(context, userModel);
+                                    final result = await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => VehicleListScreen(
+                                            userModel: userModel!),
+                                      ),
+                                    );
+
+                                    if (result != null) {
+                                      setState(() {
+                                        userModel = result;
+                                      });
+                                    }
                                   } else if (index == 3) {
                                     Navigator.pushNamed(
                                       context,
@@ -312,7 +393,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     Share.share(
                                         'Hey, check out this app! https://play.google.com/store/apps/details?id=com.example.project');
                                   } else if (index == 7) {
-                                    helpCenter(context, pbtModel);
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => HelpCentreScreen(
+                                          pbtModel: pbtModel,
+                                        ),
+                                      ),
+                                    );
+                                  } else if (index == 8) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) =>
+                                            const TermsAndConditionScreen(),
+                                      ),
+                                    );
+                                  } else if (index == 9) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) =>
+                                            const PrivacyPolicyScreen(),
+                                      ),
+                                    );
                                   }
                                 },
                               ),
@@ -325,76 +429,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         },
                       ),
                       const SizedBox(height: 20),
-                      // DELETE BUTTON
-                      // PrimaryButton(
-                      //   borderRadius: 10.0,
-                      //   buttonWidth: 0.9,
-                      //   color: kRed,
-                      //   label: Text(
-                      //     AppLocalizations.of(context)!.logout,
-                      //     style: textStyleNormal(
-                      //         color: kWhite, fontWeight: FontWeight.bold),
-                      //   ),
-                      //   onPressed: () {
-                      //     CustomDialog.show(
-                      //       context,
-                      //       dialogType: DialogType.danger,
-                      //       title: AppLocalizations.of(context)!.deleteAccount,
-                      //       description:
-                      //           AppLocalizations.of(context)!.deleteDesc,
-                      //       center: Column(
-                      //         children: [
-                      //           Text(
-                      //             AppLocalizations.of(context)!.typeDelete,
-                      //             style: textStyleNormal(
-                      //               fontSize: 12,
-                      //               color: kRed,
-                      //               fontWeight: FontWeight.bold,
-                      //             ),
-                      //           ),
-                      //           const SizedBox(height: 10),
-                      //           TextField(
-                      //             controller: _controller,
-                      //             onChanged: _validateInput,
-                      //             decoration: InputDecoration(
-                      //               hintText:
-                      //                   '${AppLocalizations.of(context)!.enter} ${AppLocalizations.of(context)!.delete.toUpperCase()}',
-                      //               hintStyle: const TextStyle(
-                      //                 color: Colors.black26,
-                      //               ),
-                      //               border: OutlineInputBorder(
-                      //                 borderSide: const BorderSide(
-                      //                   color: Colors.black12,
-                      //                 ),
-                      //                 borderRadius: BorderRadius.circular(10),
-                      //               ),
-                      //               enabledBorder: OutlineInputBorder(
-                      //                 borderSide: const BorderSide(
-                      //                   color: Colors.black12,
-                      //                 ),
-                      //                 borderRadius: BorderRadius.circular(10),
-                      //               ),
-                      //               filled: true,
-                      //               fillColor: Colors.white.withOpacity(0.8),
-                      //             ),
-                      //           ),
-                      //         ],
-                      //       ),
-                      //       btnOkOnPress: () async {
-                      //         if (_isConfirmEnabled) {
-                      //           Navigator.pop(context);
-                      //         }
-                      //       },
-                      //       btnOkText: AppLocalizations.of(context)!.yes,
-                      //       btnCancelOnPress: () {
-                      //         _isConfirmEnabled = false;
-                      //         _controller.clear();
-                      //         Navigator.pop(context);
-                      //       },
-                      //       btnCancelText: AppLocalizations.of(context)!.no,
-                      //     );
-                      //   },
-                      // ),
                       PrimaryButton(
                         borderRadius: 10.0,
                         buttonWidth: 0.9,
@@ -421,7 +455,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           );
                         },
                       ),
-
                       const SizedBox(height: 50),
                     ],
                   ),

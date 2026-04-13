@@ -1,9 +1,12 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:flutter_form_bloc/flutter_form_bloc.dart';
 import 'package:project/constant.dart';
 import 'package:project/form_bloc/form_bloc.dart';
 import 'package:project/routes/route_manager.dart';
+import 'package:project/screens/home/profile/components/privacy_policy_screen.dart';
+import 'package:project/screens/home/profile/components/terms_condition_screen.dart';
 import 'package:project/screens/screens.dart';
 // import 'package:project/src/localization/app_localizations.dart';
 // import 'package:project/theme.dart';
@@ -189,19 +192,50 @@ class _SignUpScreenState extends State<SignUpScreen> {
               value: agreePolicy,
               onChanged: (v) => setState(() => agreePolicy = v!),
             ),
-            const Expanded(
-              child: Text.rich(
-                TextSpan(
+            Expanded(
+              child: RichText(
+                text: TextSpan(
                   text: "I agree with ",
+                  style: const TextStyle(color: Colors.black),
                   children: [
                     TextSpan(
                       text: "Privacy Policy",
-                      style: TextStyle(color: kPrimaryColor),
+                      style: const TextStyle(
+                          color: kPrimaryColor,
+                          decoration: TextDecoration.underline),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const PrivacyPolicyScreen(),
+                            ),
+                          );
+                        },
                     ),
-                    TextSpan(text: " & "),
+                    const TextSpan(
+                        text: " & ", style: TextStyle(color: Colors.black)),
                     TextSpan(
                       text: "Terms and Conditions",
-                      style: TextStyle(color: kPrimaryColor),
+                      style: const TextStyle(
+                          color: kPrimaryColor,
+                          decoration: TextDecoration.underline),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () async {
+                          bool? agreed = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const TermsAndConditionScreen(
+                                  isFromSignup: true),
+                            ),
+                          );
+
+                          if (agreed == true) {
+                            setState(() {
+                              agreePolicy = true;
+                            });
+                          }
+                        },
                     ),
                   ],
                 ),

@@ -1,6 +1,8 @@
 import 'package:get/get.dart';
 import 'package:project/component/paymentGateway.dart';
 import 'package:project/screens/screens.dart';
+import 'package:project/screens/reserve_bay/add_reserve_bay/add_reserve_bay_screen.dart';
+import 'package:project/screens/reserve_bay/view_reserve_bay/view_reserve_bay_screen.dart';
 
 class AppRoute {
   static const splashScreen = '/splashScreen';
@@ -55,6 +57,9 @@ class AppRoute {
     GetPage(name: reloadPaymentScreen, page: () => const ReloadPaymentScreen()),
     GetPage(name: reloadReceiptScreen, page: () => const ReloadReceiptScreen()),
     GetPage(name: reserveBayScreen, page: () => const ReserveBayScreen()),
+    GetPage(name: addReserveBayScreen, page: () => const AddReserveBayScreen()),
+    GetPage(
+        name: viewReserveBayScreen, page: () => const ViewReserveBayScreen()),
     GetPage(name: summonsScreen, page: () => const SummonsScreen()),
     GetPage(name: monthlyPassScreen, page: () => const MonthlyPassScreen()),
     GetPage(

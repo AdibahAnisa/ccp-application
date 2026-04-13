@@ -10,6 +10,9 @@ class ProfileResources {
     required String prefix,
   }) async {
     final token = await AuthResources.getToken();
+
+    print("🔥 TOKEN USED: $token");
+
     var response = await http.get(
       Uri.parse('$baseUrl$prefix'),
       headers: {
@@ -17,7 +20,15 @@ class ProfileResources {
         'Authorization': 'Bearer $token',
       },
     );
-    return json.decode(response.body);
+
+    print("🔥 STATUS: ${response.statusCode}");
+    print("🔥 BODY: ${response.body}");
+
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      return null;
+    }
   }
 
   static Future updateProfile({
@@ -37,7 +48,7 @@ class ProfileResources {
     return json.decode(response.body);
   }
 
-  static Future getCarPlateNumbers({
+  static Future getCarplateNumbers({
     required String prefix,
   }) async {
     final token = await AuthResources.getToken();

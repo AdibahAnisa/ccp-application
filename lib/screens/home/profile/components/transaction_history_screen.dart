@@ -35,6 +35,36 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
     return [transactionHistory, walletData];
   }
 
+  Widget _buildEmptyState() {
+    return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      children: [
+        SizedBox(
+          height: MediaQuery.of(context).size.height * 0.75,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(
+                'assets/images/no_result.png',
+                width: 180,
+                height: 180,
+                fit: BoxFit.contain,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                AppLocalizations.of(context)!.noTransactionfound,
+                style: textStyleNormal(
+                  fontSize: 16,
+                  color: Colors.grey.shade500,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final GlobalKey<RefreshIndicatorState> refreshIndicatorKey =
@@ -45,19 +75,16 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
     Map<String, dynamic> details = arguments?['locationDetail'] ?? {};
 
     return Scaffold(
-      backgroundColor: kBackgroundColor,
       appBar: AppBar(
-        toolbarHeight: 100,
-        foregroundColor: details['color'] == 4294961979 ? kBlack : kWhite,
-        backgroundColor: Color(details['color'] ?? 0xFFFFFFFF),
-        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_outlined),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
         title: Text(
           AppLocalizations.of(context)!.transactionHistory,
-          style: textStyleNormal(
-            fontSize: 26,
-            color: details['color'] == 4294961979 ? kBlack : kWhite,
-            fontWeight: FontWeight.bold,
-          ),
+          style: const TextStyle(fontWeight: FontWeight.w500),
         ),
       ),
       body: RefreshIndicator(
@@ -96,6 +123,10 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                 DateTime dateB = DateTime.parse(b["createdAt"]);
                 return dateB.compareTo(dateA);
               });
+
+              if (combinedData.isEmpty) {
+                return _buildEmptyState();
+              }
 
               return ListView.builder(
                 physics: const AlwaysScrollableScrollPhysics(),

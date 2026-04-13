@@ -7,6 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:ntp/ntp.dart';
 import 'package:project/constant.dart';
+import 'package:project/src/localization/app_localizations.dart';
 import 'package:project/form_bloc/form_bloc.dart';
 import 'package:project/models/models.dart';
 import 'package:project/models/offences_rule/offence_data_model.dart';
@@ -14,6 +15,7 @@ import 'package:project/routes/route_manager.dart';
 import 'package:project/src/localization/app_localizations.dart';
 import 'package:project/theme.dart';
 import 'package:project/widget/primary_button.dart';
+import 'package:project/widget/date_picker.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class ParkingBodyScreen extends StatefulWidget {
@@ -149,8 +151,7 @@ class _ParkingBodyScreenState extends State<ParkingBodyScreen> {
                   Color(widget.details['color']).withOpacity(0.5),
                   kWhite
                 ],
-                backgroundColor: kBackgroundColor,
-                pathBackgroundColor: kBackgroundColor,
+                backgroundColor: kWhite,
               ),
             ),
           );
@@ -167,40 +168,113 @@ class _ParkingBodyScreenState extends State<ParkingBodyScreen> {
         return SingleChildScrollView(
           child: Column(
             children: [
-              const SizedBox(height: 20),
+              DatePickerSlider(),
+              const SizedBox(height: 5),
               // Placeholder for dropdowns / calendar / form
+
               Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    Text(
-                      'Duration: ${_formatDuration((_selectedHour * 3600).toInt())}',
-                      style: GoogleFonts.secularOne(fontSize: 20),
-                    ),
-                    Slider(
-                      min: 0,
-                      max: (availableHours.length - 1).toDouble(),
-                      divisions: availableHours.length - 1,
-                      value: availableHours.indexOf(_selectedHour).toDouble(),
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedHour = availableHours[value.toInt()];
-                        });
-                      },
-                      label: getDurationLabel(_selectedHour),
-                    ),
-                    Text(
-                      'Amount: RM ${calculatePrice().toStringAsFixed(2)}',
-                      style: GoogleFonts.secularOne(fontSize: 20),
-                    ),
-                  ],
+                child: Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.grey.shade300),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 6,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        'Duration',
+                        style: GoogleFonts.poppins(
+                          fontSize: 18,
+                        ),
+                      ),
+                      Text(
+                        _formatDuration((_selectedHour * 3600).toInt()),
+                        style: GoogleFonts.poppins(
+                          fontSize: 36,
+                          fontWeight: FontWeight.bold,
+                          color: const Color.fromARGB(255, 34, 74, 151),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        'Amount',
+                        style: GoogleFonts.poppins(fontSize: 18),
+                      ),
+                      Text(
+                        'RM ${calculatePrice().toStringAsFixed(2)}',
+                        style: GoogleFonts.poppins(
+                          fontSize: 36,
+                          fontWeight: FontWeight.bold,
+                          color: const Color.fromARGB(255, 34, 74, 151),
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      Column(children: [
+                        Slider(
+                          min: 0,
+                          max: (availableHours.length - 1).toDouble(),
+                          divisions: availableHours.length - 1,
+                          value:
+                              availableHours.indexOf(_selectedHour).toDouble(),
+                          activeColor: const Color.fromARGB(255, 34, 74, 151),
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedHour = availableHours[value.toInt()];
+                            });
+                          },
+                        ),
+                        Text(
+                          getDurationLabel(_selectedHour),
+                          style: GoogleFonts.poppins(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: const Color.fromARGB(255, 0, 0, 0),
+                          ),
+                        ),
+                      ]),
+                    ],
+                  ),
                 ),
               ),
               PrimaryButton(
+                borderRadius: 5,
+                buttonWidth: 0.95,
+                color: kPrimaryColor,
                 onPressed: () {
                   // TODO: Navigate to payment or next screen
                 },
-                label: const Text('Confirm'),
+                label: Text(
+                  AppLocalizations.of(context)!.confirm,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              PrimaryButton(
+                borderRadius: 5,
+                buttonWidth: 0.95,
+                color: const Color.fromARGB(255, 255, 255, 255),
+                onPressed: () {
+                  // TODO: Navigate to payment or next screen
+                },
+                label: Text(
+                  '${AppLocalizations.of(context)!.open} ${AppLocalizations.of(context)!.parking} ${AppLocalizations.of(context)!.receipt}',
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ],
           ),

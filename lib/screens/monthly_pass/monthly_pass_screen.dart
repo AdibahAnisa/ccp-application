@@ -27,19 +27,17 @@ class MonthlyPassScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: kBackgroundColor,
       appBar: AppBar(
-        toolbarHeight: 100,
-        foregroundColor: details['color'] == 4294961979 ? kBlack : kWhite,
-        backgroundColor: Color(details['color']),
-        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_outlined),
+          onPressed: () {
+            Navigator.pop(context, userModel);
+          },
+        ),
         title: Column(
           children: [
             Text(
               AppLocalizations.of(context)!.monthlyPass,
-              style: textStyleNormal(
-                fontSize: 26,
-                color: details['color'] == 4294961979 ? kBlack : kWhite,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontWeight: FontWeight.w500),
             ),
             spaceVertical(height: 5.0),
             Text(

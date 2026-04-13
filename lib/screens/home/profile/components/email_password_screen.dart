@@ -1,259 +1,156 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_form_bloc/flutter_form_bloc.dart';
-import 'package:project/constant.dart';
-import 'package:project/form_bloc/form_bloc.dart';
 import 'package:project/models/models.dart';
-import 'package:project/routes/route_manager.dart';
-import 'package:project/src/localization/app_localizations.dart';
-import 'package:project/theme.dart';
-import 'package:project/widget/loading_dialog.dart';
+import 'package:project/screens/home/profile/components/edit_email_password.dart';
 import 'package:project/widget/primary_button.dart';
+import 'package:project/constant.dart';
+import 'package:project/src/localization/app_localizations.dart';
 
-Future<void> displayEmailPassword(
-    BuildContext context, UserModel? userModel, Map<String, dynamic> details) {
-  return showModalBottomSheet(
-    context: context,
-    isDismissible: false,
-    isScrollControlled: true,
-    builder: (BuildContext context) {
-      // If userModel is null, show loading
-      if (userModel == null) {
-        return const LoadingDialog();
-      }
+class EmailPasswordScreen extends StatefulWidget {
+  late UserModel userModel;
+  EmailPasswordScreen({super.key, required this.userModel});
 
-      UpdateUserProfileFormBloc? formBloc;
+  @override
+  State<EmailPasswordScreen> createState() => _EmailPasswordScreenState();
+}
 
-      return SingleChildScrollView(
-        physics: const NeverScrollableScrollPhysics(),
+class _EmailPasswordScreenState extends State<EmailPasswordScreen> {
+  late UserModel userModel;
+
+  @override
+  void initState() {
+    super.initState();
+    userModel = widget.userModel;
+  }
+
+  String displayValue(String? value, {bool mask = false}) {
+    if (value == null || value.trim().isEmpty) return '-';
+    if (mask) return '*' * value.length;
+    return value;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_outlined),
+          onPressed: () {
+            Navigator.pop(context, userModel);
+          },
+        ),
+        title: Text(
+          AppLocalizations.of(context)!.emailPassword,
+          style: const TextStyle(fontWeight: FontWeight.w500),
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
         child: Column(
           children: [
             Container(
-              margin: const EdgeInsets.only(top: 10.0),
-              width: 100,
-              child: const Divider(
-                color: kGrey,
-                thickness: 3,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade100,
+                borderRadius: BorderRadius.circular(12),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 20.0, bottom: 50.0),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Center(
-                    child: Text(
-                      AppLocalizations.of(context)!.emailPassword,
-                      style: textStyleNormal(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: kBlack,
-                      ),
-                    ),
+                  ProfileInfoRow(
+                    label: AppLocalizations.of(context)!.email,
+                    value: displayValue(userModel.email),
                   ),
-                  const SizedBox(height: 10),
-                  Center(
-                    child: Text(
-                      AppLocalizations.of(context)!.email,
-                      style: textStyleNormal(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 5),
-                  Center(
-                    child: Text(
-                      userModel.email ?? '---',
-                      style: textStyleNormal(
-                        fontSize: 15,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 5),
-                  Center(
-                    child: Text(
-                      AppLocalizations.of(context)!.password,
-                      style: textStyleNormal(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 5),
-                  Center(
-                    child: Text(
-                      '********',
-                      style: textStyleNormal(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-                  spaceVertical(height: 20.0),
-                  Center(
-                    child: PrimaryButton(
-                      icon: const Icon(Icons.edit, color: kWhite),
-                      label: Text(
-                        AppLocalizations.of(context)!.edit,
-                        style: textStyleNormal(
-                          color: kWhite,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      borderRadius: 20.0,
-                      onPressed: () async {
-                        Navigator.pop(context);
-                        await editEmail(context, userModel, details);
-                      },
-                    ),
-                  ),
-                  spaceVertical(height: 20.0),
-                  Center(
-                    child: PrimaryButton(
-                      color: kRed,
-                      label: Text(
-                        AppLocalizations.of(context)!.close,
-                        style: textStyleNormal(
-                          color: kWhite,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      borderRadius: 20.0,
-                      onPressed: () => Navigator.pop(context),
-                    ),
+                  ProfileInfoRow(
+                    label: AppLocalizations.of(context)!.password,
+                    value: '******',
+                    isLast: true,
                   ),
                 ],
               ),
             ),
+
+            const Spacer(),
+
+            /// EDIT BUTTON
+            PrimaryButton(
+                borderRadius: 10,
+                buttonWidth: 1,
+                color: kPrimaryColor,
+                label: const Text(
+                  'Edit',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                onPressed: () async {
+                  final updatedUser = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => EditEmailPassword(userModel: userModel),
+                    ),
+                  );
+
+                  if (updatedUser != null) {
+                    setState(() {
+                      userModel = updatedUser;
+                    });
+                  }
+                }),
+
+            const SizedBox(height: 20),
           ],
         ),
-      );
-    },
-  );
+      ),
+    );
+  }
 }
 
-Future<void> editEmail(
-    BuildContext context, UserModel userModel, Map<String, dynamic> details) {
-  UpdateUserProfileFormBloc? formBloc;
+class ProfileInfoRow extends StatelessWidget {
+  final String label;
+  final String value;
+  final bool isLast;
 
-  return showModalBottomSheet(
-    context: context,
-    isDismissible: false,
-    isScrollControlled: true,
-    builder: (BuildContext context) {
-      return BlocProvider(
-        create: (_) => UpdateUserProfileFormBloc(),
-        child: Builder(builder: (context) {
-          formBloc = context.read<UpdateUserProfileFormBloc>();
+  const ProfileInfoRow({
+    super.key,
+    required this.label,
+    required this.value,
+    this.isLast = false,
+  });
 
-          return Padding(
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).viewInsets.bottom,
-            ),
-            child: FormBlocListener<UpdateUserProfileFormBloc, String, String>(
-              onSubmitting: (_, __) => LoadingDialog.show(context),
-              onSubmissionFailed: (_, __) => LoadingDialog.hide(context),
-              onSuccess: (_, state) {
-                LoadingDialog.hide(context);
-                Navigator.pop(context);
-                Navigator.pushNamedAndRemoveUntil(
-                    context, AppRoute.homeScreen, (route) => false);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(state.successResponse!)),
-                );
-              },
-              onFailure: (_, state) {
-                LoadingDialog.hide(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(state.failureResponse!)),
-                );
-              },
-              child: SingleChildScrollView(
-                physics: const NeverScrollableScrollPhysics(),
-                child: Column(
-                  children: [
-                    Container(
-                      margin: const EdgeInsets.only(top: 10.0),
-                      width: 100,
-                      child: const Divider(
-                        color: kGrey,
-                        thickness: 3,
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(
-                          top: 20.0, bottom: 50.0, left: 30.0, right: 30.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Center(
-                            child: Text(
-                              '${AppLocalizations.of(context)!.edit} ${AppLocalizations.of(context)!.email}',
-                              style: textStyleNormal(
-                                fontSize: 28,
-                                fontWeight: FontWeight.bold,
-                                color: kBlack,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          TextFieldBlocBuilder(
-                            textFieldBloc: formBloc!.email,
-                            textInputAction: TextInputAction.done,
-                            decoration: InputDecoration(
-                              label: Text(AppLocalizations.of(context)!.email),
-                              hintText:
-                                  '${AppLocalizations.of(context)!.enter} ${AppLocalizations.of(context)!.email}',
-                              hintStyle: const TextStyle(color: Colors.black26),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              filled: true,
-                              fillColor: Colors.white.withOpacity(0.8),
-                            ),
-                          ),
-                          spaceVertical(height: 20.0),
-                          Center(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                PrimaryButton(
-                                  color: kRed,
-                                  buttonWidth: 0.4,
-                                  label: Text(
-                                    AppLocalizations.of(context)!.cancel,
-                                    style: textStyleNormal(color: kWhite),
-                                  ),
-                                  borderRadius: 20.0,
-                                  onPressed: () => Navigator.pop(context),
-                                ),
-                                PrimaryButton(
-                                  buttonWidth: 0.4,
-                                  label: Text(
-                                    AppLocalizations.of(context)!.update,
-                                    style: textStyleNormal(color: kWhite),
-                                  ),
-                                  borderRadius: 20.0,
-                                  onPressed: () {
-                                    formBloc!.submit();
-                                  },
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              flex: 2,
+              child: Text(
+                '$label:',
+                style: TextStyle(
+                  color: Colors.grey.shade600,
+                  fontSize: 16,
                 ),
               ),
             ),
-          );
-        }),
-      );
-    },
-  );
+            Expanded(
+              flex: 3,
+              child: Text(
+                value,
+                textAlign: TextAlign.right,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+        ),
+        if (!isLast) ...[
+          const SizedBox(height: 12),
+        ]
+      ],
+    );
+  }
 }

@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_form_bloc/flutter_form_bloc.dart';
 import 'package:project/app/helpers/shared_preferences.dart';
 import 'package:project/app/helpers/validators.dart';
@@ -37,6 +37,12 @@ class LoginFormBloc extends FormBloc<String, String> {
     );
   }
 
+  Future<String?> getFcmToken() async {
+    final messaging = FirebaseMessaging.instance;
+
+    return await messaging.getToken();
+  }
+
   @override
   FutureOr<void> onSubmitting() async {
     await Future.delayed(const Duration(milliseconds: 1000));
@@ -54,6 +60,9 @@ class LoginFormBloc extends FormBloc<String, String> {
         }),
       );
 
+      print("===== LOGIN RESPONSE =====");
+      print(response);
+
       if (response['error'] != null) {
         emitFailure(failureResponse: response['error'].toString());
       } else {
@@ -64,6 +73,26 @@ class LoginFormBloc extends FormBloc<String, String> {
           await SharedPreferencesHelper.saveToken(response['token']);
         }
         await SharedPreferencesHelper.saveBiometric(biometric: true);
+
+        await FirebaseMessaging.instance.requestPermission();
+
+        String? fcmToken = await FirebaseMessaging.instance.getToken();
+
+        if (fcmToken == null) {
+          await Future.delayed(const Duration(seconds: 2));
+          fcmToken = await FirebaseMessaging.instance.getToken();
+        }
+
+        print("🔥 FCM TOKEN: $fcmToken");
+
+        if (fcmToken != null) {
+          await AuthResources.saveFcmToken(
+            prefix: '/auth/save-fcm-token',
+            body: {
+              'fcmToken': fcmToken,
+            },
+          );
+        }
 
         emitSuccess(successResponse: "Successfully Login");
       }

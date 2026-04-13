@@ -45,30 +45,16 @@ class _ParkingScreenState extends State<ParkingScreen> {
     List<PBTModel>? pbtModel = arguments['pbtModel'] as List<PBTModel>?;
 
     return Scaffold(
-      backgroundColor: kBackgroundColor,
       appBar: AppBar(
-        toolbarHeight: 100,
-        foregroundColor: details['color'] == 4294961979 ? kBlack : kWhite,
-        backgroundColor: Color(details['color']),
-        centerTitle: true,
-        title: Column(
-          children: [
-            Text(
-              AppLocalizations.of(context)!.parking,
-              style: textStyleNormal(
-                fontSize: 26,
-                color: details['color'] == 4294961979 ? kBlack : kWhite,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            spaceVertical(height: 5.0),
-            Text(
-              AppLocalizations.of(context)!.onStreet,
-              style: textStyleNormal(
-                color: details['color'] == 4294961979 ? kBlack : kWhite,
-              ),
-            ),
-          ],
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_outlined),
+          onPressed: () {
+            Navigator.pop(context, userModel);
+          },
+        ),
+        title: Text(
+          '${AppLocalizations.of(context)!.parking} ${AppLocalizations.of(context)!.onStreet}',
+          style: const TextStyle(fontWeight: FontWeight.w500),
         ),
       ),
       body: ParkingBodyScreen(
