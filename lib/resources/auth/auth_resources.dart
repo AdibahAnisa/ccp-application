@@ -24,6 +24,7 @@ class AuthResources {
   static Future saveFcmToken({
     required String prefix,
     required Object body,
+    required Map<String, String> headers,
   }) async {
     final token = await SharedPreferencesHelper.getToken();
 

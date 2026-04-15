@@ -77,6 +77,7 @@ class LoginFormBloc extends FormBloc<String, String> {
         await FirebaseMessaging.instance.requestPermission();
 
         String? fcmToken = await FirebaseMessaging.instance.getToken();
+        final jwt = await SharedPreferencesHelper.getToken();
 
         if (fcmToken == null) {
           await Future.delayed(const Duration(seconds: 2));
@@ -88,6 +89,9 @@ class LoginFormBloc extends FormBloc<String, String> {
         if (fcmToken != null) {
           await AuthResources.saveFcmToken(
             prefix: '/auth/save-fcm-token',
+            headers: {
+              'Authorization': 'Bearer $jwt',
+            },
             body: {
               'fcmToken': fcmToken,
             },

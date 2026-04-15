@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:project/app/app.dart';
 import 'package:project/app/helpers/shared_preferences.dart';
 import 'firebase_options.dart';
+import 'package:project/services/fcm_services.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,6 +22,8 @@ Future<void> main() async {
     // Set the flag to false after initialization is done
     await SharedPreferencesHelper.setDefaultSetting(false);
   }
+
+  await FCMService().init();
 
   runApp(const CityCarPark(
     defaultLanguage: 'en',
