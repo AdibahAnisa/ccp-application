@@ -47,6 +47,48 @@ class _ReloadPaymentScreenState extends State<ReloadPaymentScreen> {
     }
   }
 
+  void _showQRInstruction(BuildContext context, ReloadFormBloc formBloc) {
+    CustomDialog.show(
+      context,
+      dialogType: DialogType.info,
+      title: AppLocalizations.of(context)!.qrPaymentTitle,
+      description: AppLocalizations.of(context)!.qrPaymentInstructions,
+      btnOkOnPress: () async {
+        await SharedPreferencesHelper.setTime(
+          startTime: _currentTime,
+          endTime: '',
+        );
+
+        formBloc.submit();
+        Navigator.pop(context);
+      },
+      btnOkText: AppLocalizations.of(context)!.continueBtn,
+      btnCancelOnPress: () => Navigator.pop(context),
+      btnCancelText: AppLocalizations.of(context)!.cancel,
+    );
+  }
+
+  void _showFPXConfirm(BuildContext context, ReloadFormBloc formBloc) {
+    CustomDialog.show(
+      context,
+      dialogType: DialogType.danger,
+      title: AppLocalizations.of(context)!.confirmPayment,
+      description: AppLocalizations.of(context)!.confirmPaymentDesc,
+      btnOkOnPress: () async {
+        await SharedPreferencesHelper.setTime(
+          startTime: _currentTime,
+          endTime: '',
+        );
+
+        formBloc.submit();
+        Navigator.pop(context);
+      },
+      btnOkText: AppLocalizations.of(context)!.yes,
+      btnCancelOnPress: () => Navigator.pop(context),
+      btnCancelText: AppLocalizations.of(context)!.no,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final arguments =
@@ -67,6 +109,7 @@ class _ReloadPaymentScreenState extends State<ReloadPaymentScreen> {
         title: Text(
           AppLocalizations.of(context)!.payment,
           style: const TextStyle(fontWeight: FontWeight.w500),
+          textAlign: TextAlign.center,
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
@@ -74,33 +117,19 @@ class _ReloadPaymentScreenState extends State<ReloadPaymentScreen> {
         borderRadius: 10.0,
         buttonWidth: 0.9,
         onPressed: () {
-          CustomDialog.show(
-            context,
-            dialogType: DialogType.danger,
-            title: AppLocalizations.of(context)!.confirmPayment,
-            description: AppLocalizations.of(context)!.confirmPaymentDesc,
-            btnOkOnPress: () async {
-              await SharedPreferencesHelper.setTime(
-                  startTime: _currentTime, endTime: '');
-              // formBloc.paymentMethod.updateValue("QR");
-              formBloc.submit();
-              // Navigator.pushNamed(
-              //   context,
-              //   AppRoute.reloadReceiptScreen,
-              //   arguments: {
-              //     'locationDetail': details,
-              //     'userModel': userModel,
-              //     'amount': double.parse("40"),
-              //   },
-              // );
-              Navigator.pop(context);
-            },
-            btnOkText: AppLocalizations.of(context)!.yes,
-            btnCancelOnPress: () {
-              Navigator.pop(context);
-            },
-            btnCancelText: AppLocalizations.of(context)!.no,
-          );
+          final method = formBloc.paymentMethod.value;
+
+          if (method == "QR") {
+            _showQRInstruction(context, formBloc);
+          } else if (method == "FPX") {
+            _showFPXConfirm(context, formBloc);
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                  content:
+                      Text(AppLocalizations.of(context)!.selectPaymentMethod)),
+            );
+          }
         },
         label: Text(
           AppLocalizations.of(context)!.pay,
@@ -133,9 +162,10 @@ class _ReloadPaymentScreenState extends State<ReloadPaymentScreen> {
                 child: Text(
                   AppLocalizations.of(context)!.paymentDesc,
                   style: GoogleFonts.poppins(
-                    fontWeight: FontWeight.w500,
-                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
                   ),
+                  textAlign: TextAlign.center,
                 ),
               ),
               const SizedBox(height: 25),
@@ -227,7 +257,7 @@ class _ReloadPaymentScreenState extends State<ReloadPaymentScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "Important Notice",
+                            AppLocalizations.of(context)!.importantNoticeTitle,
                             style: GoogleFonts.poppins(
                               fontWeight: FontWeight.w600,
                               fontSize: 13,
@@ -236,7 +266,7 @@ class _ReloadPaymentScreenState extends State<ReloadPaymentScreen> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            "You will be redirected to a 3rd party website for Reload Token. Please ensure the details above are accurate before proceeding.",
+                            AppLocalizations.of(context)!.reloadRedirectNotice,
                             style: GoogleFonts.poppins(
                               fontSize: 12,
                               color: Colors.red.shade400,

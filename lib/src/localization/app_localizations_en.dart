@@ -1235,4 +1235,77 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get total2 => 'Total:';
+
+  @override
+  String get agree => 'Agree';
+
+  @override
+  String get parkingAutoDeductTitle => 'Parking Payment Will Be Deducted';
+
+  @override
+  String parkingDescription(Object plateNumber) {
+    return 'An Enforcement Officer has entered this area.\nParking payment for vehicle $plateNumber is required.';
+  }
+
+  @override
+  String validityPeriod(Object time) {
+    return 'Validity period: $time';
+  }
+
+  @override
+  String get durationLabel => 'Duration';
+
+  @override
+  String hoursValue(Object hours) {
+    return '$hours Hour';
+  }
+
+  @override
+  String get amountLabel => 'Amount';
+
+  @override
+  String amountValue(Object amount) {
+    return 'RM $amount';
+  }
+
+  @override
+  String get autoDeductInfo =>
+      'The payment amount will be calculated automatically and deducted from your token balance.\n\nPlease confirm within ';
+
+  @override
+  String get autoDeductInfoBold => '5 minutes';
+
+  @override
+  String get autoDeductInfoSuffix => ' to avoid penalty action.';
+
+  @override
+  String get parking_confirmed => 'Parking Confirmed';
+
+  @override
+  String get parkingPaidMessage => 'Parking payment for';
+
+  @override
+  String parkingPaidMessage1(Object plate) {
+    return 'for vehicle $plate has been successfully deducted from your token balance.';
+  }
+
+  @override
+  String get qrPaymentTitle => 'QR Payment';
+
+  @override
+  String get qrPaymentInstructions =>
+      '1. Please screenshot the QR.\n2. Open your banking app to make payment.\n3. Complete the payment within the given time.\n4. Do not close this screen.\n5. Return to the app after payment.';
+
+  @override
+  String get continueBtn => 'Continue';
+
+  @override
+  String get selectPaymentMethod => 'Please select a payment method';
+
+  @override
+  String get importantNoticeTitle => 'Important Notice';
+
+  @override
+  String get reloadRedirectNotice =>
+      'You will be redirected to a 3rd party website for Reload Token. Please ensure the details above are accurate before proceeding.';
 }

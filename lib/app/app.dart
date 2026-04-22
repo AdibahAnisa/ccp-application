@@ -20,7 +20,6 @@ class CityCarPark extends StatelessWidget {
       DeviceOrientation.portraitDown,
     ]);
 
-    // Ensure a non-null locale
     String languageCode = defaultLanguage ?? 'en';
 
     return GetMaterialApp(
@@ -35,6 +34,19 @@ class CityCarPark extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
+      builder: (context, child) {
+        final mediaQuery = MediaQuery.of(context);
+
+        return MediaQuery(
+          data: mediaQuery.copyWith(
+            textScaler: mediaQuery.textScaler.clamp(
+              minScaleFactor: 1.0,
+              maxScaleFactor: 1.2, // adjust if needed
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
   }
 }

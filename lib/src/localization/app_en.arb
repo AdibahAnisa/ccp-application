@@ -367,5 +367,45 @@
   "time2": "Time:",
   "email2": "Email:",
   "description2": "Description:",
-  "total2": "Total:"
+  "total2": "Total:",
+  "agree": "Agree",
+  "parkingAutoDeductTitle": "Parking Payment Will Be Deducted",
+  "parkingDescription": "An Enforcement Officer has entered this area.\nParking payment for vehicle {plateNumber} is required.",
+  "@parkingDescription": {
+    "placeholders": {
+      "plateNumber": {}
+    }
+  },
+  "validityPeriod": "Validity period: {time}",
+  "@validityPeriod": {
+    "placeholders": {
+      "time": {}
+    }
+  },
+  "durationLabel": "Duration",
+  "hoursValue": "{hours} Hour",
+  "@hoursValue": {
+    "placeholders": {
+      "hours": {}
+    }
+  },
+  "amountLabel": "Amount",
+  "amountValue": "RM {amount}",
+  "@amountValue": {
+    "placeholders": {
+      "amount": {}
+    }
+  },
+  "autoDeductInfo": "The payment amount will be calculated automatically and deducted from your token balance.\n\nPlease confirm within ",
+  "autoDeductInfoBold": "5 minutes",
+  "autoDeductInfoSuffix": " to avoid penalty action.",
+  "parking_confirmed": "Parking Confirmed",
+  "parkingPaidMessage": "Parking payment for",
+  "parkingPaidMessage1": "for vehicle {plate} has been successfully deducted from your token balance.",
+  "qrPaymentTitle": "QR Payment",
+  "qrPaymentInstructions": "1. Please screenshot the QR.\n2. Open your banking app to make payment.\n3. Complete the payment within the given time.\n4. Do not close this screen.\n5. Return to the app after payment.",
+  "continueBtn": "Continue",
+  "selectPaymentMethod": "Please select a payment method",
+  "importantNoticeTitle": "Important Notice",
+  "reloadRedirectNotice": "You will be redirected to a 3rd party website for Reload Token. Please ensure the details above are accurate before proceeding."
 }

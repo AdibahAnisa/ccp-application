@@ -466,114 +466,6 @@ class _HomeScreenState extends State<HomeScreen> {
         context, AppRoute.loginScreen, (context) => false);
   }
 
-  // --- UI COMPONENTS ---
-
-  Widget _buildActiveParkingCard() {
-    // FIXED NULL SAFETY CHECK HERE
-    final bool hasPlates =
-        userModel.plateNumbers != null && userModel.plateNumbers!.isNotEmpty;
-    final String plate =
-        hasPlates ? userModel.plateNumbers!.first.plateNumber! : "ABC 1234";
-
-    final rate = getHourlyRateByState(details?['state'] as String?);
-
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 25),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 15,
-              offset: const Offset(0, 10))
-        ],
-      ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  CircleAvatar(
-                      backgroundColor: Colors.blue[50],
-                      child: const Icon(Icons.directions_car,
-                          color: Color(0xFF0F52BA))),
-                  const SizedBox(width: 12),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        startTime == null
-                            ? "No Active Parking"
-                            : "Active Parking",
-                        style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600),
-                      ),
-                      Text(
-                        startTime == null ? "No Active Parking" : zone,
-                        style:
-                            const TextStyle(color: Colors.grey, fontSize: 12),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(formatDuration(remainingDuration),
-                      style: const TextStyle(
-                          color: Color(0xFF0F52BA),
-                          fontSize: 24,
-                          fontWeight: FontWeight.w500)),
-                  Text(
-                    endTime != null
-                        ? "Ended : ${DateFormat('hh:mm a').format(endTime!)}"
-                        : "No session",
-                    style: const TextStyle(color: Colors.grey, fontSize: 11),
-                  )
-                ],
-              )
-            ],
-          ),
-          const SizedBox(height: 15),
-          Row(
-            children: [
-              const Text("Plate Number : ",
-                  style: TextStyle(color: Colors.grey)),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(6)),
-                child: Text(detectedPlate ?? plate,
-                    style: const TextStyle(fontWeight: FontWeight.bold)),
-              ),
-            ],
-          ),
-          const SizedBox(height: 15),
-          const Divider(),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                  "Rate: RM ${getHourlyRateByState(details['state']).toStringAsFixed(2)}/hour",
-                  style: const TextStyle(color: Colors.grey, fontSize: 12)),
-              Text(
-                  "Current : RM ${calculateCurrentAmount().toStringAsFixed(2)}",
-                  style: const TextStyle(color: Colors.grey, fontSize: 12)),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final double walletAmount =
@@ -817,57 +709,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: _buildActiveParkingCard()),
                       ],
                     ),
-                    // const SizedBox(height: 80),
-                    // ElevatedButton(
-                    //   onPressed: () async {
-                    //     print("START LPR FLOW");
-
-                    //     final image = await capturePlateImage();
-
-                    //     if (image == null) {
-                    //       print("No image captured");
-                    //       return;
-                    //     }
-
-                    //     final plate = await detectPlate(image.path);
-
-                    //     if (plate == null) {
-                    //       ScaffoldMessenger.of(context).showSnackBar(
-                    //         const SnackBar(
-                    //           content: Text("Plate not detected. Try again."),
-                    //         ),
-                    //       );
-                    //       return;
-                    //     }
-
-                    //     print("Detected Plate: $plate");
-
-                    //     final userPlates = userModel.plateNumbers ?? [];
-
-                    //     final isMatch = userPlates.any(
-                    //       (p) =>
-                    //           p.plateNumber?.toUpperCase() ==
-                    //           plate.toUpperCase(),
-                    //     );
-
-                    //     if (!isMatch) {
-                    //       ScaffoldMessenger.of(context).showSnackBar(
-                    //         const SnackBar(
-                    //           content: Text("Plate not registered!"),
-                    //         ),
-                    //       );
-                    //       return;
-                    //     }
-
-                    //     setState(() {
-                    //       detectedPlate = plate.toUpperCase();
-                    //     });
-
-                    //     // 🔥 START PARKING AFTER SUCCESS
-                    //     await startParkingSession(1);
-                    //   },
-                    //   child: const Text("Scan Plate & Start Parking"),
-                    // ),
                     const SizedBox(height: 80),
                     ServiceScreen(
                       details: details,
@@ -888,5 +729,160 @@ class _HomeScreenState extends State<HomeScreen> {
         },
       ),
     );
+  }
+
+  Widget _buildActiveParkingCard() {
+    final bool hasPlates =
+        userModel.plateNumbers != null && userModel.plateNumbers!.isNotEmpty;
+    final String plate =
+        hasPlates ? userModel.plateNumbers!.first.plateNumber! : "ABC 1234";
+
+    final rate = getHourlyRateByState(details?['state'] as String?);
+
+    return Container(
+        margin: const EdgeInsets.symmetric(horizontal: 25),
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 15,
+                offset: const Offset(0, 10))
+          ],
+        ),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                // LEFT SIDE
+                Expanded(
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        backgroundColor: Colors.blue[50],
+                        child: const Icon(Icons.directions_car,
+                            color: Color(0xFF0F52BA)),
+                      ),
+                      const SizedBox(width: 12),
+
+                      // TEXT SECTION
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              startTime == null
+                                  ? "No Active Parking"
+                                  : "Active Parking",
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            Text(
+                              startTime == null ? "No Active Parking" : zone,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: Colors.grey,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(width: 10),
+
+                // RIGHT SIDE (TIMER)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    MediaQuery(
+                      data: MediaQuery.of(context)
+                          .copyWith(textScaler: TextScaler.linear(1.0)),
+                      child: Text(
+                        formatDuration(remainingDuration),
+                        style: const TextStyle(
+                          color: Color(0xFF0F52BA),
+                          fontSize: 24,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      endTime != null
+                          ? "Ended : ${DateFormat('hh:mm a').format(endTime!)}"
+                          : "No session",
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(color: Colors.grey, fontSize: 11),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 15),
+
+            Row(
+              children: [
+                const Text(
+                  "Plate Number : ",
+                  style: TextStyle(color: Colors.grey),
+                ),
+                const SizedBox(width: 3),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 5, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    detectedPlate ?? plate,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 15),
+            const Divider(),
+
+            // BOTTOM ROW (FIXED)
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    "Rate: RM ${getHourlyRateByState(details['state']).toStringAsFixed(2)}/hour",
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(color: Colors.grey, fontSize: 12),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    "Current : RM ${calculateCurrentAmount().toStringAsFixed(2)}",
+                    textAlign: TextAlign.end,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(color: Colors.grey, fontSize: 12),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ));
   }
 }

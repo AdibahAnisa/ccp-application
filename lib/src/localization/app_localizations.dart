@@ -2311,6 +2311,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Total:'**
   String get total2;
+
+  /// No description provided for @agree.
+  ///
+  /// In en, this message translates to:
+  /// **'Agree'**
+  String get agree;
+
+  /// No description provided for @parkingAutoDeductTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Parking Payment Will Be Deducted'**
+  String get parkingAutoDeductTitle;
+
+  /// No description provided for @parkingDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'An Enforcement Officer has entered this area.\nParking payment for vehicle {plateNumber} is required.'**
+  String parkingDescription(Object plateNumber);
+
+  /// No description provided for @validityPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Validity period: {time}'**
+  String validityPeriod(Object time);
+
+  /// No description provided for @durationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Duration'**
+  String get durationLabel;
+
+  /// No description provided for @hoursValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} Hour'**
+  String hoursValue(Object hours);
+
+  /// No description provided for @amountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get amountLabel;
+
+  /// No description provided for @amountValue.
+  ///
+  /// In en, this message translates to:
+  /// **'RM {amount}'**
+  String amountValue(Object amount);
+
+  /// No description provided for @autoDeductInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'The payment amount will be calculated automatically and deducted from your token balance.\n\nPlease confirm within '**
+  String get autoDeductInfo;
+
+  /// No description provided for @autoDeductInfoBold.
+  ///
+  /// In en, this message translates to:
+  /// **'5 minutes'**
+  String get autoDeductInfoBold;
+
+  /// No description provided for @autoDeductInfoSuffix.
+  ///
+  /// In en, this message translates to:
+  /// **' to avoid penalty action.'**
+  String get autoDeductInfoSuffix;
+
+  /// No description provided for @parking_confirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Parking Confirmed'**
+  String get parking_confirmed;
+
+  /// No description provided for @parkingPaidMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Parking payment for'**
+  String get parkingPaidMessage;
+
+  /// No description provided for @parkingPaidMessage1.
+  ///
+  /// In en, this message translates to:
+  /// **'for vehicle {plate} has been successfully deducted from your token balance.'**
+  String parkingPaidMessage1(Object plate);
+
+  /// No description provided for @qrPaymentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'QR Payment'**
+  String get qrPaymentTitle;
+
+  /// No description provided for @qrPaymentInstructions.
+  ///
+  /// In en, this message translates to:
+  /// **'1. Please screenshot the QR.\n2. Open your banking app to make payment.\n3. Complete the payment within the given time.\n4. Do not close this screen.\n5. Return to the app after payment.'**
+  String get qrPaymentInstructions;
+
+  /// No description provided for @continueBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get continueBtn;
+
+  /// No description provided for @selectPaymentMethod.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select a payment method'**
+  String get selectPaymentMethod;
+
+  /// No description provided for @importantNoticeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Important Notice'**
+  String get importantNoticeTitle;
+
+  /// No description provided for @reloadRedirectNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'You will be redirected to a 3rd party website for Reload Token. Please ensure the details above are accurate before proceeding.'**
+  String get reloadRedirectNotice;
 }
 
 class _AppLocalizationsDelegate

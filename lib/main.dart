@@ -4,6 +4,12 @@ import 'package:project/app/app.dart';
 import 'package:project/app/helpers/shared_preferences.dart';
 import 'firebase_options.dart';
 import 'package:project/services/fcm_services.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  print("🔔 Background message: ${message.messageId}");
+}
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -11,6 +17,8 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   // Check if it's the first time the app is launched
   final isFirstRun = await SharedPreferencesHelper.getDefaultSetting();

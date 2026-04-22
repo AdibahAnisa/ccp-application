@@ -90,7 +90,7 @@ class AppLocalizationsMs extends AppLocalizations {
   String get address => 'Alamat';
 
   @override
-  String get confirm => 'Pasti';
+  String get confirm => 'Sahkan';
 
   @override
   String get cancel => 'Batal';
@@ -1238,4 +1238,77 @@ class AppLocalizationsMs extends AppLocalizations {
 
   @override
   String get total2 => 'Jumlah:';
+
+  @override
+  String get agree => 'Setuju';
+
+  @override
+  String get parkingAutoDeductTitle => 'Bayaran Parkir Akan Ditolak';
+
+  @override
+  String parkingDescription(Object plateNumber) {
+    return 'Pegawai Penguatkuasa telah memasuki kawasan ini.\nBayaran parkir bagi kenderaan $plateNumber diperlukan.';
+  }
+
+  @override
+  String validityPeriod(Object time) {
+    return 'Tempoh sah: $time';
+  }
+
+  @override
+  String get durationLabel => 'Tempoh';
+
+  @override
+  String hoursValue(Object hours) {
+    return '$hours Jam';
+  }
+
+  @override
+  String get amountLabel => 'Jumlah';
+
+  @override
+  String amountValue(Object amount) {
+    return 'RM $amount';
+  }
+
+  @override
+  String get autoDeductInfo =>
+      'Jumlah bayaran akan dikira secara automatik dan ditolak daripada baki token anda.\n\nSila lakukan pengesahan dalam tempoh ';
+
+  @override
+  String get autoDeductInfoBold => '5 minit';
+
+  @override
+  String get autoDeductInfoSuffix => ' bagi mengelakkan tindakan kompaun.';
+
+  @override
+  String get parking_confirmed => 'Pengesahan Parkir Berjaya';
+
+  @override
+  String get parkingPaidMessage => 'Bayaran parkir selama';
+
+  @override
+  String parkingPaidMessage1(Object plate) {
+    return 'bagi kenderaan $plate telah berjaya ditolak daripada baki token anda.';
+  }
+
+  @override
+  String get qrPaymentTitle => 'Bayaran QR';
+
+  @override
+  String get qrPaymentInstructions =>
+      '1. Sila tangkap layar kod QR.\n2. Buka aplikasi bank anda untuk membuat pembayaran.\n3. Selesaikan pembayaran dalam tempoh yang diberikan.\n4. Jangan tutup skrin ini.\n5. Kembali ke aplikasi selepas pembayaran.';
+
+  @override
+  String get continueBtn => 'Teruskan';
+
+  @override
+  String get selectPaymentMethod => 'Sila pilih kaedah pembayaran';
+
+  @override
+  String get importantNoticeTitle => 'Notis Penting';
+
+  @override
+  String get reloadRedirectNotice =>
+      'Anda akan dialihkan ke laman web pihak ketiga untuk tambah nilai token. Sila pastikan maklumat di atas adalah tepat sebelum meneruskan.';
 }

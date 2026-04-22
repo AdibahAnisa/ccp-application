@@ -219,7 +219,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: Stack(
         children: [
           Container(
-            height: 340,
+            height: 320,
             decoration: const BoxDecoration(
               color: Color(0xFF1946AB),
               borderRadius: BorderRadius.only(

@@ -26,7 +26,7 @@
   "phoneNumber": "Nombor Telefon",
   "email": "Emel",
   "address": "Alamat",
-  "confirm": "Pasti",
+  "confirm": "Sahkan",
   "cancel": "Batal",
   "password": "Kata Laluan",
   "seasonPass": "Pass Bulanan",
@@ -367,5 +367,45 @@
   "time2": "Masa:",
   "email2": "Emel:",
   "description2": "Deskripsi:",
-  "total2": "Jumlah:"
+  "total2": "Jumlah:",
+  "agree": "Setuju",
+  "parkingAutoDeductTitle": "Bayaran Parkir Akan Ditolak",
+  "parkingDescription": "Pegawai Penguatkuasa telah memasuki kawasan ini.\nBayaran parkir bagi kenderaan {plateNumber} diperlukan.",
+  "@parkingDescription": {
+    "placeholders": {
+      "plateNumber": {}
+    }
+  },
+  "validityPeriod": "Tempoh sah: {time}",
+  "@validityPeriod": {
+    "placeholders": {
+      "time": {}
+    }
+  },
+  "durationLabel": "Tempoh",
+  "hoursValue": "{hours} Jam",
+  "@hoursValue": {
+    "placeholders": {
+      "hours": {}
+    }
+  },
+  "amountLabel": "Jumlah",
+  "amountValue": "RM {amount}",
+  "@amountValue": {
+    "placeholders": {
+      "amount": {}
+    }
+  },
+  "autoDeductInfo": "Jumlah bayaran akan dikira secara automatik dan ditolak daripada baki token anda.\n\nSila lakukan pengesahan dalam tempoh ",
+  "autoDeductInfoBold": "5 minit",
+  "autoDeductInfoSuffix": " bagi mengelakkan tindakan kompaun.",
+  "parking_confirmed": "Pengesahan Parkir Berjaya",
+  "parkingPaidMessage": "Bayaran parkir selama",
+  "parkingPaidMessage1": "bagi kenderaan {plate} telah berjaya ditolak daripada baki token anda.",
+  "qrPaymentTitle": "Bayaran QR",
+  "qrPaymentInstructions": "1. Sila tangkap layar kod QR.\n2. Buka aplikasi bank anda untuk membuat pembayaran.\n3. Selesaikan pembayaran dalam tempoh yang diberikan.\n4. Jangan tutup skrin ini.\n5. Kembali ke aplikasi selepas pembayaran.",
+  "continueBtn": "Teruskan",
+  "selectPaymentMethod": "Sila pilih kaedah pembayaran",
+  "importantNoticeTitle": "Notis Penting",
+  "reloadRedirectNotice": "Anda akan dialihkan ke laman web pihak ketiga untuk tambah nilai token. Sila pastikan maklumat di atas adalah tepat sebelum meneruskan."
 }
