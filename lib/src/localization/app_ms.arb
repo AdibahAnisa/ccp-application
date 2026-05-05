@@ -397,7 +397,7 @@
     }
   },
   "autoDeductInfo": "Jumlah bayaran akan dikira secara automatik dan ditolak daripada baki token anda.\n\nSila lakukan pengesahan dalam tempoh ",
-  "autoDeductInfoBold": "5 minit",
+  "autoDeductInfoBold": "2 minit",
   "autoDeductInfoSuffix": " bagi mengelakkan tindakan kompaun.",
   "parking_confirmed": "Pengesahan Parkir Berjaya",
   "parkingPaidMessage": "Bayaran parkir selama",
@@ -407,5 +407,11 @@
   "continueBtn": "Teruskan",
   "selectPaymentMethod": "Sila pilih kaedah pembayaran",
   "importantNoticeTitle": "Notis Penting",
-  "reloadRedirectNotice": "Anda akan dialihkan ke laman web pihak ketiga untuk tambah nilai token. Sila pastikan maklumat di atas adalah tepat sebelum meneruskan."
+  "reloadRedirectNotice": "Anda akan dialihkan ke laman web pihak ketiga untuk tambah nilai token. Sila pastikan maklumat di atas adalah tepat sebelum meneruskan.",
+  "insufficientBalanceTitle": "Baki Token Tidak Mencukupi",
+  "insufficientBalanceDesc": "Baki token anda tidak mencukupi untuk menyelesaikan pembayaran ini.",
+  "insufficientBalanceAction1": "Sila tekan",
+  "insufficientBalanceAction2": " Tambah Nilai",
+  "insufficientBalanceAction3": " untuk meneruskan.",
+  "topUp": "Tambah Nilai"
 }

@@ -5,6 +5,8 @@ import 'package:project/app/helpers/shared_preferences.dart';
 import 'firebase_options.dart';
 import 'package:project/services/fcm_services.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:get/get.dart';
+import 'package:project/controllers/active_parking_controller.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
@@ -20,18 +22,15 @@ Future<void> main() async {
 
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-  // Check if it's the first time the app is launched
+  // FIRST RUN LOGIC
   final isFirstRun = await SharedPreferencesHelper.getDefaultSetting();
 
   if (isFirstRun) {
-    // Run the location detail saving function for the first time\
     await SharedPreferencesHelper.saveLocationDetail();
-
-    // Set the flag to false after initialization is done
     await SharedPreferencesHelper.setDefaultSetting(false);
   }
 
-  await FCMService().init();
+  Get.put(ActiveParkingController());
 
   runApp(const CityCarPark(
     defaultLanguage: 'en',

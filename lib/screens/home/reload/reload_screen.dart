@@ -1,7 +1,8 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'dart:convert';
-
+import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter_form_bloc/flutter_form_bloc.dart';
 import 'package:flutter_scale_tap/flutter_scale_tap.dart';
 import 'package:flutter/material.dart';
@@ -16,10 +17,21 @@ import 'package:project/src/localization/app_localizations.dart';
 import 'package:project/theme.dart';
 import 'package:project/widget/loading_dialog.dart';
 import 'package:project/widget/primary_button.dart';
-//import 'package:line_awesome_flutter/line_awesome_flutter.dart';
+import 'package:project/controllers/active_parking_controller.dart';
 
 class ReloadScreen extends StatefulWidget {
-  const ReloadScreen({super.key});
+  final String? plateNumber;
+  final double? requiredAmount;
+  final Map<String, dynamic> details;
+  final UserModel userModel;
+
+  const ReloadScreen({
+    super.key,
+    this.plateNumber,
+    this.requiredAmount,
+    required this.details,
+    required this.userModel,
+  });
   @override
   State<ReloadScreen> createState() => _ReloadScreenState();
 }
@@ -36,211 +48,272 @@ class _ReloadScreenState extends State<ReloadScreen> {
     getReloadAmount();
   }
 
+  void _showError(BuildContext context, String message) {
+    if (!context.mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
+
   Future<void> getReloadAmount() async {
     amountReload = await SharedPreferencesHelper.getReloadAmount();
   }
 
+  Future<bool> _confirmParkingAfterReload() async {
+    if (widget.plateNumber == null || widget.plateNumber!.isEmpty) {
+      return true; // normal reload only, no parking confirm
+    }
+    try {
+      final token = await SharedPreferencesHelper.getToken();
+
+      final response = await http.post(
+        Uri.parse("$baseUrl/parking/confirm"),
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $token",
+        },
+        body: jsonEncode({
+          "plateNumber": widget.plateNumber,
+          "hours": 1,
+          "state": widget.details["state"],
+          "pbt": widget.details["pbt"],
+          "location": widget.details["location"],
+          "area": widget.details["area"],
+        }),
+      );
+
+      print("AUTO CONFIRM STATUS: ${response.statusCode}");
+      print("AUTO CONFIRM BODY: ${response.body}");
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200 &&
+          data["success"] == true &&
+          data["type"] == "AUTO_PAID") {
+        final activeParkingController = Get.find<ActiveParkingController>();
+
+        activeParkingController.startActiveParking(
+          plateNumber: widget.plateNumber!,
+          parkingStartTime: DateTime.parse(data["startTime"]),
+          parkingEndTime: DateTime.parse(data["endTime"]),
+        );
+        await Get.dialog(
+          Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.check_circle,
+                    color: Color.fromRGBO(34, 74, 151, 1),
+                    size: 55,
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    "Auto Deduct Berjaya",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text.rich(
+                    TextSpan(
+                      text: "Bayaran parkir selama 1 jam bagi kenderaan ",
+                      children: [
+                        TextSpan(
+                          text: widget.plateNumber,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        const TextSpan(
+                          text:
+                              " telah berjaya ditolak daripada baki token anda.",
+                        ),
+                      ],
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+
+        return true;
+      }
+
+      Get.snackbar("Error", "Reload berjaya tetapi auto deduct gagal.");
+      return false;
+    } catch (e) {
+      print("AUTO CONFIRM ERROR: $e");
+      Get.snackbar("Error", "Something went wrong during auto deduct.");
+      return false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final arguments =
-        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
-
-    Map<String, dynamic> details =
-        arguments['locationDetail'] as Map<String, dynamic>;
-    UserModel? userModel = arguments['userModel'] as UserModel?;
+    final plateNumber = widget.plateNumber ?? '';
+    final requiredAmount = widget.requiredAmount ?? 0.0;
 
     return BlocProvider(
       create: (context) => ReloadFormBloc(
-        model: userModel!,
-        details: details,
+        model: widget.userModel,
+        details: widget.details,
       ),
       child: Builder(
         builder: (context) {
           formBloc = BlocProvider.of<ReloadFormBloc>(context);
+
+          if (formBloc.token.value == null || formBloc.token.value!.isEmpty) {
+            final amount = requiredAmount.toStringAsFixed(2);
+            formBloc.token.updateValue(amount);
+            formBloc.amount.updateValue(amount);
+          }
 
           return FormBlocListener<ReloadFormBloc, String, String>(
             onSubmitting: (context, state) {
               LoadingDialog.show(context);
             },
             onSubmissionFailed: (context, state) => LoadingDialog.hide(context),
-            onSuccess: (context, state) {
+            onSuccess: (context, state) async {
               LoadingDialog.hide(context);
 
               final payment = GlobalState.paymentMethod;
 
+              if (!context.mounted) return;
+
               try {
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => WebViewPage(
+                      title: payment == 'FPX' ? "FPX" : "QR Code",
+                      url: state.successResponse!,
+                      details: widget.details,
+                    ),
+                  ),
+                );
+
+                if (!context.mounted) return;
+
+                LoadingDialog.show(context);
+
+                final order = await SharedPreferencesHelper.getOrderDetails();
+
+                Map<String, dynamic> response;
+
+                /// ================= FPX =================
                 if (payment == 'FPX') {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => WebViewPage(
-                        title: "FPX",
-                        url: state.successResponse!,
-                        details: details,
-                      ),
-                    ),
-                  ).then((value) async {
-                    final order =
-                        await SharedPreferencesHelper.getOrderDetails();
+                  response = await ReloadResources.reloadProcess(
+                    prefix: '/paymentfpx/callbackurl-fpx/',
+                    body: jsonEncode({
+                      'ActivityTag': "CheckPaymentStatus",
+                      'LanguageCode': "en",
+                      'AppReleaseId': "34",
+                      'GMTTimeDifference': 8,
+                      'PaymentTxnRef': null,
+                      'BillId': order['orderNo'],
+                      'BillReference': null,
+                    }),
+                  );
 
-                    final response = await ReloadResources.reloadProcess(
-                      prefix: '/paymentfpx/callbackurl-fpx/',
-                      body: jsonEncode({
-                        'ActivityTag': "CheckPaymentStatus",
-                        'LanguageCode': "en",
-                        'AppReleaseId': "34",
-                        'GMTTimeDifference': 8,
-                        'PaymentTxnRef': null,
-                        'BillId': order['orderNo'],
-                        'BillReference': null,
-                      }),
-                    );
+                  final status = response['SFM']?['Constant'];
 
-                    if (response['SFM']['Constant'] ==
-                        'SFM_EXECUTE_PAYMENT_SUCCESS') {
-                      final response = await ReloadResources.reloadSuccessful(
-                        prefix: '/payment/callbackUrl/pegeypay',
-                        body: jsonEncode({
-                          'order_no': order['orderNo'],
-                          'order_amount': double.parse(order['amount']),
-                          'order_status': order['status'],
-                          'store_id': order['storeId'],
-                          'shift_id': order['shiftId'],
-                          'terminal_id': order['terminalId'],
-                        }),
-                      );
-
-                      if (response['order_status'] == 'paid') {
-                        Navigator.pushNamed(
-                          context,
-                          AppRoute.reloadReceiptScreen,
-                          arguments: {
-                            'locationDetail': details,
-                            'userModel': userModel,
-                            'amount': double.parse(order['amount']),
-                          },
-                        );
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('UnSuccessful Reload'),
-                          ),
-                        );
-                      }
-                    } else if (response['SFM']['Constant'] ==
-                        "SFM_EXECUTE_PAYMENT_FAILED") {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Payment FPX Unsuccessful'),
-                        ),
-                      );
-                    } else if (response['SFM']['Constant'] ==
-                            "SFM_EXECUTE_PAYMENT_CANCELLED" ||
-                        response['SFM']['Constant'] == "SFM_TXN_NOT_FOUND") {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('You have Cancel Payment'),
-                        ),
-                      );
-                    } else if (response['SFM']['Constant'] ==
-                        "SFM_EXECUTE_PAYMENT_UNCONFIRMED") {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                              'Payment execution is unconfirmed. please contact Customer Support.'),
-                        ),
-                      );
-                    } else if (response['SFM']['Constant'] ==
-                            "SFM_EXECUTE_PAYMENT_IN_PREP" ||
-                        response['SFM']['Constant'] ==
-                            "SFM_EXECUTE_PAYMENT_PENDING_AUTH") {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                              'Payment execution is pending. Please wait.'),
-                        ),
-                      );
-                    }
-                  });
-                } else {
-                  // Navigator.pushNamed(
-                  //   context,
-                  //   AppRoute.reloadQRScreen,
-                  //   arguments: {
-                  //     'locationDetail': details,
-                  //     'qrCodeUrl': state.successResponse!,
-                  //   },
-                  // )
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => WebViewPage(
-                        title: "QR Code",
-                        url: state.successResponse!,
-                        details: details,
-                      ),
-                    ),
-                  ).then((value) async {
-                    final order =
-                        await SharedPreferencesHelper.getOrderDetails();
-
-                    final response = await ReloadResources.reloadProcess(
-                      prefix: '/payment/transaction-details',
+                  if (status == 'SFM_EXECUTE_PAYMENT_SUCCESS') {
+                    final confirm = await ReloadResources.reloadSuccessful(
+                      prefix: '/payment/callbackUrl/pegeypay',
                       body: jsonEncode({
                         'order_no': order['orderNo'],
+                        'order_amount': double.parse(order['amount']),
+                        'order_status': order['status'],
+                        'store_id': order['storeId'],
+                        'shift_id': order['shiftId'],
+                        'terminal_id': order['terminalId'],
                       }),
                     );
 
-                    if (response['status'] == 'success') {
-                      if (response['content']['order_status'] == 'successful') {
-                        final response = await ReloadResources.reloadSuccessful(
-                          prefix: '/payment/callbackUrl/pegeypay',
-                          body: jsonEncode({
-                            'order_no': order['orderNo'],
-                            'order_amount': double.parse(order['amount']),
-                            'order_status': order['status'],
-                            'store_id': order['storeId'],
-                            'shift_id': order['shiftId'],
-                            'terminal_id': order['terminalId'],
-                          }),
-                        );
+                    if (confirm['order_status'] == 'paid') {
+                      await _confirmParkingAfterReload();
 
-                        if (response['order_status'] == 'paid') {
-                          Navigator.pushNamed(
-                            context,
-                            AppRoute.reloadReceiptScreen,
-                            arguments: {
-                              'locationDetail': details,
-                              'userModel': userModel,
-                              'amount': double.parse(
-                                  response['order_amount'].toString()),
-                            },
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('UnSuccessful Reload'),
-                            ),
-                          );
-                        }
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(response['content']['order_status']),
-                          ),
-                        );
-                      }
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(response['status']),
-                        ),
+                      if (!context.mounted) return;
+
+                      Navigator.pushNamed(
+                        context,
+                        AppRoute.reloadReceiptScreen,
+                        arguments: {
+                          'locationDetail': widget.details,
+                          'userModel': widget.userModel,
+                          'amount': double.parse(order['amount']),
+                        },
                       );
+                    } else {
+                      _showError(context, 'Payment not completed');
                     }
-                  });
+                  } else if (status == "SFM_EXECUTE_PAYMENT_FAILED") {
+                    _showError(context, 'FPX Payment Failed');
+                  } else if (status == "SFM_EXECUTE_PAYMENT_CANCELLED" ||
+                      status == "SFM_TXN_NOT_FOUND") {
+                    _showError(context, 'Payment Cancelled');
+                  } else {
+                    _showError(context, 'Payment Pending / Unknown Status');
+                  }
+                }
+
+                /// ================= QR =================
+                else {
+                  response = await ReloadResources.reloadProcess(
+                    prefix: '/payment/transaction-details',
+                    body: jsonEncode({
+                      'order_no': order['orderNo'],
+                    }),
+                  );
+
+                  if (response['status'] == 'success' &&
+                      response['content']['order_status'] == 'successful') {
+                    final confirm = await ReloadResources.reloadSuccessful(
+                      prefix: '/payment/callbackUrl/pegeypay',
+                      body: jsonEncode({
+                        'order_no': order['orderNo'],
+                        'order_amount': double.parse(order['amount']),
+                        'order_status': order['status'],
+                        'store_id': order['storeId'],
+                        'shift_id': order['shiftId'],
+                        'terminal_id': order['terminalId'],
+                      }),
+                    );
+
+                    if (confirm['order_status'] == 'paid') {
+                      await _confirmParkingAfterReload();
+
+                      if (!context.mounted) return;
+
+                      Navigator.pushNamed(
+                        context,
+                        AppRoute.reloadReceiptScreen,
+                        arguments: {
+                          'locationDetail': widget.details,
+                          'userModel': widget.userModel,
+                          'amount':
+                              double.parse(confirm['order_amount'].toString()),
+                        },
+                      );
+                    } else {
+                      _showError(context, 'Reload failed');
+                    }
+                  } else {
+                    _showError(context, 'QR Payment not successful');
+                  }
                 }
               } catch (e) {
-                e.toString();
+                _showError(context, 'Something went wrong');
+              } finally {
+                LoadingDialog.hide(context);
               }
             },
             onFailure: (context, state) {
@@ -258,7 +331,7 @@ class _ReloadScreenState extends State<ReloadScreen> {
                 leading: IconButton(
                   icon: const Icon(Icons.arrow_back_ios_new_outlined),
                   onPressed: () {
-                    Navigator.pop(context, userModel);
+                    Navigator.pop(context, widget.userModel);
                   },
                 ),
                 title: Text(
@@ -273,17 +346,26 @@ class _ReloadScreenState extends State<ReloadScreen> {
                 borderRadius: 10.0,
                 onPressed: () {
                   formBloc.token.validate();
-                  if (formBloc.token.value.isNotEmpty) {
-                    Navigator.pushNamed(
-                      context,
-                      AppRoute.reloadPaymentScreen,
-                      arguments: {
-                        'locationDetail': details,
-                        'userModel': userModel,
-                        'formBloc': formBloc,
-                      },
+
+                  final value = formBloc.token.value;
+
+                  if (value == null || value.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text('Please select or enter amount')),
                     );
+                    return;
                   }
+
+                  Navigator.pushNamed(
+                    context,
+                    AppRoute.reloadPaymentScreen,
+                    arguments: {
+                      'locationDetail': widget.details,
+                      'userModel': widget.userModel,
+                      'formBloc': formBloc,
+                    },
+                  );
                 },
                 label: Text(
                   AppLocalizations.of(context)!.confirm,

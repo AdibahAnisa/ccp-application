@@ -373,14 +373,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       },
                                     );
                                   } else if (index == 4) {
-                                    Navigator.push(
+                                    await Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                         builder: (_) =>
                                             const AutoDeductScreen(),
                                       ),
                                     );
-                                    _loadAutoDeductStatus();
+
+                                    await _loadAutoDeductStatus();
                                   } else if (index == 5) {
                                     Navigator.pushNamed(
                                       context,

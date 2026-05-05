@@ -3,6 +3,7 @@ import 'package:project/component/paymentGateway.dart';
 import 'package:project/screens/screens.dart';
 import 'package:project/screens/reserve_bay/add_reserve_bay/add_reserve_bay_screen.dart';
 import 'package:project/screens/reserve_bay/view_reserve_bay/view_reserve_bay_screen.dart';
+import 'package:project/screens/home/profile/components/auto_deduct_screen.dart';
 
 class AppRoute {
   static const splashScreen = '/splashScreen';
@@ -32,7 +33,7 @@ class AppRoute {
   static const transportInfoScreen = '/transportInfoScreen';
   static const notificationScreen = '/notificationScreen';
   static const settingsScreen = '/settingsScreen';
-
+  static const autoDeductScreen = '/autoDeductScreen';
   static const forgotPasswordScreen = '/forgotPasswordScreen';
   static const resetPasswordScreen = '/resetPasswordScreen';
 
@@ -52,7 +53,19 @@ class AppRoute {
     GetPage(name: parkingReceiptScreen, page: () => const ReceiptScreen()),
     GetPage(name: pbtScreen, page: () => const PbtScreen()),
     GetPage(name: stateScreen, page: () => const StateScreen()),
-    GetPage(name: reloadScreen, page: () => const ReloadScreen()),
+    GetPage(
+      name: reloadScreen,
+      page: () {
+        final args = Get.arguments ?? {};
+
+        return ReloadScreen(
+          plateNumber: args["plateNumber"],
+          requiredAmount: args["requiredAmount"],
+          details: args["details"],
+          userModel: args["userModel"],
+        );
+      },
+    ),
     GetPage(name: reloadQRScreen, page: () => const QrCodeScreen()),
     GetPage(name: reloadPaymentScreen, page: () => const ReloadPaymentScreen()),
     GetPage(name: reloadReceiptScreen, page: () => const ReloadReceiptScreen()),
@@ -71,6 +84,19 @@ class AppRoute {
     GetPage(name: transportInfoScreen, page: () => const TransportInfoScreen()),
     GetPage(name: notificationScreen, page: () => const NotificationScreen()),
     GetPage(name: settingsScreen, page: () => const SettingsScreen()),
+    GetPage(
+      name: autoDeductScreen,
+      page: () {
+        final args = Get.arguments ?? {};
+
+        return AutoDeductScreen(
+          plateNumber: args["plateNumber"],
+          requiredAmount: args["requiredAmount"],
+          details: args["details"],
+          userModel: args["userModel"],
+        );
+      },
+    ),
     GetPage(
         name: forgotPasswordScreen, page: () => const ForgotPasswordScreen()),
     GetPage(name: resetPasswordScreen, page: () => const ResetPasswordScreen()),

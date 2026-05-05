@@ -1276,7 +1276,7 @@ class AppLocalizationsMs extends AppLocalizations {
       'Jumlah bayaran akan dikira secara automatik dan ditolak daripada baki token anda.\n\nSila lakukan pengesahan dalam tempoh ';
 
   @override
-  String get autoDeductInfoBold => '5 minit';
+  String get autoDeductInfoBold => '2 minit';
 
   @override
   String get autoDeductInfoSuffix => ' bagi mengelakkan tindakan kompaun.';
@@ -1311,4 +1311,23 @@ class AppLocalizationsMs extends AppLocalizations {
   @override
   String get reloadRedirectNotice =>
       'Anda akan dialihkan ke laman web pihak ketiga untuk tambah nilai token. Sila pastikan maklumat di atas adalah tepat sebelum meneruskan.';
+
+  @override
+  String get insufficientBalanceTitle => 'Baki Token Tidak Mencukupi';
+
+  @override
+  String get insufficientBalanceDesc =>
+      'Baki token anda tidak mencukupi untuk menyelesaikan pembayaran ini.';
+
+  @override
+  String get insufficientBalanceAction1 => 'Sila tekan';
+
+  @override
+  String get insufficientBalanceAction2 => ' Tambah Nilai';
+
+  @override
+  String get insufficientBalanceAction3 => ' untuk meneruskan.';
+
+  @override
+  String get topUp => 'Tambah Nilai';
 }

@@ -397,7 +397,7 @@
     }
   },
   "autoDeductInfo": "The payment amount will be calculated automatically and deducted from your token balance.\n\nPlease confirm within ",
-  "autoDeductInfoBold": "5 minutes",
+  "autoDeductInfoBold": "2 minutes",
   "autoDeductInfoSuffix": " to avoid penalty action.",
   "parking_confirmed": "Parking Confirmed",
   "parkingPaidMessage": "Parking payment for",
@@ -407,5 +407,11 @@
   "continueBtn": "Continue",
   "selectPaymentMethod": "Please select a payment method",
   "importantNoticeTitle": "Important Notice",
-  "reloadRedirectNotice": "You will be redirected to a 3rd party website for Reload Token. Please ensure the details above are accurate before proceeding."
+  "reloadRedirectNotice": "You will be redirected to a 3rd party website for Reload Token. Please ensure the details above are accurate before proceeding.",
+  "insufficientBalanceTitle": "Insufficient Token Balance",
+  "insufficientBalanceDesc": "Your token balance is insufficient to complete this payment.",
+  "insufficientBalanceAction1": "Please tap",
+  "insufficientBalanceAction2": " Top Up",
+  "insufficientBalanceAction3": " to continue.",
+  "topUp": "Top Up"
 }

@@ -1,12 +1,27 @@
 import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
+import 'package:project/app/helpers/shared_preferences.dart';
+import 'package:project/constant.dart';
+import 'package:project/controllers/active_parking_controller.dart';
+import 'package:project/models/models.dart';
+import 'package:project/routes/route_manager.dart';
 import 'package:project/src/localization/app_localizations.dart';
 
 class ParkingAlertDialog extends StatefulWidget {
   final String plateNumber;
+  final UserModel? userModel;
+  final Map<String, dynamic>? details;
 
-  const ParkingAlertDialog({super.key, required this.plateNumber});
+  const ParkingAlertDialog({
+    super.key,
+    required this.plateNumber,
+    this.userModel,
+    this.details,
+  });
 
   @override
   State<ParkingAlertDialog> createState() => _ParkingAlertDialogState();
@@ -16,8 +31,9 @@ class _ParkingAlertDialogState extends State<ParkingAlertDialog> {
   double hours = 1;
   double pricePerHour = 0.65;
 
-  int remainingSeconds = 120; // 2 minutes
+  int remainingSeconds = 120;
   Timer? timer;
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -30,9 +46,11 @@ class _ParkingAlertDialogState extends State<ParkingAlertDialog> {
       if (remainingSeconds <= 0) {
         t.cancel();
       } else {
-        setState(() {
-          remainingSeconds--;
-        });
+        if (mounted) {
+          setState(() {
+            remainingSeconds--;
+          });
+        }
       }
     });
   }
@@ -46,8 +64,8 @@ class _ParkingAlertDialogState extends State<ParkingAlertDialog> {
   double get totalPrice => hours * pricePerHour;
 
   String get timeText {
-    int min = remainingSeconds ~/ 60;
-    int sec = remainingSeconds % 60;
+    final min = remainingSeconds ~/ 60;
+    final sec = remainingSeconds % 60;
     return "$min:${sec.toString().padLeft(2, '0')}";
   }
 
@@ -62,16 +80,12 @@ class _ParkingAlertDialogState extends State<ParkingAlertDialog> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // TITLE
             Text(
               AppLocalizations.of(context)!.parkingAutoDeductTitle,
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
-
             const SizedBox(height: 10),
-
-            // DESCRIPTION
             Text.rich(
               TextSpan(
                 text: AppLocalizations.of(context)!
@@ -92,10 +106,7 @@ class _ParkingAlertDialogState extends State<ParkingAlertDialog> {
               ),
               textAlign: TextAlign.center,
             ),
-
             const SizedBox(height: 16),
-
-            // TIMER
             Text(
               AppLocalizations.of(context)!.validityPeriod(timeText),
               style: TextStyle(
@@ -105,10 +116,7 @@ class _ParkingAlertDialogState extends State<ParkingAlertDialog> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-
             const SizedBox(height: 16),
-
-            // BOX
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
@@ -120,36 +128,31 @@ class _ParkingAlertDialogState extends State<ParkingAlertDialog> {
                   Text(AppLocalizations.of(context)!.durationLabel),
                   const SizedBox(height: 5),
                   Text(
-                    AppLocalizations.of(context)!.hoursValue(
-                      hours.toInt(),
-                    ),
+                    AppLocalizations.of(context)!.hoursValue(hours.toInt()),
                     style: const TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: Color.fromRGBO(34, 74, 151, 1)),
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Color.fromRGBO(34, 74, 151, 1),
+                    ),
                   ),
-
                   const SizedBox(height: 10),
-
                   Text(AppLocalizations.of(context)!.amountLabel),
                   Text(
                     "RM ${totalPrice.toStringAsFixed(2)}",
                     style: const TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: Color.fromRGBO(34, 74, 151, 1)),
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Color.fromRGBO(34, 74, 151, 1),
+                    ),
                   ),
-
                   const SizedBox(height: 10),
-
-                  // SLIDER
                   Slider(
                     value: hours,
                     min: 1,
                     max: 6,
                     divisions: 5,
-                    label: "${hours.toInt()} Jam",
-                    onChanged: isExpired
+                    label: "${hours.toInt()} Hour",
+                    onChanged: isExpired || isLoading
                         ? null
                         : (value) {
                             setState(() {
@@ -160,9 +163,7 @@ class _ParkingAlertDialogState extends State<ParkingAlertDialog> {
                 ],
               ),
             ),
-
             const SizedBox(height: 16),
-
             Text.rich(
               TextSpan(
                 text: AppLocalizations.of(context)!.autoDeductInfo,
@@ -179,15 +180,12 @@ class _ParkingAlertDialogState extends State<ParkingAlertDialog> {
               ),
               textAlign: TextAlign.center,
             ),
-
             const SizedBox(height: 16),
-
-            // BUTTONS
             Row(
               children: [
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: isExpired
+                    onPressed: isExpired || isLoading
                         ? null
                         : () async {
                             await confirmParking();
@@ -195,16 +193,25 @@ class _ParkingAlertDialogState extends State<ParkingAlertDialog> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: isExpired
                           ? Colors.grey
-                          : Color.fromRGBO(34, 74, 151, 1),
+                          : const Color.fromRGBO(34, 74, 151, 1),
                       foregroundColor: Colors.white,
                     ),
-                    child: Text(AppLocalizations.of(context)!.agree),
+                    child: isLoading
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : Text(AppLocalizations.of(context)!.agree),
                   ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () => Get.back(),
+                    onPressed: isLoading ? null : () => Get.back(),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.grey.shade300,
                       foregroundColor: Colors.black,
@@ -213,92 +220,133 @@ class _ParkingAlertDialogState extends State<ParkingAlertDialog> {
                   ),
                 ),
               ],
-            )
+            ),
           ],
         ),
       ),
     );
   }
 
-  // ===============================
-  // API CALL
-  // ===============================
   Future<void> confirmParking() async {
-    print("📡 Sending confirm parking...");
-    print("Plate: ${widget.plateNumber}");
-    print("Hours: $hours");
-    print("Amount: $totalPrice");
+    try {
+      setState(() {
+        isLoading = true;
+      });
 
-    // TODO: CALL YOUR API HERE
-    // await ParkingAPI.confirm(...);
+      final token = await SharedPreferencesHelper.getToken();
+      final state =
+          widget.details?["state"] ?? widget.userModel?.state ?? "Pahang";
 
-    Get.back();
+      final response = await http.post(
+        Uri.parse("$baseUrl/parking/confirm"),
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $token",
+        },
+        body: jsonEncode({
+          "plateNumber": widget.plateNumber,
+          "hours": hours,
+          "state": state,
+          "pbt": widget.details?["pbt"] ?? widget.details?["location"] ?? "",
+          "location": widget.details?["location"] ?? "",
+          "area": widget.details?["area"] ?? widget.details?["location"] ?? "",
+        }),
+      );
 
-    Get.dialog(
-      Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Close button (top right)
-              Align(
-                alignment: Alignment.topRight,
-                child: GestureDetector(
-                  onTap: () => Get.back(),
-                  child: const Icon(Icons.close, size: 18),
-                ),
+      debugPrint("STATUS CODE: ${response.statusCode}");
+      debugPrint("RESPONSE BODY: ${response.body}");
+
+      final data = jsonDecode(response.body);
+      final type = data["type"];
+
+      if (Get.isDialogOpen == true) {
+        Get.back();
+      }
+
+      if (response.statusCode != 200) {
+        Get.snackbar(
+            "Error", data["message"] ?? "Parking confirmation failed.");
+        return;
+      }
+
+      if (data["success"] == false) {
+        if (type == "NO_WALLET_AND_AUTO_OFF" || type == "AUTO_OFF") {
+          Get.toNamed(
+            AppRoute.autoDeductScreen,
+            arguments: {
+              "plateNumber": widget.plateNumber,
+              "hours": hours,
+              "requiredAmount": data["requiredAmount"] ?? totalPrice,
+              "details": widget.details,
+              "userModel": widget.userModel,
+            },
+          );
+          return;
+        }
+
+        if (type == "NO_WALLET") {
+          Get.toNamed(
+            AppRoute.reloadScreen,
+            arguments: {
+              "plateNumber": widget.plateNumber,
+              "hours": hours,
+              "requiredAmount": data["requiredAmount"] ?? totalPrice,
+              "details": widget.details,
+              "userModel": widget.userModel,
+            },
+          );
+          return;
+        }
+      }
+
+      if (data["success"] == true && type == "AUTO_PAID") {
+        final activeParkingController = Get.find<ActiveParkingController>();
+
+        activeParkingController.startActiveParking(
+          plateNumber: widget.plateNumber,
+          parkingStartTime: DateTime.parse(data["startTime"]),
+          parkingEndTime: DateTime.parse(data["endTime"]),
+        );
+
+        Get.dialog(
+          Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: const Padding(
+              padding: EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.check_circle, color: Colors.blue, size: 50),
+                  SizedBox(height: 10),
+                  Text(
+                    "Auto Deduct Berjaya",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    "Bayaran parkir telah berjaya ditolak daripada baki token anda.",
+                    textAlign: TextAlign.center,
+                  ),
+                ],
               ),
-
-              const SizedBox(height: 10),
-
-              // Icon
-              const CircleAvatar(
-                radius: 28,
-                backgroundColor: Color(0xFFE6F0FF),
-                child: Icon(Icons.check_circle,
-                    color: Color(0xFF0F52BA), size: 32),
-              ),
-
-              const SizedBox(height: 16),
-
-              Text(
-                AppLocalizations.of(context)!.parking_confirmed,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-
-              const SizedBox(height: 10),
-
-              Text.rich(
-                TextSpan(
-                  text: AppLocalizations.of(context)!.parkingPaidMessage,
-                  style: const TextStyle(fontSize: 13, color: Colors.black),
-                  children: [
-                    TextSpan(
-                      text: AppLocalizations.of(context)!.hoursValue(hours),
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    TextSpan(
-                      text: AppLocalizations.of(context)!
-                          .parkingPaidMessage1(widget.plateNumber)
-                          .split(widget.plateNumber)[0],
-                    ),
-                  ],
-                ),
-                textAlign: TextAlign.center,
-              ),
-
-              const SizedBox(height: 10),
-            ],
+            ),
           ),
-        ),
-      ),
-    );
+        );
+        return;
+      }
+
+      Get.snackbar("Error", "Parking confirmation failed.");
+    } catch (e) {
+      debugPrint("❌ Confirm parking error: $e");
+      Get.snackbar("Error", "Something went wrong.");
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
   }
 }

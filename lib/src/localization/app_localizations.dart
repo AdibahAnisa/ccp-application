@@ -2369,7 +2369,7 @@ abstract class AppLocalizations {
   /// No description provided for @autoDeductInfoBold.
   ///
   /// In en, this message translates to:
-  /// **'5 minutes'**
+  /// **'2 minutes'**
   String get autoDeductInfoBold;
 
   /// No description provided for @autoDeductInfoSuffix.
@@ -2431,6 +2431,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You will be redirected to a 3rd party website for Reload Token. Please ensure the details above are accurate before proceeding.'**
   String get reloadRedirectNotice;
+
+  /// No description provided for @insufficientBalanceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Insufficient Token Balance'**
+  String get insufficientBalanceTitle;
+
+  /// No description provided for @insufficientBalanceDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Your token balance is insufficient to complete this payment.'**
+  String get insufficientBalanceDesc;
+
+  /// No description provided for @insufficientBalanceAction1.
+  ///
+  /// In en, this message translates to:
+  /// **'Please tap'**
+  String get insufficientBalanceAction1;
+
+  /// No description provided for @insufficientBalanceAction2.
+  ///
+  /// In en, this message translates to:
+  /// **' Top Up'**
+  String get insufficientBalanceAction2;
+
+  /// No description provided for @insufficientBalanceAction3.
+  ///
+  /// In en, this message translates to:
+  /// **' to continue.'**
+  String get insufficientBalanceAction3;
+
+  /// No description provided for @topUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Top Up'**
+  String get topUp;
 }
 
 class _AppLocalizationsDelegate

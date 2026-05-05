@@ -27,6 +27,7 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:intl/intl.dart';
 import 'package:location/location.dart';
 import 'package:project/controllers/active_parking_controller.dart';
+import 'package:project/services/fcm_services.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -153,6 +154,13 @@ class _HomeScreenState extends State<HomeScreen> {
         List<PromotionMonthlyPassModel>.empty(growable: true);
 
     _initData = _initApp();
+
+    _initData.then((_) {
+      FCMService(
+        getUserModel: () async => userModel,
+        getDetails: () async => details,
+      ).init();
+    });
 
     _getPromotionMonthlyPass();
     _getPegeypayToken();
@@ -469,7 +477,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final double walletAmount =
-        double.tryParse(userModel.wallet?.amount ?? '0') ?? 0.0;
+        double.tryParse(userModel.wallet?.walletAmount ?? '0') ?? 0.0;
 
     return WillPopScope(
       onWillPop: () async {
@@ -610,12 +618,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                             const SizedBox(width: 10),
                                             ScaleTap(
                                               onPressed: () {
-                                                Navigator.pushNamed(context,
-                                                    AppRoute.reloadScreen,
-                                                    arguments: {
-                                                      'locationDetail': details,
-                                                      'userModel': userModel,
-                                                    });
+                                                Navigator.pushNamed(
+                                                  context,
+                                                  AppRoute.reloadScreen,
+                                                  arguments: {
+                                                    'details': details,
+                                                    'userModel': userModel,
+                                                  },
+                                                );
                                               },
                                               child: CircleAvatar(
                                                 radius: 15,
@@ -732,14 +742,28 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildActiveParkingCard() {
+    final controller = Get.find<ActiveParkingController>();
+
     final bool hasPlates =
         userModel.plateNumbers != null && userModel.plateNumbers!.isNotEmpty;
-    final String plate =
+
+    final String defaultPlate =
         hasPlates ? userModel.plateNumbers!.first.plateNumber! : "ABC 1234";
 
-    final rate = getHourlyRateByState(details?['state'] as String?);
+    final double rate = getHourlyRateByState(details['state']);
 
-    return Container(
+    return Obx(() {
+      final DateTime? startTime = controller.startTime.value;
+      final DateTime? endTime = controller.endTime.value;
+
+      final bool isActive = startTime != null &&
+          endTime != null &&
+          endTime.isAfter(DateTime.now());
+      final String activePlate = controller.plateNumber.value.isNotEmpty
+          ? controller.plateNumber.value
+          : defaultPlate;
+
+      return Container(
         margin: const EdgeInsets.symmetric(horizontal: 25),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
@@ -747,35 +771,33 @@ class _HomeScreenState extends State<HomeScreen> {
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 15,
-                offset: const Offset(0, 10))
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 15,
+              offset: const Offset(0, 10),
+            ),
           ],
         ),
         child: Column(
           children: [
             Row(
               children: [
-                // LEFT SIDE
                 Expanded(
                   child: Row(
                     children: [
                       CircleAvatar(
                         backgroundColor: Colors.blue[50],
-                        child: const Icon(Icons.directions_car,
-                            color: Color(0xFF0F52BA)),
+                        child: const Icon(
+                          Icons.directions_car,
+                          color: Color(0xFF0F52BA),
+                        ),
                       ),
                       const SizedBox(width: 12),
-
-                      // TEXT SECTION
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              startTime == null
-                                  ? "No Active Parking"
-                                  : "Active Parking",
+                              isActive ? "Parkir Aktif" : "No Active Parking",
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
@@ -785,7 +807,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             ),
                             Text(
-                              startTime == null ? "No Active Parking" : zone,
+                              isActive
+                                  ? (details['location'] ?? "Parking Area")
+                                  : "No Active Parking",
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
@@ -799,18 +823,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                 ),
-
                 const SizedBox(width: 10),
-
-                // RIGHT SIDE (TIMER)
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     MediaQuery(
-                      data: MediaQuery.of(context)
-                          .copyWith(textScaler: TextScaler.linear(1.0)),
+                      data: MediaQuery.of(context).copyWith(
+                        textScaler: const TextScaler.linear(1.0),
+                      ),
                       child: Text(
-                        formatDuration(remainingDuration),
+                        isActive ? controller.remainingTime.value : "00:00:00",
                         style: const TextStyle(
                           color: Color(0xFF0F52BA),
                           fontSize: 24,
@@ -819,70 +841,80 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     Text(
-                      endTime != null
-                          ? "Ended : ${DateFormat('hh:mm a').format(endTime!)}"
+                      isActive && endTime != null
+                          ? "Tamat : ${DateFormat('hh:mm a').format(endTime)}"
                           : "No session",
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(color: Colors.grey, fontSize: 11),
+                      style: const TextStyle(
+                        color: Colors.grey,
+                        fontSize: 11,
+                      ),
                     ),
                   ],
                 ),
               ],
             ),
-
             const SizedBox(height: 15),
-
             Row(
               children: [
                 const Text(
-                  "Plate Number : ",
+                  "Nombor Plat : ",
                   style: TextStyle(color: Colors.grey),
                 ),
                 const SizedBox(width: 3),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 5, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 5,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.grey[200],
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
-                    detectedPlate ?? plate,
+                    activePlate,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
             ),
-
             const SizedBox(height: 15),
             const Divider(),
-
-            // BOTTOM ROW (FIXED)
             Row(
               children: [
                 Expanded(
                   child: Text(
-                    "Rate: RM ${getHourlyRateByState(details['state']).toStringAsFixed(2)}/hour",
+                    "Kadar: RM ${rate.toStringAsFixed(2)}/jam",
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(color: Colors.grey, fontSize: 12),
+                    style: const TextStyle(
+                      color: Colors.grey,
+                      fontSize: 12,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    "Current : RM ${calculateCurrentAmount().toStringAsFixed(2)}",
+                    isActive
+                        ? "Semasa: RM ${controller.currentAmount.value.toStringAsFixed(2)}"
+                        : "Semasa: RM 0.00",
                     textAlign: TextAlign.end,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(color: Colors.grey, fontSize: 12),
+                    style: const TextStyle(
+                      color: Colors.grey,
+                      fontSize: 12,
+                    ),
                   ),
                 ),
               ],
             ),
           ],
-        ));
+        ),
+      );
+    });
   }
 }

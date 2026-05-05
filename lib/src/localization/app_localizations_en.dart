@@ -1273,7 +1273,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'The payment amount will be calculated automatically and deducted from your token balance.\n\nPlease confirm within ';
 
   @override
-  String get autoDeductInfoBold => '5 minutes';
+  String get autoDeductInfoBold => '2 minutes';
 
   @override
   String get autoDeductInfoSuffix => ' to avoid penalty action.';
@@ -1308,4 +1308,23 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get reloadRedirectNotice =>
       'You will be redirected to a 3rd party website for Reload Token. Please ensure the details above are accurate before proceeding.';
+
+  @override
+  String get insufficientBalanceTitle => 'Insufficient Token Balance';
+
+  @override
+  String get insufficientBalanceDesc =>
+      'Your token balance is insufficient to complete this payment.';
+
+  @override
+  String get insufficientBalanceAction1 => 'Please tap';
+
+  @override
+  String get insufficientBalanceAction2 => ' Top Up';
+
+  @override
+  String get insufficientBalanceAction3 => ' to continue.';
+
+  @override
+  String get topUp => 'Top Up';
 }

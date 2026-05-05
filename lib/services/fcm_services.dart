@@ -2,93 +2,138 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:project/resources/auth/auth_resources.dart';
 import 'package:project/app/helpers/shared_preferences.dart';
 import 'package:project/screens/home/components/parking_alert.dart';
+import 'package:project/app/helpers/notification_storage.dart';
+import 'package:project/controllers/active_parking_controller.dart';
+import 'package:project/routes/route_manager.dart';
+import 'package:project/models/models.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  print("📩 BACKGROUND MESSAGE RECEIVED");
+  debugPrint("📩 BACKGROUND MESSAGE RECEIVED");
 }
 
 class FCMService {
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
 
+  /// Inject these from outside if you need the insufficient balance dialog
+  /// to open ReloadScreen with full data.
+  final Future<UserModel?> Function()? getUserModel;
+  final Future<Map<String, dynamic>?> Function()? getDetails;
+
+  FCMService({
+    this.getUserModel,
+    this.getDetails,
+  });
+
   Future<void> init() async {
-    // Request permission
     await _messaging.requestPermission();
 
-    // Get token
-    String? token = await _messaging.getToken();
-    print("🔥 FCM Token: $token");
+    final token = await _messaging.getToken();
+    debugPrint("🔥 FCM Token: $token");
 
     if (token != null) {
       await _sendTokenToBackend(token);
     }
 
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      print("📩 FOREGROUND MESSAGE RECEIVED");
-      print("Title: ${message.notification?.title}");
-      print("Body: ${message.notification?.body}");
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      debugPrint("📩 FOREGROUND MESSAGE RECEIVED");
+      debugPrint("Title: ${message.notification?.title}");
+      debugPrint("Body: ${message.notification?.body}");
       handleNotification(message);
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      print("📲 USER CLICKED NOTIFICATION");
-
+      debugPrint("📲 USER CLICKED NOTIFICATION");
       handleNotification(message);
     });
 
-    RemoteMessage? initialMessage = await _messaging.getInitialMessage();
-
+    final initialMessage = await _messaging.getInitialMessage();
     if (initialMessage != null) {
-      print("🚀 App opened from terminated state");
-
+      debugPrint("🚀 App opened from terminated state");
       handleNotification(initialMessage);
     }
 
     _messaging.onTokenRefresh.listen((newToken) async {
-      print("🔄 FCM Token refreshed: $newToken");
+      debugPrint("🔄 FCM Token refreshed: $newToken");
       await _sendTokenToBackend(newToken);
     });
   }
 
-  void handleNotification(RemoteMessage message) {
-    final type = message.data['type'];
-    final plateNumber = message.data['plateNumber'];
+  Future<void> handleNotification(RemoteMessage message) async {
+    final data = message.data;
 
-    // 🔥 ONLY show dialog for enforcement case
-    if (type == "CONFIRM_PARKING") {
-      // Prevent multiple dialogs
-      if (Get.isDialogOpen == true) return;
+    final type = data['type']?.toString();
+    final plateNumber = data['plateNumber']?.toString() ?? "";
+    final requiredAmount =
+        double.tryParse(data['requiredAmount']?.toString() ?? "0") ?? 0;
+
+    await NotificationStorage.saveNotification({
+      "title": message.notification?.title ?? "Parking Notification",
+      "description":
+          message.notification?.body ?? "Plate $plateNumber detected",
+      "plateNumber": plateNumber,
+      "type": type,
+      "time": DateTime.now().toIso8601String(),
+    });
+
+    debugPrint("📩 Notification type: $type");
+    debugPrint("🚗 Plate: $plateNumber");
+    debugPrint("💰 Required amount: $requiredAmount");
+
+    if (Get.isDialogOpen == true) {
+      Get.back();
+    }
+
+    final parkingTypes = [
+      "READY_TO_DEDUCT",
+      "NO_WALLET",
+      "AUTO_OFF",
+      "NO_WALLET_AND_AUTO_OFF",
+    ];
+
+    if (parkingTypes.contains(type)) {
+      final userModel = getUserModel != null ? await getUserModel!() : null;
+      final details = getDetails != null ? await getDetails!() : null;
 
       Future.delayed(Duration.zero, () {
         Get.dialog(
-          ParkingAlertDialog(plateNumber: plateNumber),
+          ParkingAlertDialog(
+            plateNumber: plateNumber,
+            userModel: userModel,
+            details: details,
+          ),
           barrierDismissible: false,
         );
       });
+      return;
+    }
+
+    if (type == "PAID") {
+      Get.toNamed(AppRoute.notificationScreen);
+      return;
+    }
+
+    if (type == "AUTO_PAID") {
+      final startTime = data["startTime"];
+      final endTime = data["endTime"];
+
+      if (startTime != null && endTime != null) {
+        final activeParkingController = Get.find<ActiveParkingController>();
+
+        activeParkingController.startActiveParking(
+          plateNumber: plateNumber,
+          parkingStartTime: DateTime.parse(startTime),
+          parkingEndTime: DateTime.parse(endTime),
+        );
+      }
 
       return;
     }
 
-    String msg = "";
-
-    if (type == "PAID") {
-      msg =
-          "Terima kasih 😊 No plate $plateNumber telah membuat bayaran parking.";
-    } else if (type == "AUTO_PAID") {
-      msg = "Bayaran dibuat secara automatik untuk $plateNumber.";
-    } else if (type == "NO_WALLET") {
-      msg = "Tiada wallet. Sila tambah kaedah pembayaran.";
-    } else if (type == "AUTO_OFF") {
-      msg = "Sila aktifkan auto deduct.";
-    } else if (type == "SETUP_REQUIRED") {
-      msg = "Sila lengkapkan setup pembayaran.";
-    } else {
-      msg = "Notifikasi diterima.";
-    }
-
-    Get.to(() => NotificationPage(message: msg));
+    Get.toNamed(AppRoute.notificationScreen);
   }
 
   Future<void> _sendTokenToBackend(String token) async {
@@ -105,19 +150,19 @@ class FCMService {
         },
       );
 
-      print("✅ FCM token sent to backend");
+      debugPrint("✅ FCM token sent to backend");
     } catch (e) {
-      print("❌ Failed to send FCM token: $e");
+      debugPrint("❌ Failed to send FCM token: $e");
     }
   }
 
   Future<String?> getTokenOnly() async {
     await _messaging.requestPermission();
-    return await _messaging.getToken();
+    return _messaging.getToken();
   }
 
   Future<void> sendTokenAfterLogin() async {
-    String? token = await _messaging.getToken();
+    final token = await _messaging.getToken();
 
     if (token != null) {
       await _sendTokenToBackend(token);
@@ -126,21 +171,5 @@ class FCMService {
     _messaging.onTokenRefresh.listen((newToken) async {
       await _sendTokenToBackend(newToken);
     });
-  }
-}
-
-class NotificationPage extends StatelessWidget {
-  final String message;
-
-  const NotificationPage({super.key, required this.message});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Notification")),
-      body: Center(
-        child: Text(message),
-      ),
-    );
   }
 }

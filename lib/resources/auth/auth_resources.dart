@@ -171,6 +171,27 @@ class AuthResources {
     return json.decode(response.body);
   }
 
+  static Future updateAutoDeduct({
+    required String prefix,
+    required Object body,
+  }) async {
+    final token = await AuthResources.getToken();
+
+    final response = await http.post(
+      Uri.parse('$baseUrl$prefix'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(body),
+    );
+
+    print("AUTO DEDUCT STATUS: ${response.statusCode}");
+    print("AUTO DEDUCT BODY: ${response.body}");
+
+    return json.decode(response.body);
+  }
+
   static Future deleteAccount({
     required String prefix,
   }) async {

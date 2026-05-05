@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_form_bloc/flutter_form_bloc.dart';
 import 'package:project/app/helpers/shared_preferences.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:project/app/helpers/validators.dart';
 import 'package:project/models/models.dart';
 import 'package:project/resources/auth/auth_resources.dart';
@@ -97,6 +98,12 @@ class LoginFormBloc extends FormBloc<String, String> {
             },
           );
         }
+
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool(
+          'auto_deduct_enabled',
+          response['autoDeduct'] == true,
+        );
 
         emitSuccess(successResponse: "Successfully Login");
       }

@@ -31,6 +31,11 @@ class ReloadFormBloc extends FormBloc<String, String> {
 
   @override
   FutureOr<void> onSubmitting() async {
+    print("RELOAD FORM SUBMITTING");
+    print("PAYMENT METHOD: ${paymentMethod.value}");
+    print("AMOUNT VALUE: ${amount.value}");
+    print("TOKEN VALUE: ${token.value}");
+    print("OTHER VALUE: ${other.value}");
     // Validate token or "other" field
     if (token.value.isEmpty && other.value.isEmpty) {
       token.addFieldError('Select the Amount First');
@@ -45,7 +50,9 @@ class ReloadFormBloc extends FormBloc<String, String> {
       } else {
         await _handleFPXPayment();
       }
-    } catch (e) {
+    } catch (e, stack) {
+      print("RELOAD SUBMIT ERROR: $e");
+      print("STACK: $stack");
       emitFailure(failureResponse: e.toString());
     }
   }
@@ -53,36 +60,67 @@ class ReloadFormBloc extends FormBloc<String, String> {
   // -------------------- Payment Handlers --------------------
 
   Future<void> _handleQRPayment() async {
+    print("START QR PAYMENT");
     Map<String, dynamic> response = await _getQR();
+
+    print("QR RESPONSE: $response");
 
     // If token expired, refresh and retry once
     if (response['error'] != null) {
+      print("QR ERROR: ${response['error']}");
+
       final refresh = await PegeypayResources.refreshToken(
         prefix: '/payment/public/refresh-token',
       );
+
+      print("REFRESH RESPONSE: $refresh");
+
+      final newToken = refresh['access_token'] ?? refresh['accessToken'];
+
+      if (newToken == null) {
+        throw Exception(
+            "Pegeypay token not found. Please call /payment/public/token first.");
+      }
+
       await SharedPreferencesHelper.setPegeypayToken(
-        token: refresh['access_token'],
+        token: newToken,
       );
-      response = await _getQR(); // Retry
+
+      response = await _getQR();
+
+      print("QR RESPONSE AFTER REFRESH: $response");
     }
 
     // Save order details
     await SharedPreferencesHelper.setReloadAmount(
         amount: double.parse(amount.value));
+    final order = response['order'] ?? {};
+    final data = response['data'] ?? {};
+
     await SharedPreferencesHelper.setOrderDetails(
-      orderNo: response['order']['order_no'],
-      amount: response['order']['order_amount'].toString(),
-      shiftId: response['order']['shift_id'],
-      terminalId: response['order']['terminal_id'],
-      storeId: response['order']['store_id'],
-      status: 'paid',
+      orderNo: order['order_no'] ?? response['order_no'] ?? "",
+      amount: (order['order_amount'] ?? "").toString(),
+      shiftId: order['shift_id'] ?? "",
+      terminalId: order['terminal_id'] ?? "",
+      storeId: order['store_id'] ?? "",
+      status: 'pending',
     );
 
     GlobalState.paymentMethod = 'QR';
-    emitSuccess(successResponse: response['data']['content']['iframe_url']);
+    final iframeUrl = response['data']?['content']?['iframe_url'];
+
+    print("QR IFRAME URL: $iframeUrl");
+    print("FULL QR RESPONSE: $response");
+
+    if (iframeUrl == null || iframeUrl.toString().isEmpty) {
+      throw Exception('QR URL is null or missing');
+    }
+
+    emitSuccess(successResponse: iframeUrl.toString());
   }
 
   Future<void> _handleFPXPayment() async {
+    print("START FPX PAYMENT");
     Map<String, dynamic> response = await _getFPX();
 
     // Refresh token if failed
@@ -98,11 +136,17 @@ class ReloadFormBloc extends FormBloc<String, String> {
       storeId: "Token",
       shiftId: model.email!,
       terminalId: response['BatchName'].toString(),
-      status: "paid",
+      status: "pending",
     );
 
     GlobalState.paymentMethod = 'FPX';
-    emitSuccess(successResponse: response['ShortcutLink']);
+    emitSuccess(
+      successResponse: jsonEncode({
+        "url": response['ShortcutLink'],
+        "orderNo": response['BillId'].toString(),
+        "type": "FPX",
+      }),
+    );
   }
 
   // -------------------- API Calls --------------------
@@ -118,8 +162,10 @@ class ReloadFormBloc extends FormBloc<String, String> {
         'order_amount': double.parse(amount.value),
         'validity_qr': "10",
         'store_id': 'Token',
-        'terminal_id': details['location'],
-        'shift_id': model.idNumber,
+        'terminal_id': details['location'] ?? "CCP APP",
+        'shift_id': model.idNumber?.isNotEmpty == true
+            ? model.idNumber
+            : model.email ?? "TOKEN_RELOAD",
         'to_whatsapp_no': model.phoneNumber,
       }),
     );
